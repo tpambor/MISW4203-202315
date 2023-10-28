@@ -82,4 +82,8 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:5.0.0-rc01")
     ksp("com.github.bumptech.glide:ksp:5.0.0-rc01")
     implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
+
+    implementation("com.android.volley:volley:1.2.1")
+
+    implementation("com.google.code.gson:gson:2.10.1")
 }
