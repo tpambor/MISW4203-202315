@@ -55,7 +55,10 @@ class AlbumListViewModel(val albumRepository: IAlbumRepository) : ViewModel() {
         _error.value = AlbumListErrorUiState(ErrorUiState.NoError)
 
         viewModelScope.launch {
-            albumRepository.refresh()
+            if (!albumRepository.refresh()) {
+                _isRefreshing.value = false
+                _error.value = AlbumListErrorUiState(ErrorUiState.Error(R.string.network_error))
+            }
         }
     }
 

@@ -55,6 +55,7 @@ dependencies {
     val navVersion = "2.7.4"
     val testJunitVersion = "1.1.5"
     val composeBomVersion = "2023.10.00"
+    val roomVersion = "2.5.2"
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
@@ -86,4 +87,9 @@ dependencies {
     implementation("com.android.volley:volley:1.2.1")
 
     implementation("com.google.code.gson:gson:2.10.1")
+
+    implementation("androidx.room:room-runtime:$roomVersion")
+    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
 }

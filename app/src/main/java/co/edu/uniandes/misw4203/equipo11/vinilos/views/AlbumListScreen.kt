@@ -156,12 +156,12 @@ private fun AlbumList(albums: List<Album>) {
 private fun AlbumListScreenPreview() {
     @Suppress("SpellCheckingInspection")
     val albums: List<Album> = listOf(
-        Album("Buscando américa", "Salsa", "red"),
-        Album("Lo mas lejos a tu lado", "Rock", "green"),
-        Album("Pa'lla Voy", "Salsa", "yellow"),
-        Album("Recordando el Ayer", "Salsa", "blue"),
-        Album("Único", "Salsa", "magenta"),
-        Album("Vagabundo", "Salsa", "olive"),
+        Album(1, "Buscando américa", "Salsa", "red"),
+        Album(2,"Lo mas lejos a tu lado", "Rock", "green"),
+        Album(3, "Pa'lla Voy", "Salsa", "yellow"),
+        Album(4, "Recordando el Ayer", "Salsa", "blue"),
+        Album(5, "Único", "Salsa", "magenta"),
+        Album(6, "Vagabundo", "Salsa", "olive"),
     )
 
     VinilosTheme {

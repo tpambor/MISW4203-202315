@@ -2,38 +2,45 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.repositories
 
 import android.util.Log
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.VinilosDB
 import co.edu.uniandes.misw4203.equipo11.vinilos.network.NetworkServiceAdapter
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 
 interface IAlbumRepository {
     fun getAlbums(): Flow<List<Album>?>
-    suspend fun refresh()
+    suspend fun refresh(): Boolean
 }
 
 class AlbumRepository : IAlbumRepository {
-    @Volatile
-    private var deferredUntilRefresh = CompletableDeferred<Unit>()
     private val adapter = NetworkServiceAdapter()
+    private val db = VinilosDB.getInstance()
 
     override fun getAlbums(): Flow<List<Album>?> = flow {
-        while (true) {
-            adapter.getAlbums().catch { err ->
-                Log.e(TAG, "Error loading albums: $err")
-                emit(null)
-            }.collect { albums ->
+        db.albumDao().getAlbums().collect { albums ->
+            if (albums.isEmpty()) {
+                if(!refresh()) {
+                    emit(null)
+                }
+            } else {
                 emit(albums)
             }
-
-            deferredUntilRefresh.await()
-            deferredUntilRefresh = CompletableDeferred()
         }
     }
 
-    override suspend fun refresh() {
-        deferredUntilRefresh.complete(Unit)
+    override suspend fun refresh(): Boolean {
+        val albums: List<Album>?
+
+        try {
+            albums = adapter.getAlbums().first()
+        } catch (ex: Exception) {
+            Log.e(TAG, "Error loading albums: $ex")
+            return false
+        }
+
+        db.albumDao().deleteAndInsertAlbums(albums)
+        return true
     }
 
     companion object {

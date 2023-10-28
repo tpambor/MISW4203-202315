@@ -24,14 +24,17 @@ class FakeAlbumRepository: IAlbumRepository {
     private val flow = MutableSharedFlow<List<Album>?>()
     suspend fun emit(value: List<Album>?) = flow.emit(value)
 
-    var refreshed = false
+    var failRefresh = false
+    var refreshCalled = false
 
     override fun getAlbums(): Flow<List<Album>?> {
         return flow
     }
 
-    override suspend fun refresh() {
-        refreshed = true
+    override suspend fun refresh(): Boolean {
+        refreshCalled = true
+
+        return !failRefresh
     }
 }
 
@@ -67,8 +70,8 @@ class AlbumListViewModelTest {
         )
 
         val data = listOf(
-            Album("ABC", "DEF", "GHI"),
-            Album("XYZ", "123", "...")
+            Album(1, "ABC", "DEF", "GHI"),
+            Album(2, "XYZ", "123", "...")
         )
 
         // Initially, there are no albums yet
@@ -111,7 +114,7 @@ class AlbumListViewModelTest {
     }
 
     @Test
-    fun doesRefresh() {
+    fun refreshSuccess() = runTest {
         val repository = FakeAlbumRepository()
 
         val viewModel = AlbumListViewModel.Factory.create(
@@ -121,8 +124,36 @@ class AlbumListViewModelTest {
             }
         )
 
-        assertFalse(repository.refreshed)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first().errorState)
+        repository.failRefresh = false
+
+        assertFalse(repository.refreshCalled)
         viewModel.onRefresh()
-        assertTrue(repository.refreshed)
+        assertTrue(repository.refreshCalled)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first().errorState)
+    }
+
+    @Test
+    fun refreshFail() = runTest {
+        val repository = FakeAlbumRepository()
+
+        val viewModel = AlbumListViewModel.Factory.create(
+            AlbumListViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
+            }
+        )
+
+        assertEquals(ErrorUiState.NoError, viewModel.error.first().errorState)
+        repository.failRefresh = true
+
+        assertFalse(repository.refreshCalled)
+        viewModel.onRefresh()
+        assertTrue(repository.refreshCalled)
+
+        val error = viewModel.error.value
+        assert(error.errorState is ErrorUiState.Error)
+        val errorState: ErrorUiState.Error = error.errorState as ErrorUiState.Error
+        assertEquals(R.string.network_error, errorState.resourceId)
     }
 }
