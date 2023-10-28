@@ -56,6 +56,7 @@ dependencies {
     val testJunitVersion = "1.1.5"
     val composeBomVersion = "2023.10.00"
     val roomVersion = "2.5.2"
+    val fakerVersion = "1.15.0"
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
@@ -92,4 +93,6 @@ dependencies {
     annotationProcessor("androidx.room:room-compiler:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
+
+    testImplementation("io.github.serpro69:kotlin-faker:$fakerVersion")
 }

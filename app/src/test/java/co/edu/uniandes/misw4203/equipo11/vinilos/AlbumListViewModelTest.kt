@@ -6,6 +6,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.IAlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.AlbumListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.ErrorUiState
+import io.github.serpro69.kfaker.Faker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -69,10 +70,16 @@ class AlbumListViewModelTest {
             }
         )
 
-        val data = listOf(
-            Album(1, "ABC", "DEF", "GHI"),
-            Album(2, "XYZ", "123", "...")
-        )
+        val faker = Faker()
+
+        val data = (1..4).map { id ->
+            Album(
+                id = id,
+                name = faker.music.albums(),
+                genre = faker.music.genres(),
+                cover = "https://loremflickr.com/480/480/album?lock=${faker.random.nextInt(0, 100)}"
+            )
+        }
 
         // Initially, there are no albums yet
         assertEquals(emptyList<Album>(), viewModel.albums.first())
