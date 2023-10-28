@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -77,4 +78,8 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     implementation("me.omico.compose:compose-material3-pullrefresh")
+
+    implementation("com.github.bumptech.glide:glide:5.0.0-rc01")
+    ksp("com.github.bumptech.glide:ksp:5.0.0-rc01")
+    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
 }
