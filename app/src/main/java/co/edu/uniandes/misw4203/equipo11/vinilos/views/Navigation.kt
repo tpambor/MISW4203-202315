@@ -5,8 +5,11 @@ import androidx.annotation.StringRes
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
@@ -29,12 +32,12 @@ private val navBarItems = listOf(
 )
 
 @Composable
-fun NavContent(navController: NavHostController) {
+fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHostState) {
     NavHost(
         navController = navController,
         startDestination = "albums"
     ) {
-        composable(route = "albums") { AlbumListScreen() }
+        composable(route = "albums") { AlbumListScreen(snackbarHostState) }
         composable(route = "artists") { ArtistListScreen() }
         composable(route = "collectors") { CollectorListScreen() }
     }
@@ -44,7 +47,9 @@ fun NavContent(navController: NavHostController) {
 fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStackEntry?) {
     val route = currentBackStackEntry?.destination?.route
 
-    NavigationBar {
+    NavigationBar(
+        modifier = Modifier.testTag("navbar")
+    ) {
         navBarItems.forEach { item ->
             NavigationBarItem(
                 selected = route == item.route,

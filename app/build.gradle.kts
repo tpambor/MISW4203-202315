@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -54,6 +55,8 @@ dependencies {
     val navVersion = "2.7.4"
     val testJunitVersion = "1.1.5"
     val composeBomVersion = "2023.10.00"
+    val roomVersion = "2.5.2"
+    val fakerVersion = "1.15.0"
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
@@ -75,4 +78,21 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    implementation("me.omico.compose:compose-material3-pullrefresh")
+
+    implementation("com.github.bumptech.glide:glide:5.0.0-rc01")
+    ksp("com.github.bumptech.glide:ksp:5.0.0-rc01")
+    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
+
+    implementation("com.android.volley:volley:1.2.1")
+
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    implementation("androidx.room:room-runtime:$roomVersion")
+    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+
+    testImplementation("io.github.serpro69:kotlin-faker:$fakerVersion")
 }
