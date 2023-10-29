@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Vinilos</string>
+    <string name="nav_albums">Álbumes</string>
+    <string name="nav_artists">Artistas</string>
+    <string name="nav_collectors">Coleccionistas</string>
+    <string name="network_error">Error al cargar los datos</string>
+</resources>
