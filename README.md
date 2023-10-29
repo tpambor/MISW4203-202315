@@ -17,6 +17,7 @@ MISW4203 2023-15
 | Tim Ulf Pambor | t.pambor@uniandes.edu.co |
 
 ## Crear un apk
+
 Siga El siguiente paso a paso para crear un apk de la aplicación:
 1. Asegurese de tener instalado el SDK de Android y que la variable de entorno ANDROID_HOME apunte a la carpeta donde se encuentra el SDK.
 2. Desde la interfaz de Android Studio, seleccione la opción Build -> Make Project para construir el projecto.
@@ -25,9 +26,11 @@ Siga El siguiente paso a paso para crear un apk de la aplicación:
 
 En el siguiente video se muestra el paso a paso para crear el apk:
 
+
 https://github.com/tpambor/MISW4203-Vinilos-App/assets/1379478/1909280e-40b2-45d3-894f-30aa765e1472
 
 ## Ejecutar las pruebas unitarias
+
 
 Siga El siguiente paso a paso para ejecutar las pruebas unitarias:
 1. Asegurese de tener instalado el SDK de Android y que la variable de entorno ANDROID_HOME apunte a la carpeta donde se encuentra el SDK.
@@ -40,6 +43,7 @@ En el siguiente video se muestra el paso a paso para ejecutar las pruebas unitar
 https://github.com/tpambor/MISW4203-Vinilos-App/assets/1379478/6d67d7dd-df88-4861-bfb6-cbda01fcbcaa
 
 ## Ejecutar las pruebas e2e
+
 
 Siga El siguiente paso a paso para ejecutar las pruebas e2e:
 1. Asegurese de tener instalado el SDK de Android y que la variable de entorno ANDROID_HOME apunte a la carpeta donde se encuentra el SDK.
