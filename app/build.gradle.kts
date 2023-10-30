@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
+    id("org.sonarqube") version "4.4.1.3373"
 }
 
 android {
@@ -29,6 +30,9 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            enableUnitTestCoverage = true
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -48,6 +52,21 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
+
+task<JacocoReport>("codeCoverageReportDebug") {
+    group = "Verification"
+    description = "Generate Jacoco coverage report for the debug build."
+
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+        csv.required.set(false)
+    }
+
+    sourceDirectories.setFrom("${project.projectDir}/src/main/java")
+    classDirectories.setFrom("${project.buildDir}/tmp/kotlin-classes/debug")
+    executionData.setFrom("${project.buildDir}/outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
 }
 
 dependencies {
