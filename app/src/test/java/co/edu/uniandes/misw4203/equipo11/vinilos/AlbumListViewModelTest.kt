@@ -20,6 +20,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import java.util.Date
 
 class FakeAlbumRepository: IAlbumRepository {
     private val flow = MutableSharedFlow<List<Album>?>()
@@ -76,8 +77,11 @@ class AlbumListViewModelTest {
             Album(
                 id = id,
                 name = faker.music.albums(),
+                cover = "https://loremflickr.com/480/480/album?lock=${faker.random.nextInt(0, 100)}",
+                releaseDate = Date(faker.random.nextLong(System.currentTimeMillis())),
+                description = faker.quote.yoda(),
                 genre = faker.music.genres(),
-                cover = "https://loremflickr.com/480/480/album?lock=${faker.random.nextInt(0, 100)}"
+                recordLabel = faker.random.randomValue(listOf("Sony Music", "EMI", "Discos Fuentes", "Elektra", "Fania Records"))
             )
         }
 

@@ -2,14 +2,19 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.models
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
 @Database(
     entities = [
-        Album::class
+        Album::class,
+        Band::class,
+        Collector::class,
+        Musician::class
     ],
     version = 1,
     exportSchema = false
 )
+@TypeConverters(Converters::class)
 abstract class VinilosDB : RoomDatabase() {
     abstract fun albumDao(): AlbumDAO
 

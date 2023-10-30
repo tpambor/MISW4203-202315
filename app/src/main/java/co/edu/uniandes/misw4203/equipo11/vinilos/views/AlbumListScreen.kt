@@ -51,6 +51,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
+import java.util.Date
 
 @Composable
 fun AlbumListScreen(snackbarHostState: SnackbarHostState) {
@@ -156,12 +157,12 @@ private fun AlbumList(albums: List<Album>) {
 private fun AlbumListScreenPreview() {
     @Suppress("SpellCheckingInspection")
     val albums: List<Album> = listOf(
-        Album(1, "Buscando américa", "Salsa", "red"),
-        Album(2,"Lo mas lejos a tu lado", "Rock", "green"),
-        Album(3, "Pa'lla Voy", "Salsa", "yellow"),
-        Album(4, "Recordando el Ayer", "Salsa", "blue"),
-        Album(5, "Único", "Salsa", "magenta"),
-        Album(6, "Vagabundo", "Salsa", "olive"),
+        Album(1, "Buscando américa","red", Date(), "", "Salsa", ""),
+        Album(2,"Lo mas lejos a tu lado", "green", Date(), "", "Rock", ""),
+        Album(3, "Pa'lla Voy", "yellow", Date(), "", "Salsa", "" ),
+        Album(4, "Recordando el Ayer","blue", Date(), "", "Salsa", "blue"),
+        Album(5, "Único", "magenta", Date(), "", "Salsa", ""),
+        Album(6, "Vagabundo", "olive", Date(), "", "Salsa", ""),
     )
 
     VinilosTheme {
