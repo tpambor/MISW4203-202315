@@ -6,18 +6,7 @@ import com.android.volley.toolbox.BasicNetwork
 import com.android.volley.toolbox.HurlStack
 import com.android.volley.toolbox.NoCache
 
-class VolleyRequestQueue {
-    companion object {
-        @Volatile
-        private var INSTANCE: VolleyRequestQueue? = null
-        fun getInstance() =
-            INSTANCE ?: synchronized(this) {
-                INSTANCE ?: VolleyRequestQueue().also {
-                    INSTANCE = it
-                }
-            }
-    }
-
+object VolleyRequestQueue {
     private val requestQueue: RequestQueue by lazy {
         val cache = NoCache()
 
