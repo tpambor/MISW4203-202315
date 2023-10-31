@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 
 /*
 The artist list screen has two tabs, one for the list of artists and one for the list of bands.
@@ -36,7 +37,8 @@ fun ArtistListScreen() {
                     Tab(
                         selected = selectedTabIndex.intValue == index,
                         onClick = { selectedTabIndex.intValue = index },
-                        text = { Text(title) }
+                        text = { Text(title) },
+                        modifier = Modifier.testTag(title)
                     )
                 }
             }
