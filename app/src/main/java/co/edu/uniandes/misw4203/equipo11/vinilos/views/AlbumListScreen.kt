@@ -43,7 +43,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.AlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
-import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.AlbumListErrorUiState
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.AlbumListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.AlbumListViewModel.Companion.KEY_ALBUM_REPOSITORY
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.ErrorUiState
@@ -68,9 +67,8 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState) {
         true
     )
     val error by viewModel.error.collectAsStateWithLifecycle(
-        AlbumListErrorUiState(ErrorUiState.NoError)
+        ErrorUiState.NoError
     )
-    val errorState = error.errorState
 
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
@@ -87,8 +85,8 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState) {
         )
     }
 
-    if (errorState is ErrorUiState.Error) {
-        val message = stringResource(errorState.resourceId)
+    if (error is ErrorUiState.Error) {
+        val message = stringResource((error as ErrorUiState.Error).resourceId)
         LaunchedEffect(error) {
             snackbarHostState.showSnackbar(message)
         }
