@@ -32,7 +32,7 @@ class NetworkServiceAdapter {
             }
         )
 
-        val request = VolleyRequestQueue.getInstance().addToRequestQueue(stringRequest)
+        val request = VolleyRequestQueue.addToRequestQueue(stringRequest)
 
         awaitClose { request.cancel() }
     }

@@ -22,25 +22,25 @@ import org.junit.Before
 import org.junit.Test
 import java.util.Date
 
-class FakeAlbumRepository: IAlbumRepository {
-    private val flow = MutableSharedFlow<List<Album>?>()
-    suspend fun emit(value: List<Album>?) = flow.emit(value)
-
-    var failRefresh = false
-    var refreshCalled = false
-
-    override fun getAlbums(): Flow<List<Album>?> {
-        return flow
-    }
-
-    override suspend fun refresh(): Boolean {
-        refreshCalled = true
-
-        return !failRefresh
-    }
-}
-
 class AlbumListViewModelTest {
+    class FakeAlbumRepository: IAlbumRepository {
+        private val flow = MutableSharedFlow<List<Album>?>()
+        suspend fun emit(value: List<Album>?) = flow.emit(value)
+
+        var failRefresh = false
+        var refreshCalled = false
+
+        override fun getAlbums(): Flow<List<Album>?> {
+            return flow
+        }
+
+        override suspend fun refresh(): Boolean {
+            refreshCalled = true
+
+            return !failRefresh
+        }
+    }
+
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -87,14 +87,14 @@ class AlbumListViewModelTest {
 
         // Initially, there are no albums yet
         assertEquals(emptyList<Album>(), viewModel.albums.first())
-        assertEquals(ErrorUiState.NoError, viewModel.error.first().errorState)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
         // Repository emits albums
         repository.emit(data)
 
         // Then, list of albums is filled with the data
         assertEquals(data, viewModel.albums.first())
-        assertEquals(ErrorUiState.NoError, viewModel.error.first().errorState)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 
     @Test
@@ -110,7 +110,7 @@ class AlbumListViewModelTest {
 
         // Initially, there are no albums yet
         assertEquals(emptyList<Album>(), viewModel.albums.first())
-        assertEquals(ErrorUiState.NoError, viewModel.error.first().errorState)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
         // Repository emits null (unable to fetch data)
         repository.emit(null)
@@ -119,8 +119,8 @@ class AlbumListViewModelTest {
         assertEquals(emptyList<Album>(), viewModel.albums.first())
 
         val error = viewModel.error.value
-        assert(error.errorState is ErrorUiState.Error)
-        val errorState: ErrorUiState.Error = error.errorState as ErrorUiState.Error
+        assert(error is ErrorUiState.Error)
+        val errorState: ErrorUiState.Error = error as ErrorUiState.Error
         assertEquals(R.string.network_error, errorState.resourceId)
     }
 
@@ -135,13 +135,13 @@ class AlbumListViewModelTest {
             }
         )
 
-        assertEquals(ErrorUiState.NoError, viewModel.error.first().errorState)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
         repository.failRefresh = false
 
         assertFalse(repository.refreshCalled)
         viewModel.onRefresh()
         assertTrue(repository.refreshCalled)
-        assertEquals(ErrorUiState.NoError, viewModel.error.first().errorState)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 
     @Test
@@ -155,7 +155,7 @@ class AlbumListViewModelTest {
             }
         )
 
-        assertEquals(ErrorUiState.NoError, viewModel.error.first().errorState)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
         repository.failRefresh = true
 
         assertFalse(repository.refreshCalled)
@@ -163,8 +163,8 @@ class AlbumListViewModelTest {
         assertTrue(repository.refreshCalled)
 
         val error = viewModel.error.value
-        assert(error.errorState is ErrorUiState.Error)
-        val errorState: ErrorUiState.Error = error.errorState as ErrorUiState.Error
+        assert(error is ErrorUiState.Error)
+        val errorState: ErrorUiState.Error = error as ErrorUiState.Error
         assertEquals(R.string.network_error, errorState.resourceId)
     }
 }
