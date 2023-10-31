@@ -2,14 +2,19 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.views
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 
 /*
 The artist list screen has two tabs, one for the list of artists and one for the list of bands.
@@ -23,7 +28,10 @@ fun ArtistListScreen() {
 
     Scaffold(
         topBar = {
-            TabRow(selectedTabIndex.intValue) {
+            TabRow(
+                selectedTabIndex.intValue,
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
                         selected = selectedTabIndex.intValue == index,
@@ -33,6 +41,7 @@ fun ArtistListScreen() {
                 }
             }
         }
+
     ) {
         Crossfade(selectedTabIndex.intValue, label = "") { index ->
             when (index) {
@@ -45,10 +54,23 @@ fun ArtistListScreen() {
 
 @Composable
 fun ArtistList() {
-    Text("Artists")
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("List of Artists")
+    }
 }
 
 @Composable
 fun BandList() {
-    Text("Bands")
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("List of Bands")
+    }
+
 }
