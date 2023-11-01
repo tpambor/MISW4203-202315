@@ -81,7 +81,8 @@ fun ArtistListScreen() {
                                 0 -> Log.d("Tab", "Tab Músicos")
                                 1 -> viewModel.getBands()
                             }
-                        }
+                        },
+                        modifier = Modifier.testTag(title)
                     )
                 }
             }
