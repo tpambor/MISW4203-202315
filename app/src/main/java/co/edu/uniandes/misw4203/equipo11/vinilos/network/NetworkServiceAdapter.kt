@@ -1,6 +1,8 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.network
 
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.Collector
+
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -13,6 +15,12 @@ class NetworkServiceAdapter {
     fun getAlbums(): Flow<List<Album>> {
         return HttpRequestQueue.get("$API_BASE_URL/albums").map { response ->
             Gson().fromJson(response, Array<Album>::class.java).toList()
+        }
+    }
+
+    fun getCollectors(): Flow<List<Collector>> {
+        return HttpRequestQueue.get("$API_BASE_URL/collectors").map { response ->
+            Gson().fromJson(response, Array<Collector>::class.java).toList()
         }
     }
 }

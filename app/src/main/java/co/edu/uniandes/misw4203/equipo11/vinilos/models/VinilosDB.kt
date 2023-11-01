@@ -11,12 +11,13 @@ import androidx.room.TypeConverters
         Collector::class,
         Musician::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class VinilosDB : RoomDatabase() {
     abstract fun albumDao(): AlbumDAO
+    abstract fun collectorDao(): CollectorDAO
 
     companion object {
         @Volatile
@@ -33,5 +34,6 @@ abstract class VinilosDB : RoomDatabase() {
                 return INSTANCE ?: throw IllegalStateException()
             }
         }
+
     }
 }
