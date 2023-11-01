@@ -102,3 +102,40 @@ fun ArtistListScreen() {
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
+@Composable
+private fun ArtistItem(performer: Performer) {
+    var coverPreview: Placeholder? = null
+    if (LocalInspectionMode.current) {
+        coverPreview = placeholder(ColorPainter(Color(performer.image.toColorInt())))
+    }
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .testTag("performer-list-item"),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
+        shape = RectangleShape,
+        onClick = { /*TODO*/ }
+    ) {
+        Column {
+            GlideImage(
+                model = performer.image,
+                contentDescription = null,
+                loading = coverPreview,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .fillMaxWidth()
+                    .aspectRatio(1f),
+                contentScale = ContentScale.Crop
+            )
+            Text(
+                text = performer.name,
+                modifier = Modifier
+                    .padding(4.dp, 4.dp, 4.dp, 1.dp)
+                    .fillMaxWidth(),
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+    }
+}
