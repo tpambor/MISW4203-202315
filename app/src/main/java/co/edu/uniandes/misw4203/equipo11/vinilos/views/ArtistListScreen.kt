@@ -54,6 +54,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.AlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.PerformerRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.AlbumListViewModel
+//import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.ArtistsList
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.PerformerListViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -63,5 +64,41 @@ import java.util.Date
 
 @Composable
 fun ArtistListScreen() {
-    Text("Listado de Artistas")
+    val viewModel: PerformerListViewModel = viewModel(
+        factory = PerformerListViewModel.Factory,
+        extras = MutableCreationExtras(CreationExtras.Empty).apply {
+            set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, PerformerRepository())
+        }
+    )
+    val musicians by viewModel.musicians.collectAsStateWithLifecycle(
+        emptyList()
+    )
+
+    val bands by viewModel.bands.collectAsStateWithLifecycle(
+        emptyList()
+    )
+    var tabIndex by remember { mutableStateOf(0) }
+    val tabs = listOf("Músicos", "Bandas")
+    Box() {
+        Column {
+            TabRow(selectedTabIndex = tabIndex) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        text = { Text(title) },
+                        selected = tabIndex == index,
+                        onClick = { tabIndex = index
+                            when (index) {
+                                0 -> Log.d("Tab", "Tab Músicos")
+                                1 -> viewModel.getBands()
+                            }
+                        }
+                    )
+                }
+            }
+            when (tabIndex) {
+                0 ->  Text("Musicos")
+                1 ->  Text("Bandas")
+            }
+        }
+    }
 }
