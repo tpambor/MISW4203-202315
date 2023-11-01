@@ -41,6 +41,7 @@ import com.bumptech.glide.integration.compose.placeholder
 import com.bumptech.glide.integration.compose.GlideImage
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.Band
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import java.util.Date
 
@@ -123,6 +124,47 @@ private fun ArtistItem(musician: Musician){
 }
 
 /*
+Band Item to be displayed in the list of bands.
+ */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
+@Composable
+private fun BandItem(band: Band){
+    var coverPreview: Placeholder? = null
+    if (LocalInspectionMode.current){
+        coverPreview = placeholder(ColorPainter(Color(band.image.toColorInt())))
+    }
+
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .testTag("artist-list-item"),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
+        shape = RectangleShape,
+        onClick = { /*TODO*/ }
+    ) {
+        Column {
+            GlideImage(
+                model = band.image,
+                contentDescription = null,
+                loading = coverPreview,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .fillMaxWidth()
+                    .aspectRatio(1f),
+                contentScale = ContentScale.Crop
+            )
+            Text(
+                text = band.name,
+                modifier = Modifier
+                    .padding(4.dp, 4.dp, 4.dp, 1.dp)
+                    .fillMaxWidth(),
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+    }
+}
+
+/*
 List of musicians to be displayed ArtistListView.
  */
 @Composable
@@ -133,6 +175,21 @@ private fun ArtistList(musicians: List<Musician>){
     ) {
         items(musicians){
                 item: Musician -> ArtistItem(item)
+        }
+    }
+}
+
+/*
+List of bands to be displayed in BandListView.
+ */
+@Composable
+private fun BandList(bands: List<Band>){
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(180.dp),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        items(bands){
+                item: Band -> BandItem(item)
         }
     }
 }
