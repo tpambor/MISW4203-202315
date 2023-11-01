@@ -99,7 +99,7 @@ class PerformerListViewModel(val performerRepository: IPerformerRepository) : Vi
         }
     }
 
-    // ViewModel factory
+    // ViewModel factory edit
     companion object {
         val KEY_PERFORMER_REPOSITORY = object : CreationExtras.Key<IPerformerRepository> {}
 
