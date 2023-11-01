@@ -17,6 +17,8 @@ import androidx.room.TypeConverters
 @TypeConverters(Converters::class)
 abstract class VinilosDB : RoomDatabase() {
     abstract fun albumDao(): AlbumDAO
+    abstract fun musicianDao(): MusicianDAO
+    abstract fun bandDao(): BandDAO
 
     companion object {
         @Volatile

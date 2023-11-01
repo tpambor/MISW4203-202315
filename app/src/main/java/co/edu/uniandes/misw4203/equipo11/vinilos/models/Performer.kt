@@ -1,8 +1,8 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.models
 
-open class Performer(
-    open val id: Int,
-    open val name: String,
-    open val image: String,
-    open val description: String
-)
+abstract class Performer {
+    abstract val id: Int
+    abstract val name: String
+    abstract val image: String
+    abstract val description: String
+}

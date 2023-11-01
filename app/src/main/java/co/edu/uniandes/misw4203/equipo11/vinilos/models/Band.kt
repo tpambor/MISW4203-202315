@@ -11,4 +11,4 @@ data class Band(
     override val image: String,
     override val description: String,
     val creationDate: Date,
-) : Performer(id, name, image, description)
+) : Performer()

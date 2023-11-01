@@ -11,4 +11,4 @@ data class Musician(
     override val image: String,
     override val description: String,
     val birthDate: Date,
-) : Performer(id, name, image, description)
+) : Performer()
