@@ -54,7 +54,7 @@ interface CollectorDAO {
     //
     // Query list of collectors together with their favorite performers
     //
-    // Gives a list of favorite performers for each artist
+    // Gives a list of favorite performers for each collector
     //
     // Example:
     //   - Collector C1 has favorite performs P1, P2
