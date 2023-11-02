@@ -27,11 +27,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.pullrefresh.PullRefreshIndicator
+import androidx.compose.material3.pullrefresh.pullRefresh
+import androidx.compose.material3.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -52,6 +56,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.models.Musician
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.PerformerRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
+import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.ErrorUiState
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.PerformerListViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -74,9 +79,30 @@ fun ArtistListScreen() {
     val bands by viewModel.bands.collectAsStateWithLifecycle(
         emptyList()
     )
-    var tabIndex by remember { mutableStateOf(0) }
+
+    val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle(
+        true
+    )
+
+    val error by viewModel.error.collectAsStateWithLifecycle(
+        ErrorUiState.NoError
+    )
+
     val tabs = listOf("Músicos", "Bandas")
-    Box() {
+
+    var tabIndex by remember { mutableStateOf(0) }
+
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = {
+                when(tabIndex) {
+                0 -> viewModel.onRefreshMusicians()
+                1 -> viewModel.onRefreshBands()
+            }
+        }
+    )
+
+    Box(Modifier.pullRefresh(pullRefreshState)) {
         Column {
             TabRow(selectedTabIndex = tabIndex) {
                 tabs.forEachIndexed { index, title ->
@@ -98,6 +124,12 @@ fun ArtistListScreen() {
                 1 -> ArtistsList(performers = bands)
             }
         }
+
+        PullRefreshIndicator(
+            refreshing = isRefreshing,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 

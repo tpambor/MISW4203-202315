@@ -43,6 +43,7 @@ class PerformerRepository : IPerformerRepository{
                     emit(null)
                 }
             } else {
+                Log.i("Bands DAO", bands.toString())
                 emit(bands)
             }
         }
@@ -67,6 +68,7 @@ class PerformerRepository : IPerformerRepository{
 
         try {
             bands = adapter.getBands().first()
+            Log.i("refreshBands", bands.toString())
         } catch (ex: Exception) {
             Log.e(TAG, "Error loading bands: $ex")
             return false
