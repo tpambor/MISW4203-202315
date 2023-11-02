@@ -53,7 +53,7 @@ class CollectorRepository : ICollectorRepository {
             return false
         }
 
-        db.collectorDao().deleteAndInsertCollectors(collectors.map { it.collector })
+        db.collectorDao().deleteAndInsertCollectors(collectors)
         return true
     }
     companion object {
