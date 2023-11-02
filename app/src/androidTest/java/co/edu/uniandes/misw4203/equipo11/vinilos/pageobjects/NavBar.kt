@@ -14,4 +14,10 @@ class NavBar(composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<MainAc
             hasText("Álbumes").and(hasAnyAncestor(hasTestTag("navbar")))
         )
     }
+
+    fun getArtistButton(): SemanticsNodeInteraction {
+        return findExactlyOne(
+            hasText("Artistas").and(hasAnyAncestor(hasTestTag("navbar")))
+        )
+    }
 }

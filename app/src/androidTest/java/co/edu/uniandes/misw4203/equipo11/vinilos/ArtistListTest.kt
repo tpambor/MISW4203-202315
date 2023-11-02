@@ -1,0 +1,27 @@
+package co.edu.uniandes.misw4203.equipo11.vinilos;
+
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.performClick
+import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.NavBar
+import org.junit.Rule
+import org.junit.Test
+
+class ArtistListTest {
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    @Test
+    fun showsArtists() {
+        // Given I have opened the Vinilos App
+        // When I click on the Artist button in the navigation bar
+        val navbar = NavBar(composeTestRule)
+        val button = navbar.getArtistButton()
+        button.assertIsDisplayed()
+        button.performClick()
+
+        // Then I see a list of all artists
+//        val artistList = ArtistList(composeTestRule)
+//        assert(artistList.getArtists().fetchSemanticsNodes().size > 1)
+    }
+}
