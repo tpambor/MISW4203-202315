@@ -1,19 +1,21 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.views
 
 
-import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,7 +32,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -84,7 +85,7 @@ fun ArtistListScreen() {
                         selected = tabIndex == index,
                         onClick = { tabIndex = index
                             when (index) {
-                                0 -> Log.d("Tab", "Tab Músicos")
+                                0 -> viewModel.getMusicians()
                                 1 -> viewModel.getBands()
                             }
                         },
@@ -130,28 +131,36 @@ private fun ArtistItem(performer: Performer) {
                     .aspectRatio(1f),
                 contentScale = ContentScale.Crop
             )
-            // Favorite button
-            IconButton(
-                onClick = {
-                isFavorite = !isFavorite
-                // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
-                },
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(4.dp)
-            ) {
-                Icon(
-                    imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                    contentDescription = "Agregar a favoritos"
+            Row (modifier = Modifier.padding(4.dp)){
+                Text(
+                    text = performer.name,
+                    modifier = Modifier
+                        .padding(4.dp, 8.dp, 0.dp, 0.dp)
+                        .fillMaxWidth()
+                        .weight(1f),
+                    style = MaterialTheme.typography.titleMedium
                 )
+                // Favorite button
+
+                IconButton(
+                    onClick = {
+                        isFavorite = !isFavorite
+                        // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
+                    },
+                    modifier = Modifier.background(
+                        color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
+                        shape = CircleShape
+                    )
+                        .size(35.dp)
+                        .padding(0.dp, 0.dp, 1.dp, 0.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.FavoriteBorder,
+                        contentDescription = "Agregar a favoritos",
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
-            Text(
-                text = performer.name,
-                modifier = Modifier
-                    .padding(4.dp, 4.dp, 4.dp, 1.dp)
-                    .fillMaxWidth(),
-                style = MaterialTheme.typography.titleMedium
-            )
         }
     }
 }
