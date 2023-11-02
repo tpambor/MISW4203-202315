@@ -39,7 +39,7 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
     ) {
         composable(route = "albums") { AlbumListScreen(snackbarHostState) }
         composable(route = "artists") { ArtistListScreen() }
-        composable(route = "collectors") { CollectorListScreen() }
+        composable(route = "collectors") { CollectorListScreen(snackbarHostState) }
     }
 }
 
