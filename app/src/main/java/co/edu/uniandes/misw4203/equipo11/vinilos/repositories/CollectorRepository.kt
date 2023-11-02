@@ -7,6 +7,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.VinilosDB
 import co.edu.uniandes.misw4203.equipo11.vinilos.network.NetworkServiceAdapter
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -33,18 +34,14 @@ class CollectorRepository : ICollectorRepository {
         }
     }
 
-    override fun getCollectorsWithPerformers(): Flow<List<CollectorWithPerformers>?> {
-        // TODO: Get performers from database
-        val performers: List<Performer> = listOf(
-            Performer(1, "Rubén Blades Bellido de Luna", "Red", "description"),
-            Performer(2, "Queen", "Red", "description"),
-            Performer(3, "The Beatles", "Red", "description"),
-            Performer(4, "Calle 13", "Red", "description"),
-        )
-
-        return getCollectors().map { collectors ->
-            collectors?.map { collector ->
-                CollectorWithPerformers(collector, performers)
+    override fun getCollectorsWithPerformers(): Flow<List<CollectorWithPerformers>?> = flow {
+        db.collectorDao().getCollectorsWithPerformers().collect { collectors ->
+            if (collectors.isEmpty()) {
+                if(!refresh()) {
+                    emit(null)
+                }
+            } else {
+                emit(collectors)
             }
         }
     }

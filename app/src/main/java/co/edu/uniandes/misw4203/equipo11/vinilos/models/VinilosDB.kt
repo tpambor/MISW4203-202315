@@ -9,6 +9,7 @@ import androidx.room.TypeConverters
         Album::class,
         Band::class,
         Collector::class,
+        CollectorPerformerCrossRef::class,
         Musician::class
     ],
     version = 2,
