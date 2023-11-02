@@ -12,6 +12,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
 import kotlin.coroutines.cancellation.CancellationException
 
 class NetworkServiceAdapter {
@@ -19,25 +20,10 @@ class NetworkServiceAdapter {
         const val API_BASE_URL = "https://misw4203-vinilos-back-dev-f134d6283b6e.herokuapp.com"
     }
 
-    fun getAlbums(): Flow<List<Album>> = callbackFlow {
-        val stringRequest = StringRequest(
-            Request.Method.GET,
-            "$API_BASE_URL/albums",
-            { response ->
-                val gson = Gson()
-                val albums = gson.fromJson(response, Array<Album>::class.java).toList()
-                Log.i("Albums", albums.toString())
-                trySendBlocking(albums)
-                channel.close()
-            },
-            { err ->
-                cancel(CancellationException(err))
-            }
-        )
-
-        val request = VolleyRequestQueue.addToRequestQueue(stringRequest)
-
-        awaitClose { request.cancel() }
+    fun getAlbums(): Flow<List<Album>> {
+        return HttpRequestQueue.get("$API_BASE_URL/albums").map { response ->
+            Gson().fromJson(response, Array<Album>::class.java).toList()
+        }
     }
 
     fun getMusicians(): Flow<List<Musician>> = callbackFlow {
