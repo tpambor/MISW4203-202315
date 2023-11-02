@@ -7,10 +7,9 @@ import androidx.room.TypeConverters
 @Database(
     entities = [
         Album::class,
-        Band::class,
         Collector::class,
-        CollectorPerformerCrossRef::class,
-        Musician::class
+        CollectorFavoritePerformer::class,
+        Performer::class
     ],
     version = 2,
     exportSchema = false

@@ -2,10 +2,13 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.network
 
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Collector
-
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.CollectorWithPerformers
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+
 
 class NetworkServiceAdapter {
     companion object {
@@ -18,9 +21,17 @@ class NetworkServiceAdapter {
         }
     }
 
-    fun getCollectors(): Flow<List<Collector>> {
+    fun getCollectors(): Flow<List<CollectorWithPerformers>> {
         return HttpRequestQueue.get("$API_BASE_URL/collectors").map { response ->
-            Gson().fromJson(response, Array<Collector>::class.java).toList()
+            GsonBuilder()
+                .registerTypeAdapter(Performer::class.java, PerformerAdapter())
+                .create().fromJson(response, Array<CollectorJSON>::class.java).toList()
+        } .map { collectors ->
+            collectors.map {
+                // Transform CollectorJSON to internal representation CollectorWithPerformers
+                val c = Collector(it.id, it.name, it.telephone, it.email)
+                CollectorWithPerformers(c, it.favoritePerformers)
+            }
         }
     }
 }

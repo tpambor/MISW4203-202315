@@ -25,7 +25,7 @@ class CollectorListViewModel(val collectorRepository: ICollectorRepository) : Vi
 
     init {
         viewModelScope.launch {
-            collectorRepository.getCollectorsWithPerformers()
+            collectorRepository.getCollectorsWithFavoritePerformers()
                 .collect { collectors ->
                     if (collectors == null) {
                         _error.value = ErrorUiState.Error(R.string.network_error)

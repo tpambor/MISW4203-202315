@@ -34,10 +34,12 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Collector
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.CollectorWithPerformers
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.CollectorRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.CollectorListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.ErrorUiState
+import java.util.Date
 
 @Composable
 fun CollectorListScreen(snackbarHostState: SnackbarHostState) {
@@ -131,7 +133,7 @@ private fun CollectorList(collectors: List<CollectorWithPerformers>) {
 private fun AlbumListScreenPreview() {
     @Suppress("SpellCheckingInspection")
     val performers: List<Performer> = listOf(
-        Performer(1, "Fulanito", "Red", "description")
+        Performer(1, PerformerType.MUSICIAN, "Fulanito", "Red", "description", Date())
     )
 
     val collectors: List<CollectorWithPerformers> = listOf(
