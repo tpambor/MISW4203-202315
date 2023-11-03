@@ -8,6 +8,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import co.edu.uniandes.misw4203.equipo11.vinilos.MainActivity
 
 class ArtistList(composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity>) : PageObject(composeTestRule) {
+    // Method to get all artists
     fun getArtists(): SemanticsNodeInteractionCollection {
         return findAtLeastOne(
             hasTestTag("performer-list-item")
@@ -18,6 +19,13 @@ class ArtistList(composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<Ma
     fun selectMusiciansTab(): SemanticsNodeInteraction {
         return findExactlyOne(
             hasTestTag("Músicos")
+        )
+    }
+
+    // Method to select "bandas" Tab
+    fun selectBandsTab(): SemanticsNodeInteraction {
+        return findExactlyOne(
+            hasTestTag("Bandas")
         )
     }
 
