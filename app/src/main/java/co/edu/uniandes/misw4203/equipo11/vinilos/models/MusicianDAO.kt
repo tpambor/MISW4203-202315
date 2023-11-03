@@ -8,17 +8,16 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MusicianDAO {
-    @Query("SELECT * FROM musician")
-    fun getMusicians(): Flow<List<Musician>>
-
+    @Query("SELECT * FROM performer WHERE type = :performerType")
+    fun getMusicians(performerType: PerformerType = PerformerType.MUSICIAN): Flow<List<Performer>>
     @Insert
-    suspend fun insertMusicians(musicians: List<Musician>)
+    suspend fun insertMusicians(musicians: List<Performer>)
 
-    @Query("DELETE FROM musician")
-    suspend fun deleteMusicians()
+    @Query("DELETE FROM performer WHERE type = :performerType")
+    suspend fun deleteMusicians(performerType: PerformerType = PerformerType.MUSICIAN)
 
     @Transaction
-    suspend fun deleteAndInsertMusicians(musicians: List<Musician>) {
+    suspend fun deleteAndInsertMusicians(musicians: List<Performer>) {
         deleteMusicians()
         insertMusicians(musicians)
     }

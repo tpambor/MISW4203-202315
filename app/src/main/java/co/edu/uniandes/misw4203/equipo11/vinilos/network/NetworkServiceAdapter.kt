@@ -22,13 +22,17 @@ class NetworkServiceAdapter {
 
     fun getMusicians(): Flow<List<Performer>> {
         return HttpRequestQueue.get("$API_BASE_URL/musicians").map { response ->
-            Gson().fromJson(response, Array<Performer>::class.java).toList()
+            GsonBuilder()
+                .registerTypeAdapter(Performer::class.java, PerformerAdapter())
+                .create().fromJson(response, Array<Performer>::class.java).toList()
         }
     }
 
     fun getBands(): Flow<List<Performer>> {
         return HttpRequestQueue.get("$API_BASE_URL/bands").map { response ->
-            Gson().fromJson(response, Array<Performer>::class.java).toList()
+            GsonBuilder()
+                .registerTypeAdapter(Performer::class.java, PerformerAdapter())
+                .create().fromJson(response, Array<Performer>::class.java).toList()
         }
     }
 

@@ -50,7 +50,7 @@ class PerformerAdapter : TypeAdapter<Performer>() {
             requireNotNull(performerName),
             requireNotNull(image),
             requireNotNull(description),
-            requireNotNull(birthDate)
+            requireNotNull(birthDate),
         )
     }
 }

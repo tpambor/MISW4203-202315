@@ -54,9 +54,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.Band
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.Musician
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.PerformerRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.ErrorUiState
@@ -225,15 +224,15 @@ private fun ArtistsList(performers: List<Performer>) {
 @Composable
 private fun ArtistListScreenPreview() {
     @Suppress("SpellCheckingInspection")
-    val musician: List<Musician> = listOf(
-        Musician(1, "Rubén Blades Bellido de Luna","red", "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.", Date()),
-        Musician(2, "Juan Luis Guerra","blue", "Es un cantautor, arreglista, músico, productor musical y empresario dominicano.", Date()),
-        Musician(3, "Freddie Mercury","green", "Fue un cantante y compositor británico de origen parsi que alcanzó fama mundial por ser el vocalista principal y pianista de la banda de rock Queen.", Date())
+    val musician: List<Performer> = listOf(
+        Performer(1, PerformerType.MUSICIAN,"Rubén Blades Bellido de Luna","red", "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.", Date()),
+        Performer(2, PerformerType.MUSICIAN, "Juan Luis Guerra","blue", "Es un cantautor, arreglista, músico, productor musical y empresario dominicano.", Date()),
+        Performer(3, PerformerType.MUSICIAN, "Freddie Mercury","green", "Fue un cantante y compositor británico de origen parsi que alcanzó fama mundial por ser el vocalista principal y pianista de la banda de rock Queen.", Date())
     )
 
-    val bands: List<Band> = listOf(
-        Band(1, "Queen","red", "Es una banda británica de rock formada en 1970 en Londres.", Date()),
-        Band(2, "Fania All Starts","blue", "Es una agrupación de salsa y música caribeña que a lo largo de su historia ha experimentado diversos géneros musicales como: el rock, jazz, mambo, soul, y más.", Date()),
+    val bands: List<Performer> = listOf(
+        Performer(1, PerformerType.BAND, "Queen","red", "Es una banda británica de rock formada en 1970 en Londres.", Date()),
+        Performer(2, PerformerType.BAND,"Fania All Starts","blue", "Es una agrupación de salsa y música caribeña que a lo largo de su historia ha experimentado diversos géneros musicales como: el rock, jazz, mambo, soul, y más.", Date()),
     )
     val tabs = listOf("Musicos", "Bandas")
     var tabIndex by remember { mutableStateOf(0) }
