@@ -20,7 +20,7 @@ class PerformerRepository : IPerformerRepository{
     private val db = VinilosDB.getInstance()
 
     override fun getMusicians(): Flow<List<Performer>?> = flow {
-        db.musicianDao().getMusicians().collect { musicians ->
+        db.performerDao().getMusicians().collect { musicians ->
             if (musicians.isEmpty()) {
                 Log.i("Musicians NOT DAO", musicians.toString())
                 if(!refreshMusicians()) {
@@ -35,7 +35,7 @@ class PerformerRepository : IPerformerRepository{
     }
 
     override fun getBands(): Flow<List<Performer>?> = flow {
-        db.bandDao().getBands().collect { bands ->
+        db.performerDao().getBands().collect { bands ->
             if (bands.isEmpty()) {
                 if(!refreshBands()) {
                     emit(null)
@@ -57,7 +57,7 @@ class PerformerRepository : IPerformerRepository{
             Log.e(TAG, "Error loading musicians: $ex")
             return false
         }
-        db.musicianDao().deleteAndInsertMusicians(musicians)
+        db.performerDao().deleteAndInsertMusicians(musicians)
         return true
     }
 
@@ -71,7 +71,7 @@ class PerformerRepository : IPerformerRepository{
             Log.e(TAG, "Error loading bands: $ex")
             return false
         }
-        db.bandDao().deleteAndInsertBands(bands)
+        db.performerDao().deleteAndInsertBands(bands)
         return true
     }
 

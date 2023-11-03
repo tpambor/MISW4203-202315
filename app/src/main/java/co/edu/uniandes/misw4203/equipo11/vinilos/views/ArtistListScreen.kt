@@ -34,6 +34,7 @@ import androidx.compose.material3.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,6 +55,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
+import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.PerformerRepository
@@ -64,7 +66,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
-import java.util.Date
+import java.time.Instant
 
 @Composable
 fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
@@ -90,9 +92,12 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
         ErrorUiState.NoError
     )
 
-    val tabs = listOf("Músicos", "Bandas")
+    val tabs = listOf(
+        stringResource(R.string.artists_tab_musicans),
+        stringResource(R.string.artists_tab_bands)
+    )
 
-    var tabIndex by remember { mutableStateOf(0) }
+    var tabIndex by remember { mutableIntStateOf(0) }
 
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
@@ -111,12 +116,7 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
                     Tab(
                         text = { Text(title) },
                         selected = tabIndex == index,
-                        onClick = { tabIndex = index
-                            when (index) {
-                                0 -> viewModel.getMusicians()
-                                1 -> viewModel.getBands()
-                            }
-                        },
+                        onClick = { tabIndex = index  },
                         modifier = Modifier.testTag(title)
                     )
                 }
@@ -188,16 +188,17 @@ private fun ArtistItem(performer: Performer) {
                         isFavorite = !isFavorite
                         // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
                     },
-                    modifier = Modifier.background(
-                        color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
-                        shape = CircleShape
-                    )
+                    modifier = Modifier
+                        .background(
+                            color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
+                            shape = CircleShape
+                        )
                         .size(35.dp)
                         .padding(0.dp, 0.dp, 1.dp, 0.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.FavoriteBorder,
-                        contentDescription = "Agregar a favoritos",
+                        contentDescription = stringResource(R.string.artists_add_favorite),
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -225,17 +226,21 @@ private fun ArtistsList(performers: List<Performer>) {
 private fun ArtistListScreenPreview() {
     @Suppress("SpellCheckingInspection")
     val musician: List<Performer> = listOf(
-        Performer(1, PerformerType.MUSICIAN,"Rubén Blades Bellido de Luna","red", "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.", Date()),
-        Performer(2, PerformerType.MUSICIAN, "Juan Luis Guerra","blue", "Es un cantautor, arreglista, músico, productor musical y empresario dominicano.", Date()),
-        Performer(3, PerformerType.MUSICIAN, "Freddie Mercury","green", "Fue un cantante y compositor británico de origen parsi que alcanzó fama mundial por ser el vocalista principal y pianista de la banda de rock Queen.", Date())
+        Performer(1, PerformerType.MUSICIAN,"Rubén Blades Bellido de Luna","red", "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.", Instant.now()),
+        Performer(2, PerformerType.MUSICIAN, "Juan Luis Guerra","blue", "Es un cantautor, arreglista, músico, productor musical y empresario dominicano.", Instant.now()),
+        Performer(3, PerformerType.MUSICIAN, "Freddie Mercury","green", "Fue un cantante y compositor británico de origen parsi que alcanzó fama mundial por ser el vocalista principal y pianista de la banda de rock Queen.", Instant.now())
     )
 
     val bands: List<Performer> = listOf(
-        Performer(1, PerformerType.BAND, "Queen","red", "Es una banda británica de rock formada en 1970 en Londres.", Date()),
-        Performer(2, PerformerType.BAND,"Fania All Starts","blue", "Es una agrupación de salsa y música caribeña que a lo largo de su historia ha experimentado diversos géneros musicales como: el rock, jazz, mambo, soul, y más.", Date()),
+        Performer(1, PerformerType.BAND, "Queen","red", "Es una banda británica de rock formada en 1970 en Londres.", Instant.now()),
+        Performer(2, PerformerType.BAND,"Fania All Starts","blue", "Es una agrupación de salsa y música caribeña que a lo largo de su historia ha experimentado diversos géneros musicales como: el rock, jazz, mambo, soul, y más.", Instant.now()),
     )
-    val tabs = listOf("Musicos", "Bandas")
-    var tabIndex by remember { mutableStateOf(0) }
+    val tabs = listOf(
+        stringResource(R.string.artists_tab_musicans),
+        stringResource(R.string.artists_tab_bands)
+    )
+
+    var tabIndex by remember { mutableIntStateOf(0) }
 
     VinilosTheme {
         // A surface container using the 'background' color from the theme

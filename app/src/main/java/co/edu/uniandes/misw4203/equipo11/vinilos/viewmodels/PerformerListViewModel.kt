@@ -28,9 +28,10 @@ class PerformerListViewModel(val performerRepository: IPerformerRepository) : Vi
 
     init {
         getMusicians()
+        getBands()
     }
 
-    fun getMusicians(){
+    private fun getMusicians(){
         viewModelScope.launch {
             performerRepository.getMusicians()
                 .collect { musicians ->
@@ -45,7 +46,7 @@ class PerformerListViewModel(val performerRepository: IPerformerRepository) : Vi
         }
     }
 
-    fun getBands(){
+    private fun getBands(){
         viewModelScope.launch {
             performerRepository.getBands()
                 .collect { bands ->

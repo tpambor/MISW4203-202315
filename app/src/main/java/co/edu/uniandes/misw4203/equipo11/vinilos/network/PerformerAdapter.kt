@@ -5,9 +5,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.models.PerformerType
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.time.Instant
 
 class PerformerAdapter : TypeAdapter<Performer>() {
     override fun write(writer: JsonWriter, value: Performer?) {
@@ -16,13 +14,11 @@ class PerformerAdapter : TypeAdapter<Performer>() {
 
     override fun read(reader: JsonReader): Performer {
         var id: Int? = null
-        var birthDate: Date? = null
+        var birthDate: Instant? = null
         var performerName: String? = null
         var image: String? = null
         var description: String? = null
         var type: PerformerType? = null
-
-        val df = SimpleDateFormat("yyyy-mm-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
 
         reader.beginObject()
         while (reader.hasNext()) {
@@ -32,11 +28,11 @@ class PerformerAdapter : TypeAdapter<Performer>() {
                 "image" -> image = reader.nextString()
                 "description" -> description = reader.nextString()
                 "creationDate" -> {
-                    birthDate = df.parse(reader.nextString())
+                    birthDate = Instant.parse(reader.nextString())
                     type = PerformerType.BAND
                 }
                 "birthDate" -> {
-                    birthDate = df.parse(reader.nextString())
+                    birthDate = Instant.parse(reader.nextString())
                     type = PerformerType.MUSICIAN
                 }
                 else -> reader.skipValue()

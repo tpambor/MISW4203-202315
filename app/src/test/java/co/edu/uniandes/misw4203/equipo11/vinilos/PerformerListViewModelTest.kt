@@ -22,7 +22,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.Before
 import org.junit.Test
-import java.util.Date
+import java.time.Instant
 
 class PerformerListViewModelTest {
     class FakePerformerRepository: IPerformerRepository {
@@ -34,6 +34,7 @@ class PerformerListViewModelTest {
         var refreshBandsCalled = false
 
         suspend fun emitMusicians(value: List<Performer>?) = musiciansFlow.emit(value)
+        suspend fun emitBands(value: List<Performer>?) = bandsFlow.emit(value)
         override fun getMusicians(): Flow<List<Performer>?> = musiciansFlow
         override fun getBands(): Flow<List<Performer>?> = bandsFlow
         override suspend fun refreshMusicians(): Boolean {
@@ -87,7 +88,7 @@ class PerformerListViewModelTest {
                 name = faker.name.name(),
                 image = "https://loremflickr.com/480/480/album?lock=${faker.random.nextInt(0, 100)}",
                 description = faker.quote.yoda(),
-                birthDate = Date(),
+                birthDate = Instant.ofEpochMilli(faker.random.nextLong(System.currentTimeMillis())),
             )
         }
 
@@ -97,6 +98,40 @@ class PerformerListViewModelTest {
         repository.emitMusicians(data)
 
         assertEquals(data, viewModel.musicians.first())
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+    }
+
+    // Tiene en cuenta lo que está pasando dentro del init
+    @Test
+    fun listsBands() = runTest {
+        val repository = FakePerformerRepository()
+
+        val viewModel = PerformerListViewModel.Factory.create(
+            PerformerListViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+            }
+        )
+
+        val faker = Faker()
+
+        val data = (1..4).map { id ->
+            Performer(
+                id = id,
+                type = PerformerType.BAND,
+                name = faker.name.name(),
+                image = "https://loremflickr.com/480/480/album?lock=${faker.random.nextInt(0, 100)}",
+                description = faker.quote.yoda(),
+                birthDate = Instant.ofEpochMilli(faker.random.nextLong(System.currentTimeMillis())),
+            )
+        }
+
+        assertEquals(emptyList<Performer>(), viewModel.bands.first())
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+
+        repository.emitBands(data)
+
+        assertEquals(data, viewModel.bands.first())
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 
@@ -117,6 +152,30 @@ class PerformerListViewModelTest {
         repository.emitMusicians(null)
 
         assertEquals(emptyList<Performer>(), viewModel.musicians.first())
+
+        val error = viewModel.error.value
+        assert(error is ErrorUiState.Error)
+        val errorState: ErrorUiState.Error = error as ErrorUiState.Error
+        assertEquals(R.string.network_error, errorState.resourceId)
+    }
+
+    @Test
+    fun bandsError() = runTest {
+        val repository = FakePerformerRepository()
+
+        val viewModel = PerformerListViewModel.Factory.create(
+            PerformerListViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+            }
+        )
+
+        assertEquals(emptyList<Performer>(), viewModel.bands.first())
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+
+        repository.emitBands(null)
+
+        assertEquals(emptyList<Performer>(), viewModel.bands.first())
 
         val error = viewModel.error.value
         assert(error is ErrorUiState.Error)

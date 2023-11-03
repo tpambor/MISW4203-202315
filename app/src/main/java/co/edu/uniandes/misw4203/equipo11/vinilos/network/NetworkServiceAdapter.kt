@@ -2,11 +2,10 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.network
 
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.Collector
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.Instant
 
 class NetworkServiceAdapter {
     companion object {
@@ -15,7 +14,9 @@ class NetworkServiceAdapter {
 
     fun getAlbums(): Flow<List<Album>> {
         return HttpRequestQueue.get("$API_BASE_URL/albums").map { response ->
-            Gson().fromJson(response, Array<Album>::class.java).toList()
+            GsonBuilder()
+                .registerTypeAdapter(Instant::class.java, InstantAdapter())
+                .create().fromJson(response, Array<Album>::class.java).toList()
         }
     }
 

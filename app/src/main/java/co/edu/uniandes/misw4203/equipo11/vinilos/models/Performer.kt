@@ -2,7 +2,7 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.Date
+import java.time.Instant
 
 enum class PerformerType(val value: Int) {
     MUSICIAN(0),
@@ -16,5 +16,5 @@ data class Performer(
     val name: String,
     val image: String,
     val description: String,
-    val birthDate: Date, // creationDate for bands
+    val birthDate: Instant, // creationDate for bands
 )

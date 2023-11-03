@@ -20,7 +20,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.util.Date
+import java.time.Instant
 
 class AlbumListViewModelTest {
     class FakeAlbumRepository: IAlbumRepository {
@@ -78,7 +78,7 @@ class AlbumListViewModelTest {
                 id = id,
                 name = faker.music.albums(),
                 cover = "https://loremflickr.com/480/480/album?lock=${faker.random.nextInt(0, 100)}",
-                releaseDate = Date(faker.random.nextLong(System.currentTimeMillis())),
+                releaseDate = Instant.ofEpochMilli(faker.random.nextLong(System.currentTimeMillis())),
                 description = faker.quote.yoda(),
                 genre = faker.music.genres(),
                 recordLabel = faker.random.randomValue(listOf("Sony Music", "EMI", "Discos Fuentes", "Elektra", "Fania Records"))

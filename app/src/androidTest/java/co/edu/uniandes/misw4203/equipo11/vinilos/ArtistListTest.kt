@@ -20,12 +20,13 @@ class ArtistListTest {
         val button = navbar.getArtistButton()
         button.assertIsDisplayed()
         button.performClick()
-        Thread.sleep(1000)
+
         // Then I select "Músicos" Tab and see a list of all musicians
         val artistList = ArtistList(composeTestRule)
         artistList.selectMusiciansTab().performClick()
         assert(artistList.getArtists().fetchSemanticsNodes().isNotEmpty())
     }
+
     @Test
     fun showsBands() {
         // Given I have opened the Vinilos App
@@ -34,7 +35,7 @@ class ArtistListTest {
         val button = navbar.getArtistButton()
         button.assertIsDisplayed()
         button.performClick()
-        Thread.sleep(1000)
+
         // Then I select "Bandas" Tab and see a list of all bands
         val artistList = ArtistList(composeTestRule)
         artistList.selectBandsTab().performClick()
