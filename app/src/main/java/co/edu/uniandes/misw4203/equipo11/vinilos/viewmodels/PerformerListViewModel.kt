@@ -27,18 +27,7 @@ class PerformerListViewModel(val performerRepository: IPerformerRepository) : Vi
     val error = _error.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            performerRepository.getMusicians()
-                .collect { musicians ->
-                    if (musicians == null) {
-                        _error.value = ErrorUiState.Error(R.string.network_error)
-                    } else {
-                        _musicians.value = musicians
-                        _error.value = ErrorUiState.NoError
-                    }
-                    _isRefreshing.value = false
-                }
-        }
+        getMusicians()
     }
 
     fun getMusicians(){
