@@ -4,4 +4,5 @@
     <string name="nav_artists">Artistas</string>
     <string name="nav_collectors">Coleccionistas</string>
     <string name="network_error">Error al cargar los datos</string>
+    <string name="collectors_list_artists_title">Artistas favoritos:</string>
 </resources>
