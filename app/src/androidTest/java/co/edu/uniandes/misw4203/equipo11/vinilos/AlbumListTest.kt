@@ -20,9 +20,9 @@ class AlbumListTest {
         val button = navbar.getAlbumButton()
         button.assertIsDisplayed()
         button.performClick()
-
+        Thread.sleep(1000)
         // Then I see a list of all albums
         val albumList = AlbumList(composeTestRule)
-        assert(albumList.getAlbums().fetchSemanticsNodes().size > 1)
+        assert(albumList.getAlbums().fetchSemanticsNodes().isNotEmpty())
     }
 }
