@@ -8,5 +8,6 @@ data class Collector(
     @PrimaryKey val id: Int,
     val name: String,
     val telephone: String,
-    val email: String
+    val email: String,
+    //val favoritePerformer: List<Performer>
 )

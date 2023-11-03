@@ -7,21 +7,17 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.Band
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.Musician
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
-import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.IAlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.IPerformerRepository
-import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.PerformerRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class PerformerListViewModel(val performerRepository: IPerformerRepository) : ViewModel() {
-    private val _musicians: MutableStateFlow<List<Musician>> = MutableStateFlow(emptyList())
+    private val _musicians: MutableStateFlow<List<Performer>> = MutableStateFlow(emptyList())
     val musicians = _musicians.asStateFlow()
 
-    private val _bands: MutableStateFlow<List<Band>> = MutableStateFlow(emptyList())
+    private val _bands: MutableStateFlow<List<Performer>> = MutableStateFlow(emptyList())
     val bands = _bands.asStateFlow()
 
     private val _isRefreshing = MutableStateFlow(true)
