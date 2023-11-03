@@ -2,14 +2,14 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.Date
+import java.time.Instant
 
 @Entity
 data class Album(
     @PrimaryKey val id: Int,
     val name: String,
     val cover: String,
-    val releaseDate: Date,
+    val releaseDate: Instant,
     val description: String,
     val genre: String,
     val recordLabel: String,

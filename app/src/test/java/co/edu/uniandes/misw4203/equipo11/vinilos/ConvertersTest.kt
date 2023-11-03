@@ -3,14 +3,15 @@ package co.edu.uniandes.misw4203.equipo11.vinilos
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Converters
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.util.Date
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 class ConvertersTest {
     @Test
     fun shouldReturnSameDate() {
         val converters = Converters()
 
-        val date = Date()
+        val date = Instant.now().truncatedTo(ChronoUnit.SECONDS)
         assertEquals(date, converters.fromTimestamp(converters.dateToTimestamp(date)))
     }
 }

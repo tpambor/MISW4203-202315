@@ -23,6 +23,6 @@ class AlbumListTest {
 
         // Then I see a list of all albums
         val albumList = AlbumList(composeTestRule)
-        assert(albumList.getAlbums().fetchSemanticsNodes().size > 1)
+        assert(albumList.getAlbums().fetchSemanticsNodes().isNotEmpty())
     }
 }

@@ -38,7 +38,7 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
         startDestination = "albums"
     ) {
         composable(route = "albums") { AlbumListScreen(snackbarHostState) }
-        composable(route = "artists") { ArtistListScreen() }
+        composable(route = "artists") { ArtistListScreen(snackbarHostState) }
         composable(route = "collectors") { CollectorListScreen() }
     }
 }

@@ -7,9 +7,8 @@ import androidx.room.TypeConverters
 @Database(
     entities = [
         Album::class,
-        Band::class,
         Collector::class,
-        Musician::class
+        Performer::class
     ],
     version = 1,
     exportSchema = false
@@ -17,6 +16,7 @@ import androidx.room.TypeConverters
 @TypeConverters(Converters::class)
 abstract class VinilosDB : RoomDatabase() {
     abstract fun albumDao(): AlbumDAO
+    abstract fun performerDao(): PerformerDAO
 
     companion object {
         @Volatile

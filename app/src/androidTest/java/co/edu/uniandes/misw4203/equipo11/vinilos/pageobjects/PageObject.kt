@@ -18,7 +18,7 @@ abstract class PageObject(private val composeTestRule: AndroidComposeTestRule<Ac
 
     fun findAtLeastOne(matcher: SemanticsMatcher): SemanticsNodeInteractionCollection {
         composeTestRule.waitUntil {
-            composeTestRule.onAllNodes(matcher).fetchSemanticsNodes().size > 1
+            composeTestRule.onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty()
         }
 
         return composeTestRule.onAllNodes(matcher)
