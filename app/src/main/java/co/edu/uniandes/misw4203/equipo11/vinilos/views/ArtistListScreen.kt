@@ -90,16 +90,10 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
         emptyList()
     )
 
-    val context = LocalContext.current
-
-    val userPreferences: PreferenceDataStore by lazy {
-        PreferenceDataStore(context)
-    }
-
     val userViewModel: UserViewModel = viewModel(
         factory = UserViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
-            set(UserViewModel.KEY_USER_REPOSITORY, UserRepository(userPreferences))
+            set(UserViewModel.KEY_USER_REPOSITORY, UserRepository())
         }
     )
 

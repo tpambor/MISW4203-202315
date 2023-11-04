@@ -9,7 +9,8 @@ interface IUserRepository {
     suspend fun setUser(user: User)
 
 }
-class UserRepository(private val userPreferences: PreferenceDataStore): IUserRepository {
+class UserRepository: IUserRepository {
+    private val userPreferences = PreferenceDataStore.getInstance()
 
     override fun getUser(): Flow<User?> {
         return userPreferences.getUser()

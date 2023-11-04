@@ -27,7 +27,6 @@ class UserViewModel(val userRepository: IUserRepository) : ViewModel() {
     fun setUser(user: User) {
         viewModelScope.launch {
             userRepository.setUser(user)
-            _user.value = user
         }
     }
 
