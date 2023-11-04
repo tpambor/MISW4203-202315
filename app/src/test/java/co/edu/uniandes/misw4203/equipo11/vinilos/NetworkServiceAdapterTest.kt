@@ -1,6 +1,8 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos
 
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.Collector
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.CollectorWithPerformers
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.network.HttpRequestQueue
@@ -148,6 +150,38 @@ class NetworkServiceAdapterTest {
         val adapter = NetworkServiceAdapter()
         val bands = adapter.getBands().first()
         assertEquals(bandsExpected, bands)
+        assertTrue(mockRequest.called)
+    }
+
+    fun shouldReturnCollectors() = runTest {
+        val collectorsJSON = javaClass.getResource("/collectors.json").readText()
+        val mockRequest = MockRequest { url ->
+            assertEquals( NetworkServiceAdapter.API_BASE_URL + "/collectors", url)
+            collectorsJSON
+        }
+
+        val collector = Collector(
+            id = 100,
+            name = "Manolo Bellon",
+            email = "manollo@caracol.com.co",
+            telephone = "3502457896"
+        )
+
+        val performer = Performer( id =  100,
+            name=  "Rubén Blades Bellido de Luna",
+            image =  "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Ruben_Blades_by_Gage_Skidmore.jpg/800px-Ruben_Blades_by_Gage_Skidmore.jpg",
+            description= "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.",
+            birthDate =  Date(),
+            type = PerformerType.BAND
+        )
+
+        val performers = listOf(performer)
+
+        val collectorWithPerformers = CollectorWithPerformers(collector, performers)
+
+        val adapter = NetworkServiceAdapter()
+        val collectors = adapter.getCollectors().first()
+        assertEquals(collectorWithPerformers, collectors)
         assertTrue(mockRequest.called)
     }
 }
