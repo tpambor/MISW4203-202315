@@ -33,6 +33,7 @@ import androidx.compose.material3.pullrefresh.pullRefresh
 import androidx.compose.material3.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -55,6 +57,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
+import co.edu.uniandes.misw4203.equipo11.vinilos.PreferenceDataStore
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.PerformerType
@@ -70,6 +73,7 @@ import java.time.Instant
 
 @Composable
 fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
+
     val viewModel: PerformerListViewModel = viewModel(
         factory = PerformerListViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
@@ -144,8 +148,10 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun ArtistItem(performer: Performer) {
+private fun ArtistItem(performer: Performer, userType: String) {
     var isFavorite by remember { mutableStateOf(false) }
+
+    val isColeccionista = userType == "Coleccionista"
 
     // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
 
@@ -182,26 +188,28 @@ private fun ArtistItem(performer: Performer) {
                     style = MaterialTheme.typography.titleMedium
                 )
                 // Favorite button
-
-                IconButton(
-                    onClick = {
-                        isFavorite = !isFavorite
-                        // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
-                    },
-                    modifier = Modifier
-                        .background(
-                            color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
-                            shape = CircleShape
+                if(isColeccionista){
+                    IconButton(
+                        onClick = {
+                            isFavorite = !isFavorite
+                            // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
+                        },
+                        modifier = Modifier
+                            .background(
+                                color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
+                                shape = CircleShape
+                            )
+                            .size(35.dp)
+                            .padding(0.dp, 0.dp, 1.dp, 0.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.FavoriteBorder,
+                            contentDescription = stringResource(R.string.artists_add_favorite),
+                            modifier = Modifier.size(20.dp)
                         )
-                        .size(35.dp)
-                        .padding(0.dp, 0.dp, 1.dp, 0.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.FavoriteBorder,
-                        contentDescription = stringResource(R.string.artists_add_favorite),
-                        modifier = Modifier.size(20.dp)
-                    )
+                    }
                 }
+
             }
         }
     }
@@ -210,12 +218,15 @@ private fun ArtistItem(performer: Performer) {
 
 @Composable
 private fun ArtistsList(performers: List<Performer>) {
+    val preferenceDataStore = PreferenceDataStore(LocalContext.current)
+    val userType by preferenceDataStore.userType.collectAsState(initial = "")
+
     LazyVerticalGrid(
         columns = GridCells.Adaptive(180.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         items(performers) {
-                item: Performer -> ArtistItem(performer = item)
+                item: Performer -> ArtistItem(performer = item, userType = userType)
             
         }
     }
