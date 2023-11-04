@@ -3,18 +3,15 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.repositories
 import android.util.Log
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Collector
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.CollectorWithPerformers
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.VinilosDB
 import co.edu.uniandes.misw4203.equipo11.vinilos.network.NetworkServiceAdapter
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 
 interface ICollectorRepository {
     fun getCollectors(): Flow<List<Collector>?>
-    fun getCollectorsWithPerformers(): Flow<List<CollectorWithPerformers>?>
+    fun getCollectorsWithFavoritePerformers(): Flow<List<CollectorWithPerformers>?>
     suspend fun refresh(): Boolean
 }
 
@@ -34,7 +31,7 @@ class CollectorRepository : ICollectorRepository {
         }
     }
 
-    override fun getCollectorsWithPerformers(): Flow<List<CollectorWithPerformers>?> = flow {
+    override fun getCollectorsWithFavoritePerformers(): Flow<List<CollectorWithPerformers>?> = flow {
         db.collectorDao().getCollectorsWithPerformers().collect { collectors ->
             if (collectors.isEmpty()) {
                 if(!refresh()) {
@@ -47,7 +44,7 @@ class CollectorRepository : ICollectorRepository {
     }
 
     override suspend fun refresh(): Boolean {
-        val collectors: List<Collector>?
+        val collectors: List<CollectorWithPerformers>?
 
         try {
             collectors = adapter.getCollectors().first()
@@ -56,7 +53,7 @@ class CollectorRepository : ICollectorRepository {
             return false
         }
 
-        db.collectorDao().deleteAndInsertCollectors(collectors)
+        db.collectorDao().deleteAndInsertCollectors(collectors.map { it.collector })
         return true
     }
     companion object {

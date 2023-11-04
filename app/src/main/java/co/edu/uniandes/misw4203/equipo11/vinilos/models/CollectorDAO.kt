@@ -3,7 +3,6 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.models
 import androidx.room.Dao
 import androidx.room.Embedded
 import androidx.room.Insert
-import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
@@ -44,10 +43,9 @@ interface CollectorDAO {
     @Transaction
     @Query(
         "SELECT c.id as collector_id, c.name as collector_name, c.telephone as collector_telephone, c.email as collector_email, " +
-        "p.id as performer_id, p.name as performer_name, p.image as performer_image, p.description as performer_description " +
-        "FROM Collector c LEFT JOIN CollectorPerformerCrossRef cp ON cp.collectorId = c.id LEFT JOIN " +
-        "(SELECT id, name, image, description FROM Musician UNION ALL SELECT id, name, image, description FROM Band) p " +
-        "ON cp.performerId = p.id"
+        "p.id as performer_id, p.type as performer_type, p.name as performer_name, p.image as performer_image, p.description as performer_description, p.birthDate as performer_birthDate " +
+        "FROM Collector c LEFT JOIN CollectorFavoritePerformer cp ON cp.collectorId = c.id LEFT JOIN " +
+        "Performer p ON cp.performerId = p.id"
     )
     fun getCollectorsWithPerformer(): Flow<List<CollectorWithPerformer>>
 
