@@ -40,7 +40,6 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.CollectorListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.ErrorUiState
 import java.time.Instant
-import java.util.Date
 
 @Composable
 fun CollectorListScreen(snackbarHostState: SnackbarHostState) {
