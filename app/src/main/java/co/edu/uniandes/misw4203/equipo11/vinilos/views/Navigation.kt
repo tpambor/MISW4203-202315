@@ -55,8 +55,7 @@ fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStack
         return
 
     NavigationBar(
-        modifier = Modifier.testTag("navbar"),
-
+        modifier = Modifier.testTag("navbar")
     ) {
         navBarItems.forEach { item ->
             NavigationBarItem(
