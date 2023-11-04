@@ -32,10 +32,10 @@ class ArtistListTest {
     }
 
     @Test
-    fun showsMusicians() {
-        // Given I login as a "Coleccionista"
+    fun showsMusiciansCollector() {
+        // Given I login as a collector
         val login = Login(composeTestRule)
-        login.getColeccionistaButton().performClick()
+        login.getCollectorButton().performClick()
 
         // When - Then explained in clickAndShowListMusicians function
         val navbar = NavBar(composeTestRule)
@@ -44,14 +44,17 @@ class ArtistListTest {
 
         // And I can see Fav buttons
         assert(artistList.getFavButton().fetchSemanticsNodes().isNotEmpty())
+    }
 
-        // I Logout
-        navbar.getLogoutButton().assertIsDisplayed().performClick()
-
-        // Given I login as a "Visitante"
-        login.getVisitanteButton().performClick()
+    @Test
+    fun showsMusiciansVisitor() {
+        // Given I login as a visitor
+        val login = Login(composeTestRule)
+        login.getVisitorButton().performClick()
 
         // When - Then explained in clickAndShowListMusicians function
+        val navbar = NavBar(composeTestRule)
+        val artistList = ArtistList(composeTestRule)
         clickAndShowListMusicians(navbar, artistList)
 
         // And I can't see Fav buttons
@@ -59,27 +62,29 @@ class ArtistListTest {
     }
 
     @Test
-    fun showsBands() {
-        // Given I login as a "Coleccionista"
+    fun showsBandsCollector() {
+        // Given I login as a collector
         val login = Login(composeTestRule)
-        login.getColeccionistaButton().performClick()
+        login.getCollectorButton().performClick()
 
         // When - Then explained in clickAndShowListBands function
         val navbar = NavBar(composeTestRule)
         val artistList = ArtistList(composeTestRule)
-
         clickAndShowListBands(navbar, artistList)
 
         // And I can see Fav buttons
         assert(artistList.getFavButton().fetchSemanticsNodes().isNotEmpty())
+    }
 
-        // I Logout
-        navbar.getLogoutButton().assertIsDisplayed().performClick()
-
-        // Given I login as a "Visitante"
-        login.getVisitanteButton().performClick()
+    @Test
+    fun showsBandsVisitor() {
+        // Given I login as a visitor
+        val login = Login(composeTestRule)
+        login.getVisitorButton().performClick()
 
         // When - Then explained in clickAndShowListBands function
+        val navbar = NavBar(composeTestRule)
+        val artistList = ArtistList(composeTestRule)
         clickAndShowListBands(navbar, artistList)
 
         // And I can't see Fav buttons

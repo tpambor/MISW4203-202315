@@ -20,25 +20,30 @@ class AlbumListTest {
         // Then I see a list of all albums
         assert(albumList.getAlbums().fetchSemanticsNodes().isNotEmpty())
     }
+
     @Test
-    fun showsAlbums() {
-        // Given I login as a "Coleccionista"
+    fun showsAlbumsCollector() {
+        // Given I login as a collector
         val login = Login(composeTestRule)
-        login.getColeccionistaButton().performClick()
+        login.getCollectorButton().performClick()
 
         // When - Then explained in clickAndShowListAlbum function
         val navbar = NavBar(composeTestRule)
         val albumList = AlbumList(composeTestRule)
-
         clickAndShowListAlbum(navbar, albumList)
+    }
 
-        // I Logout
-        navbar.getLogoutButton().assertIsDisplayed().performClick()
+    @Test
+    fun showsAlbumsVisitor() {
+        // Given I login as a visitor
+        val login = Login(composeTestRule)
+        login.getVisitorButton().performClick()
 
-        // Given I login as a "Visitante"
-        login.getVisitanteButton().performClick()
+        composeTestRule.waitForIdle()
 
         // When - Then explained in clickAndShowListAlbum function
+        val navbar = NavBar(composeTestRule)
+        val albumList = AlbumList(composeTestRule)
         clickAndShowListAlbum(navbar, albumList)
     }
 }

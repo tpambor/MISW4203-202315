@@ -7,11 +7,11 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import co.edu.uniandes.misw4203.equipo11.vinilos.MainActivity
 
 class Login (private val composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity>) : PageObject(composeTestRule) {
-    fun getColeccionistaButton(): SemanticsNodeInteraction {
+    fun getCollectorButton(): SemanticsNodeInteraction {
         return composeTestRule.onNodeWithText("Coleccionista")
     }
 
-    fun getVisitanteButton(): SemanticsNodeInteraction {
+    fun getVisitorButton(): SemanticsNodeInteraction {
         return composeTestRule.onNodeWithText("Visitante")
     }
 }

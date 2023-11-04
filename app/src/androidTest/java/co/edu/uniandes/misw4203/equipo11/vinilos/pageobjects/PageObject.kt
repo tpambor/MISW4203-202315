@@ -9,7 +9,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.MainActivity
 
 abstract class PageObject(private val composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity>) {
     fun findExactlyOne(matcher: SemanticsMatcher): SemanticsNodeInteraction {
-        composeTestRule.waitUntil {
+        composeTestRule.waitUntil(5000) {
             composeTestRule.onAllNodes(matcher).fetchSemanticsNodes().size == 1
         }
 
