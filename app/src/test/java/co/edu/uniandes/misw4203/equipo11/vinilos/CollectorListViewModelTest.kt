@@ -4,6 +4,8 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Collector
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.CollectorWithPerformers
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.ICollectorRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.CollectorListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.ErrorUiState
@@ -19,13 +21,14 @@ import kotlinx.coroutines.test.setMain
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import java.time.Instant
 import java.util.Date
 
 class CollectorListViewModelTest {
     class FakeCollectorRepository : ICollectorRepository {
         private val flow = MutableSharedFlow<List<Collector>?>()
         private val flowCollectorPerformance = MutableSharedFlow<List<CollectorWithPerformers>?>()
-        suspend fun emit(value: List<Collector>?) = flow.emit(value)
+        suspend fun emit(value: List<CollectorWithPerformers>?) = flowCollectorPerformance.emit(value)
 
         var failRefresh = false
         var refreshCalled = false
@@ -78,12 +81,33 @@ class CollectorListViewModelTest {
         val faker = Faker()
 
         val data = (1..1).map { id ->
-            Collector(
-                id = id,
-                name = faker.name.name(),
-                email =  faker.internet.email(),
-                telephone = faker.phoneNumber.phoneNumber()
-            )
+
+                CollectorWithPerformers(
+                    collector = Collector(
+                        id = 100,
+                        name = faker.name.name(),
+                        telephone = faker.phoneNumber.phoneNumber(),
+                        email = faker.internet.email()
+                    ),
+                    performers = listOf(
+                        Performer(
+                            id = 100,
+                            type = PerformerType.MUSICIAN,
+                            name = faker.name.name(),
+                            image = "https://loremflickr.com/480/480/album?lock=${faker.random.nextInt(0, 100)}",
+                            description = faker.quote.yoda(),
+                            birthDate = Instant.ofEpochMilli(faker.random.nextLong(System.currentTimeMillis())),
+                        ),
+                        Performer(
+                            id = 101,
+                            type = PerformerType.BAND,
+                            name = faker.name.name(),
+                            image = "https://loremflickr.com/480/480/album?lock=${faker.random.nextInt(0, 100)}",
+                            description = faker.quote.yoda(),
+                            birthDate = Instant.ofEpochMilli(faker.random.nextLong(System.currentTimeMillis())),
+                        )
+                    )
+                )
         }
 
         // Initially, there are no Collectors yet
@@ -95,7 +119,6 @@ class CollectorListViewModelTest {
 
         // Then, list of Collectors is filled with the data
         Assert.assertEquals(data, viewModel.collectors.first())
-        //Assert.assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 
     @Test
