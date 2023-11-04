@@ -23,4 +23,12 @@ abstract class PageObject(private val composeTestRule: AndroidComposeTestRule<Ac
 
         return composeTestRule.onAllNodes(matcher)
     }
+
+    fun findNoMatches(matcher: SemanticsMatcher): SemanticsNodeInteractionCollection {
+        composeTestRule.waitUntil(5000) {
+            composeTestRule.onAllNodes(matcher).fetchSemanticsNodes().isEmpty()
+        }
+
+        return composeTestRule.onAllNodes(matcher)
+    }
 }

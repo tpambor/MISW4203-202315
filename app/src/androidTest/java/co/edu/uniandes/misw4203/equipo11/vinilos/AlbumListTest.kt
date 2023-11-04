@@ -13,7 +13,7 @@ class AlbumListTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
-    fun clickAndShowListAlbum(navbar: NavBar, albumList: AlbumList) {
+    private fun clickAndShowListAlbum(navbar: NavBar, albumList: AlbumList) {
         // When I click on the Album button in the navigation bar
         navbar.getAlbumButton().assertIsDisplayed().performClick()
 
@@ -22,11 +22,11 @@ class AlbumListTest {
     }
     @Test
     fun showsAlbums() {
+        // Given I login as a "Coleccionista"
         val login = Login(composeTestRule)
-        // Find and click on the "Coleccionista" button
         login.getColeccionistaButton().performClick()
 
-        // When I click on the Album button in the navigation bar, I see a list of all albums
+        // When - Then explained in clickAndShowListAlbum function
         val navbar = NavBar(composeTestRule)
         val albumList = AlbumList(composeTestRule)
 
@@ -35,10 +35,10 @@ class AlbumListTest {
         // I Logout
         navbar.getLogoutButton().assertIsDisplayed().performClick()
 
-        // Find and click on the "Visitante" button
+        // Given I login as a "Visitante"
         login.getVisitanteButton().performClick()
 
-        // When I click on the Album button in the navigation bar, I see a list of all albums
+        // When - Then explained in clickAndShowListAlbum function
         clickAndShowListAlbum(navbar, albumList)
     }
 }

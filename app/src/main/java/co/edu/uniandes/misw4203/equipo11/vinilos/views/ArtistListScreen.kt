@@ -197,10 +197,11 @@ private fun ArtistItem(performer: Performer, userType: String) {
                         modifier = Modifier
                             .background(
                                 color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
-                                shape = CircleShape
+                                shape = CircleShape,
                             )
                             .size(35.dp)
                             .padding(0.dp, 0.dp, 1.dp, 0.dp)
+                            .testTag("performer-fav-button")
                     ) {
                         Icon(
                             imageVector = Icons.Default.FavoriteBorder,
