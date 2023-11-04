@@ -14,6 +14,18 @@ class ArtistList(composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<Ma
             hasTestTag("performer-list-item")
         )
     }
+    fun getFavButton(): SemanticsNodeInteractionCollection {
+        return findAtLeastOne(
+            hasTestTag("performer-fav-button")
+        )
+    }
+
+    fun missingFavButton(): SemanticsNodeInteractionCollection {
+        return findNoMatches (
+            hasTestTag("performer-fav-button")
+        )
+    }
+
 
     // Method to select "músicos" Tab
     fun selectMusiciansTab(): SemanticsNodeInteraction {

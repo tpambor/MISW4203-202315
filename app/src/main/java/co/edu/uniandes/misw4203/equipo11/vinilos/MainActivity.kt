@@ -25,6 +25,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        PreferenceDataStore.create(applicationContext)
         val db = Room.databaseBuilder(
             this,
             VinilosDB::class.java,
