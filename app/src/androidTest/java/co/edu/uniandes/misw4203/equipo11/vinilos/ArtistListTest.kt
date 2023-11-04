@@ -55,7 +55,7 @@ class ArtistListTest {
         clickAndShowListMusicians(navbar, artistList)
 
         // And I can't see Fav buttons
-        assert(artistList.missingFavButton().fetchSemanticsNodes().isNullOrEmpty())
+        assert(artistList.missingFavButton().fetchSemanticsNodes().isEmpty())
     }
 
     @Test
@@ -83,6 +83,6 @@ class ArtistListTest {
         clickAndShowListBands(navbar, artistList)
 
         // And I can't see Fav buttons
-        assert(artistList.missingFavButton().fetchSemanticsNodes().isNullOrEmpty())
+        assert(artistList.missingFavButton().fetchSemanticsNodes().isEmpty())
     }
 }
