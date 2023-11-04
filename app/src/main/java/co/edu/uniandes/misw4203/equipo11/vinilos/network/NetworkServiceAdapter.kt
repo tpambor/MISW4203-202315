@@ -1,6 +1,7 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.network
 
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.Collector
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.flow.Flow
@@ -33,6 +34,12 @@ class NetworkServiceAdapter {
             GsonBuilder()
                 .registerTypeAdapter(Performer::class.java, PerformerAdapter())
                 .create().fromJson(response, Array<Performer>::class.java).toList()
+        }
+    }
+
+    fun getCollectors(): Flow<List<Collector>> {
+        return HttpRequestQueue.get("$API_BASE_URL/collectors").map { response ->
+            Gson().fromJson(response, Array<Collector>::class.java).toList()
         }
     }
 }
