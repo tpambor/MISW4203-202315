@@ -74,7 +74,6 @@ import java.time.Instant
 
 @Composable
 fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
-
     val viewModel: PerformerListViewModel = viewModel(
         factory = PerformerListViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
@@ -99,10 +98,6 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
     val user by userViewModel.user.collectAsStateWithLifecycle(
         null
     )
-
-    LaunchedEffect(true) {
-        userViewModel.getUser()
-    }
 
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle(
         true

@@ -27,7 +27,7 @@ class UserViewModel(val userRepository: IUserRepository) : ViewModel() {
     private val _user = MutableStateFlow<User?>(null)
     val user = _user.asStateFlow()
 
-    fun getUser() {
+    private fun getUser() {
         viewModelScope.launch {
             userRepository.getUser().collect { user ->
                 _user.value = user
@@ -40,6 +40,10 @@ class UserViewModel(val userRepository: IUserRepository) : ViewModel() {
             userRepository.login(userType)
             _status.value = LoginUiState.LoggedIn
         }
+    }
+
+    init {
+        getUser()
     }
 
     companion object {
