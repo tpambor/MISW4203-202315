@@ -3,6 +3,7 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.models
 import androidx.room.Dao
 import androidx.room.Embedded
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
@@ -76,9 +77,31 @@ interface CollectorDAO {
 
     @Query("DELETE FROM collector")
     suspend fun deleteCollectors()
+
+    @Insert
+    suspend fun insertCollectorFavoritePerformers(collectorFavoritePerformers: List<CollectorFavoritePerformer>)
+
+    @Query("DELETE FROM collectorfavoriteperformer")
+    suspend fun deleteCollectorFavoritePerformer()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPerformers(performers: List<Performer>)
+
     @Transaction
-    suspend fun deleteAndInsertCollectors(collectors: List<Collector>) {
+    suspend fun deleteAndInsertCollectors(collectors: List<CollectorWithPerformers>) {
         deleteCollectors()
-        insertCollectors(collectors)
+        insertCollectors(collectors.map { it.collector })
+        deleteCollectorFavoritePerformer()
+
+        val performers: MutableList<Performer> = mutableListOf()
+        val collectorFavoritePerformers: MutableList<CollectorFavoritePerformer> = mutableListOf()
+        collectors.forEach { collector ->
+            performers.addAll(collector.performers)
+            collector.performers.forEach {
+                collectorFavoritePerformers.add(CollectorFavoritePerformer(collector.collector.id, it.id))
+            }
+        }
+        insertCollectorFavoritePerformers(collectorFavoritePerformers)
+        insertPerformers(performers)
     }
 }
