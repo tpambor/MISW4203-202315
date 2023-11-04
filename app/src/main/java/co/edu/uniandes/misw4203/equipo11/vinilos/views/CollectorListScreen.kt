@@ -39,6 +39,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.CollectorRepositor
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.CollectorListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.ErrorUiState
+import java.time.Instant
 import java.util.Date
 
 @Composable
@@ -133,7 +134,7 @@ private fun CollectorList(collectors: List<CollectorWithPerformers>) {
 private fun AlbumListScreenPreview() {
     @Suppress("SpellCheckingInspection")
     val performers: List<Performer> = listOf(
-        Performer(1, PerformerType.MUSICIAN, "Fulanito", "Red", "description", Date())
+        Performer(1, PerformerType.MUSICIAN, "Fulanito", "Red", "description", Instant.now())
     )
 
     val collectors: List<CollectorWithPerformers> = listOf(
