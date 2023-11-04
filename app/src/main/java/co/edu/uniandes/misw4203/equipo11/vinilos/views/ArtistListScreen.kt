@@ -45,7 +45,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -56,11 +55,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
-import co.edu.uniandes.misw4203.equipo11.vinilos.PreferenceDataStore
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.User
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.UserType
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.PerformerRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.UserRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
@@ -165,10 +164,10 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun ArtistItem(performer: Performer, userType: String?) {
+private fun ArtistItem(performer: Performer, user: User?) {
     var isFavorite by remember { mutableStateOf(false) }
 
-    val isColeccionista = userType == "Coleccionista"
+    val isCollector = user?.type == UserType.Collector
 
     // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
 
@@ -204,8 +203,9 @@ private fun ArtistItem(performer: Performer, userType: String?) {
                         .weight(1f),
                     style = MaterialTheme.typography.titleMedium
                 )
+
                 // Favorite button
-                if(isColeccionista){
+                if(isCollector){
                     IconButton(
                         onClick = {
                             isFavorite = !isFavorite
@@ -227,7 +227,6 @@ private fun ArtistItem(performer: Performer, userType: String?) {
                         )
                     }
                 }
-
             }
         }
     }
@@ -241,8 +240,7 @@ private fun ArtistsList(performers: List<Performer>, user: User?) {
         modifier = Modifier.fillMaxSize()
     ) {
         items(performers) {
-                item: Performer -> ArtistItem(performer = item, userType = user?.type)
-            
+                item: Performer -> ArtistItem(performer = item, user = user)
         }
     }
 }
@@ -250,8 +248,7 @@ private fun ArtistsList(performers: List<Performer>, user: User?) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun ArtistListScreenPreview() {
-    @Suppress("SpellCheckingInspection")
-    val user = User("Coleccionista")
+    val user = User(UserType.Collector)
     val musician: List<Performer> = listOf(
         Performer(1, PerformerType.MUSICIAN,"Rubén Blades Bellido de Luna","red", "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.", Instant.now()),
         Performer(2, PerformerType.MUSICIAN, "Juan Luis Guerra","blue", "Es un cantautor, arreglista, músico, productor musical y empresario dominicano.", Instant.now()),

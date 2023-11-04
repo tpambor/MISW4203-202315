@@ -13,53 +13,40 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import co.edu.uniandes.misw4203.equipo11.vinilos.PreferenceDataStore
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.User
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.UserType
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.UserRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.UserViewModel
-import kotlinx.coroutines.launch
-
-enum class UserType {
-    Visitor,
-    Collector
-}
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
-//    val preferenceDataStore = PreferenceDataStore(LocalContext.current)
-    val coroutineScope = rememberCoroutineScope()
-
-    val userViewModel: UserViewModel = viewModel(
+    val viewModel: UserViewModel = viewModel(
         factory = UserViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
             set(UserViewModel.KEY_USER_REPOSITORY, UserRepository())
         }
     )
 
-    val onLogin: (UserType) -> Unit = { userType ->
-        coroutineScope.launch {
-            when (userType) {
-                UserType.Visitor -> userViewModel.setUser(User("Visitante"))
-                UserType.Collector -> userViewModel.setUser(User("Coleccionista"))
-            }
+    val status by viewModel.status.collectAsStateWithLifecycle(
+        UserViewModel.LoginUiState.NotLoggedIn
+    )
 
-            navController.navigate("albums") {
-                // Pop up everything as login screen should not be in backstack
-                popUpTo(0) {
-                    inclusive = true
-                }
+    if (status == UserViewModel.LoginUiState.LoggedIn) {
+        navController.navigate("albums") {
+            // Pop up everything as login screen should not be in backstack
+            popUpTo(0) {
+                inclusive = true
             }
         }
     }
@@ -84,7 +71,7 @@ fun LoginScreen(navController: NavHostController) {
 
         Row {
             Button(
-                onClick = { onLogin(UserType.Visitor) },
+                onClick = { viewModel.onLogin(UserType.Visitor) },
                 modifier = Modifier
                     .padding(0.dp, 0.dp, 16.dp, 0.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -94,7 +81,7 @@ fun LoginScreen(navController: NavHostController) {
             ) { Text(stringResource(R.string.login_visitor)) }
 
             Button(
-                onClick = { onLogin(UserType.Collector) },
+                onClick = { viewModel.onLogin(UserType.Collector) },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
