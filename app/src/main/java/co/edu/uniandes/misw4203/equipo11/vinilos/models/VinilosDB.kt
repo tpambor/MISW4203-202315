@@ -8,6 +8,7 @@ import androidx.room.TypeConverters
     entities = [
         Album::class,
         Collector::class,
+        CollectorPerformerCrossRef::class,
         Performer::class
     ],
     version = 2,
