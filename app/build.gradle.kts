@@ -78,6 +78,7 @@ dependencies {
     val roomVersion = "2.5.2"
     val fakerVersion = "1.15.0"
     val mockkVersion = "1.13.8"
+    val datastoreVersion = "1.0.0"
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
@@ -101,6 +102,7 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+    implementation("androidx.datastore:datastore-preferences:$datastoreVersion")
 
     implementation("me.omico.compose:compose-material3-pullrefresh")
 
@@ -119,7 +121,4 @@ dependencies {
 
     testImplementation("io.github.serpro69:kotlin-faker:$fakerVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
-    implementation("androidx.datastore:datastore-preferences-rxjava2:1.0.0")
-    implementation("androidx.datastore:datastore-preferences-rxjava3:1.0.0")
 }

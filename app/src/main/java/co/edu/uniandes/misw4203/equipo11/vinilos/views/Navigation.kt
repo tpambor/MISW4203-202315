@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -24,7 +23,6 @@ sealed class NavBarItem(val route: String, @StringRes val stringId: Int, @Drawab
     object Albums : NavBarItem("albums", R.string.nav_albums, R.drawable.ic_album_24)
     object Artists : NavBarItem("artists", R.string.nav_artists, R.drawable.ic_artist_24)
     object Collectors : NavBarItem("collectors", R.string.nav_collectors, R.drawable.ic_collector_24)
-
     object Login : NavBarItem("login", R.string.nav_login, R.drawable.ic_leave_24)
 }
 
@@ -44,12 +42,11 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
         composable(route = "albums") { AlbumListScreen(snackbarHostState) }
         composable(route = "artists") { ArtistListScreen(snackbarHostState) }
         composable(route = "collectors") { CollectorListScreen() }
-//        composable(route = "login") { mainNavController.navigate("login")}
     }
 }
 
 @Composable
-fun NavBar(navController: NavHostController, mainNavController:NavHostController, currentBackStackEntry: NavBackStackEntry?) {
+fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStackEntry?) {
     val route = currentBackStackEntry?.destination?.route
 
     NavigationBar(
@@ -58,12 +55,9 @@ fun NavBar(navController: NavHostController, mainNavController:NavHostController
         navBarItems.forEach { item ->
             NavigationBarItem(
                 selected = route == item.route,
-                label = { Text(text = stringResource(item.stringId), maxLines = 1,  overflow = TextOverflow.Ellipsis) },
+                label = { Text(stringResource(item.stringId)) },
                 icon = { Icon(painterResource(item.iconId), contentDescription = null) },
                 onClick = {
-                    if (item.route == "login") {
-                        mainNavController.navigate("login")
-                    } else {
                         if (item.route == route) return@NavigationBarItem
 
                         navController.navigate(item.route) {
@@ -78,7 +72,6 @@ fun NavBar(navController: NavHostController, mainNavController:NavHostController
                             // Avoid multiple copies of the same destination when
                             // reselecting the same item
                             launchSingleTop = true
-                        }
                     }
                 }
             )
