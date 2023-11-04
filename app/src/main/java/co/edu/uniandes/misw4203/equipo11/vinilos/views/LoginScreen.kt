@@ -20,9 +20,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import co.edu.uniandes.misw4203.equipo11.vinilos.PreferenceDataStore
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.User
+import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.UserRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.UserViewModel
 import kotlinx.coroutines.launch
 
 enum class UserType {
@@ -32,14 +38,27 @@ enum class UserType {
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
-    val preferenceDataStore = PreferenceDataStore(LocalContext.current)
+//    val preferenceDataStore = PreferenceDataStore(LocalContext.current)
     val coroutineScope = rememberCoroutineScope()
+
+    val context = LocalContext.current
+
+    val userPreferences: PreferenceDataStore by lazy {
+        PreferenceDataStore(context)
+    }
+
+    val userViewModel: UserViewModel = viewModel(
+        factory = UserViewModel.Factory,
+        extras = MutableCreationExtras(CreationExtras.Empty).apply {
+            set(UserViewModel.KEY_USER_REPOSITORY, UserRepository(userPreferences))
+        }
+    )
 
     val onLogin: (UserType) -> Unit = { userType ->
         coroutineScope.launch {
             when (userType) {
-                UserType.Visitor -> preferenceDataStore.saveUserType("Visitante")
-                UserType.Collector -> preferenceDataStore.saveUserType("Coleccionista")
+                UserType.Visitor -> userViewModel.setUser(User("Visitante"))
+                UserType.Collector -> userViewModel.setUser(User("Coleccionista"))
             }
 
             navController.navigate("albums") {

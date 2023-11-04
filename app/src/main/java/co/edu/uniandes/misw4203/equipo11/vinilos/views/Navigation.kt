@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -60,7 +61,7 @@ fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStack
         navBarItems.forEach { item ->
             NavigationBarItem(
                 selected = route == item.route,
-                label = { Text(stringResource(item.stringId)) },
+                label = { Text(stringResource(item.stringId), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 icon = { Icon(painterResource(item.iconId), contentDescription = null) },
                 onClick = {
                         if (item.route == route) return@NavigationBarItem

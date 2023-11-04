@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -14,13 +15,15 @@ class PreferenceDataStore(private val context: Context) {
 
     private val _userType = stringPreferencesKey("user_type")
 
-    val userType: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[_userType] ?: ""
+    fun getUser(): Flow<User?> {
+        return context.dataStore.data.map { preferences ->
+            User(preferences[_userType] ?: "")
+        }
     }
 
-    suspend fun saveUserType(userType: String) {
+    suspend fun setUser(user: User) {
         context.dataStore.edit { settings ->
-            settings[_userType] = userType
+            settings[_userType] = user.type
         }
     }
 }

@@ -33,7 +33,6 @@ import androidx.compose.material3.pullrefresh.pullRefresh
 import androidx.compose.material3.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -61,10 +60,13 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.PreferenceDataStore
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.PerformerType
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.User
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.PerformerRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.UserRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.ErrorUiState
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.PerformerListViewModel
+import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.UserViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
@@ -87,6 +89,27 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
     val bands by viewModel.bands.collectAsStateWithLifecycle(
         emptyList()
     )
+
+    val context = LocalContext.current
+
+    val userPreferences: PreferenceDataStore by lazy {
+        PreferenceDataStore(context)
+    }
+
+    val userViewModel: UserViewModel = viewModel(
+        factory = UserViewModel.Factory,
+        extras = MutableCreationExtras(CreationExtras.Empty).apply {
+            set(UserViewModel.KEY_USER_REPOSITORY, UserRepository(userPreferences))
+        }
+    )
+
+    val user by userViewModel.user.collectAsStateWithLifecycle(
+        null
+    )
+
+    LaunchedEffect(true) {
+        userViewModel.getUser()
+    }
 
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle(
         true
@@ -126,8 +149,8 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
                 }
             }
             when (tabIndex) {
-                0 -> ArtistsList(performers = musicians)
-                1 -> ArtistsList(performers = bands)
+                0 -> ArtistsList(performers = musicians, user)
+                1 -> ArtistsList(performers = bands, user)
             }
         }
 
@@ -148,7 +171,7 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun ArtistItem(performer: Performer, userType: String) {
+private fun ArtistItem(performer: Performer, userType: String?) {
     var isFavorite by remember { mutableStateOf(false) }
 
     val isColeccionista = userType == "Coleccionista"
@@ -218,16 +241,13 @@ private fun ArtistItem(performer: Performer, userType: String) {
 
 
 @Composable
-private fun ArtistsList(performers: List<Performer>) {
-    val preferenceDataStore = PreferenceDataStore(LocalContext.current)
-    val userType by preferenceDataStore.userType.collectAsState(initial = "")
-
+private fun ArtistsList(performers: List<Performer>, user: User?) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(180.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         items(performers) {
-                item: Performer -> ArtistItem(performer = item, userType = userType)
+                item: Performer -> ArtistItem(performer = item, userType = user?.type)
             
         }
     }
@@ -237,6 +257,7 @@ private fun ArtistsList(performers: List<Performer>) {
 @Composable
 private fun ArtistListScreenPreview() {
     @Suppress("SpellCheckingInspection")
+    val user = User("Coleccionista")
     val musician: List<Performer> = listOf(
         Performer(1, PerformerType.MUSICIAN,"Rubén Blades Bellido de Luna","red", "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.", Instant.now()),
         Performer(2, PerformerType.MUSICIAN, "Juan Luis Guerra","blue", "Es un cantautor, arreglista, músico, productor musical y empresario dominicano.", Instant.now()),
@@ -270,8 +291,8 @@ private fun ArtistListScreenPreview() {
                     }
                 }
                 when (tabIndex) {
-                    0 ->  ArtistsList(musician)
-                    1 ->  ArtistsList(bands)
+                    0 ->  ArtistsList(musician, user)
+                    1 ->  ArtistsList(bands, user)
                 }
             }
         }
