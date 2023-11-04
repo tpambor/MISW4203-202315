@@ -13,7 +13,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -37,8 +36,9 @@ private val navBarItems = listOf(
 fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHostState) {
     NavHost(
         navController = navController,
-        startDestination = "albums"
+        startDestination = "login"
     ) {
+        composable(route = "login") { LoginScreen(navController) }
         composable(route = "albums") { AlbumListScreen(snackbarHostState) }
         composable(route = "artists") { ArtistListScreen(snackbarHostState) }
         composable(route = "collectors") { CollectorListScreen() }
@@ -49,8 +49,13 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
 fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStackEntry?) {
     val route = currentBackStackEntry?.destination?.route
 
+    // Do not display NavigationBar for login screen
+    if (route == "login")
+        return
+
     NavigationBar(
-        modifier = Modifier.testTag("navbar")
+        modifier = Modifier.testTag("navbar"),
+
     ) {
         navBarItems.forEach { item ->
             NavigationBarItem(
@@ -61,17 +66,10 @@ fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStack
                         if (item.route == route) return@NavigationBarItem
 
                         navController.navigate(item.route) {
-                            // Pop up to the start destination of the graph to
-                            // avoid building up a large stack of destinations
-                            // on the back stack as users select items
-                            popUpTo(navController.graph.findStartDestination().id) {
+                            // Pop up everything as screens linked in navbar are on highest level
+                            popUpTo(0) {
                                 inclusive = true
                             }
-                            navController.graph.setStartDestination(item.route)
-
-                            // Avoid multiple copies of the same destination when
-                            // reselecting the same item
-                            launchSingleTop = true
                     }
                 }
             )

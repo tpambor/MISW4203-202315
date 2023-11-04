@@ -1,122 +1,92 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.views
 
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.ColorPainter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
 import co.edu.uniandes.misw4203.equipo11.vinilos.PreferenceDataStore
-import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.Placeholder
-import com.bumptech.glide.integration.compose.placeholder
-import kotlinx.coroutines.runBlocking
+import co.edu.uniandes.misw4203.equipo11.vinilos.R
+import kotlinx.coroutines.launch
 
+enum class UserType {
+    Visitor,
+    Collector
+}
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun LoginScreen(mainNavController: NavHostController) {
+fun LoginScreen(navController: NavHostController) {
     val preferenceDataStore = PreferenceDataStore(LocalContext.current)
+    val coroutineScope = rememberCoroutineScope()
 
-    val logo = "https://i.imgur.com/9IWVz0q.png"
-    var coverPreview: Placeholder? = null
-    if (LocalInspectionMode.current) {
-        coverPreview = placeholder(ColorPainter(Color(logo.toColorInt())))
-    }
+    val onLogin: (UserType) -> Unit = { userType ->
+        coroutineScope.launch {
+            when (userType) {
+                UserType.Visitor -> preferenceDataStore.saveUserType("Visitante")
+                UserType.Collector -> preferenceDataStore.saveUserType("Coleccionista")
+            }
 
-    // Click listener para el botón "Visitante"
-    val onVisitanteClick: () -> Unit = {
-        mainNavController.navigate("initial")
-        runBlocking {
-            preferenceDataStore.saveUserType("Visitante")
-        }
-    }
-
-    // Click listener para el botón "Coleccionista"
-    val onColeccionistaClick: () -> Unit = {
-        mainNavController.navigate("initial")
-        runBlocking {
-            preferenceDataStore.saveUserType("Coleccionista")
-        }
-    }
-
-
-    VinilosTheme {
-        Scaffold(
-            content = { padding ->
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Column (
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ){
-                        GlideImage(
-                            model = logo,
-                            contentDescription = null,
-                            loading = coverPreview,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .size(230.dp)
-                                .aspectRatio(1f)
-                                .align(Alignment.CenterHorizontally),
-                            contentScale = ContentScale.Crop
-                        )
-                        Text(text = "¿Cómo quieres ingresar?",
-                        modifier = Modifier.padding(0.dp, 20.dp, 0.dp, 10.dp))
-                        Row {
-                            Button(
-                                onClick = onVisitanteClick
-                                ,
-                                modifier = Modifier
-                                    .padding(0.dp, 0.dp, 16.dp, 0.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            ) {
-                                Text("Visitante")
-                            }
-                            Button(
-                                onClick = onColeccionistaClick,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            ) {
-                                Text("Coleccionista")
-                            }
-                        }
-                    }
+            navController.navigate("albums") {
+                // Pop up everything as login screen should not be in backstack
+                popUpTo(0) {
+                    inclusive = true
                 }
             }
+        }
+    }
+
+    Column (
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ){
+        Image(
+            modifier = Modifier
+                .size(230.dp)
+                .align(Alignment.CenterHorizontally),
+            painter = painterResource(R.drawable.ic_vinilos),
+            contentDescription = null
         )
+
+        Text(
+            modifier = Modifier.padding(0.dp, 20.dp, 0.dp, 10.dp),
+            text = stringResource(R.string.login_instruction),
+        )
+
+        Row {
+            Button(
+                onClick = { onLogin(UserType.Visitor) },
+                modifier = Modifier
+                    .padding(0.dp, 0.dp, 16.dp, 0.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            ) { Text(stringResource(R.string.login_visitor)) }
+
+            Button(
+                onClick = { onLogin(UserType.Collector) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            ) { Text(stringResource(R.string.login_collector)) }
+        }
     }
 }
