@@ -20,4 +20,10 @@ class NavBar(composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<MainAc
             hasText("Artistas").and(hasAnyAncestor(hasTestTag("navbar")))
         )
     }
+
+    fun getLogoutButton(): SemanticsNodeInteraction {
+        return findExactlyOne(
+            hasText("Salir").and(hasAnyAncestor(hasTestTag("navbar")))
+        )
+    }
 }

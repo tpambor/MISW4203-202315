@@ -47,6 +47,23 @@ fun LoginScreen(mainNavController: NavHostController) {
         coverPreview = placeholder(ColorPainter(Color(logo.toColorInt())))
     }
 
+    // Click listener para el botón "Visitante"
+    val onVisitanteClick: () -> Unit = {
+        mainNavController.navigate("initial")
+        runBlocking {
+            preferenceDataStore.saveUserType("Visitante")
+        }
+    }
+
+    // Click listener para el botón "Coleccionista"
+    val onColeccionistaClick: () -> Unit = {
+        mainNavController.navigate("initial")
+        runBlocking {
+            preferenceDataStore.saveUserType("Coleccionista")
+        }
+    }
+
+
     VinilosTheme {
         Scaffold(
             content = { padding ->
@@ -76,12 +93,8 @@ fun LoginScreen(mainNavController: NavHostController) {
                         modifier = Modifier.padding(0.dp, 20.dp, 0.dp, 10.dp))
                         Row {
                             Button(
-                                onClick = {
-                                    mainNavController.navigate("initial")
-                                    runBlocking {
-                                        preferenceDataStore.saveUserType("Visitante")
-                                    }
-                                },
+                                onClick = onVisitanteClick
+                                ,
                                 modifier = Modifier
                                     .padding(0.dp, 0.dp, 16.dp, 0.dp),
                                 colors = ButtonDefaults.buttonColors(
@@ -92,12 +105,7 @@ fun LoginScreen(mainNavController: NavHostController) {
                                 Text("Visitante")
                             }
                             Button(
-                                onClick = {
-                                    mainNavController.navigate("initial")
-                                    runBlocking {
-                                        preferenceDataStore.saveUserType("Coleccionista")
-                                    }
-                                },
+                                onClick = onColeccionistaClick,
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
