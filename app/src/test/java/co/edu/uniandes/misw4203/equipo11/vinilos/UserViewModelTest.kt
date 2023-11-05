@@ -2,10 +2,10 @@ package co.edu.uniandes.misw4203.equipo11.vinilos
 
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.User
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.UserType
-import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.IUserRepository
-import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.UserViewModel
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.User
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IUserRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow

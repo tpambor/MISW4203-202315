@@ -2,10 +2,10 @@ package co.edu.uniandes.misw4203.equipo11.vinilos
 
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.Album
-import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.IAlbumRepository
-import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.AlbumListViewModel
-import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.ErrorUiState
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IAlbumRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
 import io.github.serpro69.kfaker.Faker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
