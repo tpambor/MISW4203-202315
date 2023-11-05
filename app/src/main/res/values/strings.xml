@@ -8,6 +8,9 @@
     <string name="artists_tab_musicans">Músicos</string>
     <string name="artists_tab_bands">Bandas</string>
     <string name="artists_add_favorite">Agregar a favoritos</string>
+    <string name="empty_albums_list">No hay álbumes disponibles</string>
+    <string name="empty_musicians_list">No hay músicos disponibles</string>
+    <string name="empty_bands_list">No hay bandas disponibles</string>
     <string name="login_visitor">Visitante</string>
     <string name="login_collector">Coleccionista</string>
     <string name="login_instruction">¿Cómo quieres ingresar?</string>

@@ -137,8 +137,8 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
                 }
             }
             when (tabIndex) {
-                0 -> ArtistsList(performers = musicians, user)
-                1 -> ArtistsList(performers = bands, user)
+                0 -> ArtistsList(performers = musicians, user, "musicians")
+                1 -> ArtistsList(performers = bands, user, "bands")
             }
         }
 
@@ -229,15 +229,31 @@ private fun ArtistItem(performer: Performer, user: User?) {
 
 
 @Composable
-private fun ArtistsList(performers: List<Performer>, user: User?) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(180.dp),
-        modifier = Modifier.fillMaxSize()
-    ) {
-        items(performers) {
-                item: Performer -> ArtistItem(performer = item, user = user)
+private fun ArtistsList(performers: List<Performer>, user: User?, tab: String) {
+    val message = when (tab) {
+        "musicians" -> stringResource(R.string.empty_musicians_list)
+        "bands" -> stringResource(R.string.empty_bands_list)
+        else -> ""
+    }
+
+    if(performers.isNotEmpty()){
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(180.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(performers) {
+                    item: Performer -> ArtistItem(performer = item, user = user)
+            }
+        }
+    }else {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text(text = message)
         }
     }
+
 }
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -277,8 +293,8 @@ private fun ArtistListScreenPreview() {
                     }
                 }
                 when (tabIndex) {
-                    0 ->  ArtistsList(musician, user)
-                    1 ->  ArtistsList(bands, user)
+                    0 ->  ArtistsList(musician, user, "musicians")
+                    1 ->  ArtistsList(bands, user, "bands")
                 }
             }
         }
