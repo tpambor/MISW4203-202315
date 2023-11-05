@@ -40,6 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
+import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.AlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
@@ -140,14 +141,24 @@ private fun AlbumItem(album: Album) {
 
 @Composable
 private fun AlbumList(albums: List<Album>) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(180.dp),
-        modifier = Modifier.fillMaxSize()
-    ) {
-        items(albums) {
-                item: Album -> AlbumItem(item)
+    if(albums.isNotEmpty()){
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(180.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(albums) {
+                    item: Album -> AlbumItem(item)
+            }
+        }
+    }else{
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text(text = stringResource(R.string.empty_albums_list))
         }
     }
+    
 }
 
 @Preview(showBackground = true, showSystemUi = true)
