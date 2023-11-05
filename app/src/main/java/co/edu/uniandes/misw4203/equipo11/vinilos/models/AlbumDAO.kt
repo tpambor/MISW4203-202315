@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AlbumDAO {
-    @Query("SELECT * FROM album")
+    @Query("SELECT * FROM album ORDER BY name COLLATE UNICODE")
     fun getAlbums(): Flow<List<Album>>
 
     @Insert
