@@ -1,12 +1,12 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos
 
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.Album
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.Collector
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.CollectorWithPerformers
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.PerformerType
-import co.edu.uniandes.misw4203.equipo11.vinilos.network.HttpRequestQueue
-import co.edu.uniandes.misw4203.equipo11.vinilos.network.NetworkServiceAdapter
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorWithPerformers
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.HttpRequestQueue
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.slot

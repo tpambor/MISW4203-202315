@@ -1,6 +1,6 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos
 
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.Converters
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.Converters
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.Instant
