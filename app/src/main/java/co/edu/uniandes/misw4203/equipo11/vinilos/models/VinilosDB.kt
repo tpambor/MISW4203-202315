@@ -35,6 +35,5 @@ abstract class VinilosDB : RoomDatabase() {
                 return INSTANCE ?: throw IllegalStateException()
             }
         }
-
     }
 }
