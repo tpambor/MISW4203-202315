@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.text.Normalizer
 
 @Dao
 interface CollectorDAO {
@@ -69,6 +70,7 @@ interface CollectorDAO {
             collectors
                 .groupBy({ it.collector }, { it.performer })
                 .map { CollectorWithPerformers(it.key, it.value.filterNotNull()) }
+                .sortedBy { Normalizer.normalize(it.collector.name, Normalizer.Form.NFD) }
         }
     }
 
