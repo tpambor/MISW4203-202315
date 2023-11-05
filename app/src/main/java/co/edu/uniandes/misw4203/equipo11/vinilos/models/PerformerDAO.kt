@@ -15,6 +15,9 @@ interface PerformerDAO {
 
     fun getBands(): Flow<List<Performer>> = getPerformersByType(PerformerType.BAND)
 
+    @Query("SELECT p.* FROM CollectorFavoritePerformer cp JOIN Performer p on cp.performerId = p.id WHERE cp.collectorId = :collectorId")
+    fun getFavoritePerformersByCollectorId(collectorId: Int): Flow<List<Performer>>
+
     @Insert
     suspend fun insertPerformers(musicians: List<Performer>)
 

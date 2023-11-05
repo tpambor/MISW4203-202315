@@ -35,8 +35,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -74,10 +74,12 @@ import java.time.Instant
 
 @Composable
 fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
+    val userRepository = UserRepository()
     val viewModel: PerformerListViewModel = viewModel(
         factory = PerformerListViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
             set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, PerformerRepository())
+            set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
         }
     )
     val musicians by viewModel.musicians.collectAsStateWithLifecycle(
@@ -88,10 +90,14 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
         emptyList()
     )
 
+    val favoritePerformers by viewModel.favoritePerformers.collectAsStateWithLifecycle(
+        emptySet()
+    )
+
     val userViewModel: UserViewModel = viewModel(
         factory = UserViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
-            set(UserViewModel.KEY_USER_REPOSITORY, UserRepository())
+            set(UserViewModel.KEY_USER_REPOSITORY, userRepository)
         }
     )
 
@@ -112,7 +118,7 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
         stringResource(R.string.artists_tab_bands)
     )
 
-    var tabIndex by remember { mutableIntStateOf(0) }
+    var tabIndex by rememberSaveable { mutableIntStateOf(0) }
 
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
@@ -137,8 +143,8 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
                 }
             }
             when (tabIndex) {
-                0 -> ArtistsList(performers = musicians, user, "musicians")
-                1 -> ArtistsList(performers = bands, user, "bands")
+                0 -> ArtistsList(performers = musicians, user, favoritePerformers, "musicians")
+                1 -> ArtistsList(performers = bands, user, favoritePerformers, "bands")
             }
         }
 
@@ -159,11 +165,7 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun ArtistItem(performer: Performer, user: User?) {
-    var isFavorite by remember { mutableStateOf(false) }
-
-    val isCollector = user?.type == UserType.Collector
-
+private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: Boolean) {
     // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
 
     var coverPreview: Placeholder? = null
@@ -203,7 +205,6 @@ private fun ArtistItem(performer: Performer, user: User?) {
                 if(isCollector){
                     IconButton(
                         onClick = {
-                            isFavorite = !isFavorite
                             // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
                         },
                         modifier = Modifier
@@ -229,23 +230,25 @@ private fun ArtistItem(performer: Performer, user: User?) {
 
 
 @Composable
-private fun ArtistsList(performers: List<Performer>, user: User?, tab: String) {
+private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerformers: Set<Int>, tab: String) {
     val message = when (tab) {
         "musicians" -> stringResource(R.string.empty_musicians_list)
         "bands" -> stringResource(R.string.empty_bands_list)
         else -> ""
     }
 
-    if(performers.isNotEmpty()){
+    if(performers.isNotEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(180.dp),
             modifier = Modifier.fillMaxSize()
         ) {
-            items(performers) {
-                    item: Performer -> ArtistItem(performer = item, user = user)
+            items(performers) { item: Performer ->
+                val isFavorite = favoritePerformers.contains(item.id)
+
+                ArtistItem(item, user?.type == UserType.Collector, isFavorite)
             }
         }
-    }else {
+    } else {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxSize()
@@ -293,8 +296,8 @@ private fun ArtistListScreenPreview() {
                     }
                 }
                 when (tabIndex) {
-                    0 ->  ArtistsList(musician, user, "musicians")
-                    1 ->  ArtistsList(bands, user, "bands")
+                    0 ->  ArtistsList(musician, user, emptySet(), "musicians")
+                    1 ->  ArtistsList(bands, user, emptySet(), "bands")
                 }
             }
         }
