@@ -19,8 +19,8 @@ interface CollectorDAO {
     // Query list of collectors together with their favorite performers
     //
     // The relationship between Collector and Performers is many-to-many and
-    // cannot automatically be modelled by Room.
-    // Therefore, the query is created here manually.
+    // cannot automatically be modelled by Room. Therefore, the query is created here manually.
+    //
     // The query returns a row for each pair of Collector and Performer as such that
     // if a collector has various favorite performers various rows are returned.
     // If a collector has no favorite performers, null is returned.
@@ -42,6 +42,7 @@ interface CollectorDAO {
         @Embedded(prefix = "performer_") val performer: Performer?
     )
 
+    // Internal use only
     @Transaction
     @Query(
         "SELECT c.id as collector_id, c.name as collector_name, c.telephone as collector_telephone, c.email as collector_email, " +
@@ -69,26 +70,43 @@ interface CollectorDAO {
         return getCollectorsWithPerformer().map { collectors ->
             collectors
                 .groupBy({ it.collector }, { it.performer })
-                .map { CollectorWithPerformers(it.key, it.value.filterNotNull()) }
+                .map { collector ->
+                    CollectorWithPerformers(
+                        collector.key,
+                        collector.value
+                            .filterNotNull()
+                            .sortedBy { Normalizer.normalize(it.name, Normalizer.Form.NFD)  }
+                    )
+                }
                 .sortedBy { Normalizer.normalize(it.collector.name, Normalizer.Form.NFD) }
         }
     }
 
+    // Internal use only
     @Insert
     suspend fun insertCollectors(collectors: List<Collector>)
 
+    // Internal use only
     @Query("DELETE FROM collector")
     suspend fun deleteCollectors()
 
+    // Internal use only
     @Insert
     suspend fun insertCollectorFavoritePerformers(collectorFavoritePerformers: List<CollectorFavoritePerformer>)
 
+    // Internal use only
     @Query("DELETE FROM collectorfavoriteperformer")
     suspend fun deleteCollectorFavoritePerformer()
 
+    // Internal use only
+    // This is necessary, so that the list of collector with their favorite performers can
+    // be updated in a transaction guaranteeing the consistency of the database
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPerformers(performers: List<Performer>)
 
+    // Refresh the list of collectors and their favorite performers
+    // To make sure that the database is consistent it is necessary to update the performers
+    // associated with the collectors as well
     @Transaction
     suspend fun deleteAndInsertCollectors(collectors: List<CollectorWithPerformers>) {
         deleteCollectors()

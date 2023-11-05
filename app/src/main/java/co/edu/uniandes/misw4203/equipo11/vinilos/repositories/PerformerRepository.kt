@@ -22,14 +22,11 @@ class PerformerRepository : IPerformerRepository{
     override fun getMusicians(): Flow<List<Performer>?> = flow {
         db.performerDao().getMusicians().collect { musicians ->
             if (musicians.isEmpty()) {
-                Log.i("Musicians NOT DAO", musicians.toString())
                 if(!refreshMusicians()) {
                     emit(null)
                 }
             } else {
-                Log.i("Musicians DAO", musicians.toString())
                 emit(musicians)
-
             }
         }
     }
@@ -41,7 +38,6 @@ class PerformerRepository : IPerformerRepository{
                     emit(null)
                 }
             } else {
-                Log.i("Bands DAO", bands.toString())
                 emit(bands)
             }
         }
@@ -52,7 +48,6 @@ class PerformerRepository : IPerformerRepository{
 
         try {
             musicians = adapter.getMusicians().first()
-            Log.i("refreshMusicians", musicians.toString())
         } catch (ex: Exception) {
             Log.e(TAG, "Error loading musicians: $ex")
             return false
@@ -66,7 +61,6 @@ class PerformerRepository : IPerformerRepository{
 
         try {
             bands = adapter.getBands().first()
-            Log.i("refreshBands", bands.toString())
         } catch (ex: Exception) {
             Log.e(TAG, "Error loading bands: $ex")
             return false

@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
             this,
             VinilosDB::class.java,
             "vinilos.db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
         VinilosDB.setInstance(db)
 
         setContent {

@@ -11,11 +11,14 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.models.CollectorWithPerformers
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.ICollectorRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 
 class CollectorListViewModel(val collectorRepository: ICollectorRepository) : ViewModel() {
     private val _collectors: MutableStateFlow<List<CollectorWithPerformers>> = MutableStateFlow(emptyList())
-    val collectors = _collectors.asStateFlow()
+    val collectors = _collectors.asStateFlow().onSubscription { getCollectors() }
+    private val getCollectorsStarted: AtomicBoolean = AtomicBoolean(false)
 
     private val _isRefreshing = MutableStateFlow(true)
     val isRefreshing = _isRefreshing.asStateFlow()
@@ -23,7 +26,10 @@ class CollectorListViewModel(val collectorRepository: ICollectorRepository) : Vi
     private val _error = MutableStateFlow<ErrorUiState>(ErrorUiState.NoError)
     val error = _error.asStateFlow()
 
-    init {
+    private fun getCollectors() {
+        if (getCollectorsStarted.getAndSet(true))
+            return // Coroutine to get collectors was already started, only start once
+
         viewModelScope.launch {
             collectorRepository.getCollectorsWithFavoritePerformers()
                 .collect { collectors ->

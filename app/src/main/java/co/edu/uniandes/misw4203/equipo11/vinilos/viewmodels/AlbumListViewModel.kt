@@ -11,11 +11,14 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.IAlbumRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 
 class AlbumListViewModel(val albumRepository: IAlbumRepository) : ViewModel() {
     private val _albums: MutableStateFlow<List<Album>> = MutableStateFlow(emptyList())
-    val albums = _albums.asStateFlow()
+    val albums = _albums.asStateFlow().onSubscription { getAlbums() }
+    private val getAlbumsStarted: AtomicBoolean = AtomicBoolean(false)
 
     private val _isRefreshing = MutableStateFlow(true)
     val isRefreshing = _isRefreshing.asStateFlow()
@@ -23,7 +26,11 @@ class AlbumListViewModel(val albumRepository: IAlbumRepository) : ViewModel() {
     private val _error = MutableStateFlow<ErrorUiState>(ErrorUiState.NoError)
     val error = _error.asStateFlow()
 
-    init {
+
+    private fun getAlbums() {
+        if (getAlbumsStarted.getAndSet(true))
+            return // Coroutine to get albums was already started, only start once
+
         viewModelScope.launch {
             albumRepository.getAlbums()
                 .collect { albums ->

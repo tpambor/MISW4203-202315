@@ -21,6 +21,12 @@ class NavBar(composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<MainAc
         )
     }
 
+    fun getCollectorButton(): SemanticsNodeInteraction {
+        return findExactlyOne(
+            hasText("Coleccionistas").and(hasAnyAncestor(hasTestTag("navbar")))
+        )
+    }
+
     fun getLogoutButton(): SemanticsNodeInteraction {
         return findExactlyOne(
             hasText("Salir").and(hasAnyAncestor(hasTestTag("navbar")))

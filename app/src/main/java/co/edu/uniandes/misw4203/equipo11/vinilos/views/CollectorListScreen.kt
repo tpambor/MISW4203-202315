@@ -21,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -35,10 +36,13 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.models.Collector
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.CollectorWithPerformers
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.PerformerType
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.UserType
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.CollectorRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.UserRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.CollectorListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.ErrorUiState
+import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.UserViewModel
 import java.time.Instant
 
 @Composable
@@ -59,13 +63,24 @@ fun CollectorListScreen(snackbarHostState: SnackbarHostState) {
         ErrorUiState.NoError
     )
 
+    val userViewModel: UserViewModel = viewModel(
+        factory = UserViewModel.Factory,
+        extras = MutableCreationExtras(CreationExtras.Empty).apply {
+            set(UserViewModel.KEY_USER_REPOSITORY, UserRepository())
+        }
+    )
+    val user by userViewModel.user.collectAsStateWithLifecycle(
+        null
+    )
+    val userId = if (user?.type == UserType.Collector) user?.id else null
+
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
         onRefresh = { viewModel.onRefresh() }
     )
 
     Box(Modifier.pullRefresh(pullRefreshState)) {
-        CollectorList(collectors)
+        CollectorList(collectors, userId)
 
         PullRefreshIndicator(
             refreshing = isRefreshing,
@@ -84,9 +99,11 @@ fun CollectorListScreen(snackbarHostState: SnackbarHostState) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CollectorItem(collector: CollectorWithPerformers) {
+private fun CollectorItem(collector: CollectorWithPerformers, testTag: String) {
     ElevatedCard(
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier
+            .padding(8.dp)
+            .testTag(testTag),
         onClick = { /*TODO*/ }
     ) {
         Column(
@@ -108,22 +125,40 @@ private fun CollectorItem(collector: CollectorWithPerformers) {
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                text = collector.performers.joinToString { it.name }
+                text = if (collector.performers.isEmpty()) "-" else
+                    collector.performers.joinToString { it.name }
             )
         }
     }
 }
 
 @Composable
-private fun CollectorList(collectors: List<CollectorWithPerformers>) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(360.dp),
-        modifier = Modifier
-            .padding(8.dp)
-            .fillMaxSize()
-    ) {
-        items(collectors) {
-                item: CollectorWithPerformers -> CollectorItem(item)
+private fun CollectorList(collectors: List<CollectorWithPerformers>, userId: Int?) {
+    if (collectors.isNotEmpty()) {
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(360.dp),
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxSize()
+        ) {
+            if (userId != null) {
+                val collector = collectors.firstOrNull { it.collector.id == userId }
+                if (collector != null) {
+                    item {
+                        CollectorItem(collector, "collector-list-item-user")
+                    }
+                }
+            }
+            items(collectors.filterNot { it.collector.id == userId }) { item: CollectorWithPerformers ->
+                CollectorItem(item, "collector-list-item")
+            }
+        }
+    } else {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text(text = stringResource(R.string.empty_collector_list))
         }
     }
 }
@@ -151,7 +186,7 @@ private fun AlbumListScreenPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            CollectorList(collectors)
+            CollectorList(collectors, null)
         }
     }
 }

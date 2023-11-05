@@ -65,7 +65,7 @@ class UserViewModelTest {
             }
         )
 
-        val user = User(UserType.Visitor)
+        val user = User(UserType.Collector, 1)
 
         // Initially, there is no user yet
         assertEquals(null, viewModel.user.first())
