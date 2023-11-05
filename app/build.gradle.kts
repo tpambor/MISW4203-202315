@@ -35,6 +35,7 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -76,6 +77,10 @@ dependencies {
     val composeBomVersion = "2023.10.00"
     val roomVersion = "2.5.2"
     val fakerVersion = "1.15.0"
+    val mockkVersion = "1.13.8"
+    val datastoreVersion = "1.0.0"
+
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
@@ -97,6 +102,7 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+    implementation("androidx.datastore:datastore-preferences:$datastoreVersion")
 
     implementation("me.omico.compose:compose-material3-pullrefresh")
 
@@ -114,4 +120,5 @@ dependencies {
     implementation("androidx.room:room-ktx:$roomVersion")
 
     testImplementation("io.github.serpro69:kotlin-faker:$fakerVersion")
+    testImplementation("io.mockk:mockk:$mockkVersion")
 }

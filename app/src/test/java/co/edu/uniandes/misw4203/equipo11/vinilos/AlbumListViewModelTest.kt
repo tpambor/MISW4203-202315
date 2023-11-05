@@ -2,10 +2,10 @@ package co.edu.uniandes.misw4203.equipo11.vinilos
 
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.Album
-import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.IAlbumRepository
-import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.AlbumListViewModel
-import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.ErrorUiState
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IAlbumRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
 import io.github.serpro69.kfaker.Faker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -20,26 +20,27 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-
-class FakeAlbumRepository: IAlbumRepository {
-    private val flow = MutableSharedFlow<List<Album>?>()
-    suspend fun emit(value: List<Album>?) = flow.emit(value)
-
-    var failRefresh = false
-    var refreshCalled = false
-
-    override fun getAlbums(): Flow<List<Album>?> {
-        return flow
-    }
-
-    override suspend fun refresh(): Boolean {
-        refreshCalled = true
-
-        return !failRefresh
-    }
-}
+import java.time.Instant
 
 class AlbumListViewModelTest {
+    class FakeAlbumRepository: IAlbumRepository {
+        private val flow = MutableSharedFlow<List<Album>?>()
+        suspend fun emit(value: List<Album>?) = flow.emit(value)
+
+        var failRefresh = false
+        var refreshCalled = false
+
+        override fun getAlbums(): Flow<List<Album>?> {
+            return flow
+        }
+
+        override suspend fun refresh(): Boolean {
+            refreshCalled = true
+
+            return !failRefresh
+        }
+    }
+
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -76,21 +77,24 @@ class AlbumListViewModelTest {
             Album(
                 id = id,
                 name = faker.music.albums(),
+                cover = "https://loremflickr.com/480/480/album?lock=${faker.random.nextInt(0, 100)}",
+                releaseDate = Instant.ofEpochMilli(faker.random.nextLong(System.currentTimeMillis())),
+                description = faker.quote.yoda(),
                 genre = faker.music.genres(),
-                cover = "https://loremflickr.com/480/480/album?lock=${faker.random.nextInt(0, 100)}"
+                recordLabel = faker.random.randomValue(listOf("Sony Music", "EMI", "Discos Fuentes", "Elektra", "Fania Records"))
             )
         }
 
         // Initially, there are no albums yet
         assertEquals(emptyList<Album>(), viewModel.albums.first())
-        assertEquals(ErrorUiState.NoError, viewModel.error.first().errorState)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
         // Repository emits albums
         repository.emit(data)
 
         // Then, list of albums is filled with the data
         assertEquals(data, viewModel.albums.first())
-        assertEquals(ErrorUiState.NoError, viewModel.error.first().errorState)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 
     @Test
@@ -106,7 +110,7 @@ class AlbumListViewModelTest {
 
         // Initially, there are no albums yet
         assertEquals(emptyList<Album>(), viewModel.albums.first())
-        assertEquals(ErrorUiState.NoError, viewModel.error.first().errorState)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
         // Repository emits null (unable to fetch data)
         repository.emit(null)
@@ -115,8 +119,8 @@ class AlbumListViewModelTest {
         assertEquals(emptyList<Album>(), viewModel.albums.first())
 
         val error = viewModel.error.value
-        assert(error.errorState is ErrorUiState.Error)
-        val errorState: ErrorUiState.Error = error.errorState as ErrorUiState.Error
+        assert(error is ErrorUiState.Error)
+        val errorState: ErrorUiState.Error = error as ErrorUiState.Error
         assertEquals(R.string.network_error, errorState.resourceId)
     }
 
@@ -131,13 +135,13 @@ class AlbumListViewModelTest {
             }
         )
 
-        assertEquals(ErrorUiState.NoError, viewModel.error.first().errorState)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
         repository.failRefresh = false
 
         assertFalse(repository.refreshCalled)
         viewModel.onRefresh()
         assertTrue(repository.refreshCalled)
-        assertEquals(ErrorUiState.NoError, viewModel.error.first().errorState)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 
     @Test
@@ -151,7 +155,7 @@ class AlbumListViewModelTest {
             }
         )
 
-        assertEquals(ErrorUiState.NoError, viewModel.error.first().errorState)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
         repository.failRefresh = true
 
         assertFalse(repository.refreshCalled)
@@ -159,8 +163,8 @@ class AlbumListViewModelTest {
         assertTrue(repository.refreshCalled)
 
         val error = viewModel.error.value
-        assert(error.errorState is ErrorUiState.Error)
-        val errorState: ErrorUiState.Error = error.errorState as ErrorUiState.Error
+        assert(error is ErrorUiState.Error)
+        val errorState: ErrorUiState.Error = error as ErrorUiState.Error
         assertEquals(R.string.network_error, errorState.resourceId)
     }
 }
