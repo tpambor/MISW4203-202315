@@ -1,5 +1,6 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects
 
+import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.hasTestTag
@@ -20,13 +21,6 @@ class ArtistList(composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<Ma
         )
     }
 
-    fun missingFavButton(): SemanticsNodeInteractionCollection {
-        return findNoMatches (
-            hasTestTag("performer-fav-button")
-        )
-    }
-
-
     // Method to select "músicos" Tab
     fun selectMusiciansTab(): SemanticsNodeInteraction {
         return findExactlyOne(
@@ -39,6 +33,16 @@ class ArtistList(composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<Ma
         return findExactlyOne(
             hasTestTag("Bandas")
         )
+    }
+
+    fun hasFavButtons(): Boolean {
+        try {
+            getFavButton()
+        } catch (ex: ComposeTimeoutException) {
+            return false
+        }
+
+        return true
     }
 
 }

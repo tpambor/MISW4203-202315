@@ -1,6 +1,8 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos
 
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.Collector
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.CollectorWithPerformers
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.network.HttpRequestQueue
@@ -148,6 +150,67 @@ class NetworkServiceAdapterTest {
         val adapter = NetworkServiceAdapter()
         val bands = adapter.getBands().first()
         assertEquals(bandsExpected, bands)
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldReturnCollectors() = runTest {
+        val collectorsJSON = javaClass.getResource("/collectors.json").readText()
+        val mockRequest = MockRequest { url ->
+            assertEquals( NetworkServiceAdapter.API_BASE_URL + "/collectors", url)
+            collectorsJSON
+        }
+
+        val collectorsExpected = listOf(
+            CollectorWithPerformers(
+                collector = Collector(
+                    id = 100,
+                    name = "Manolo Bellon",
+                    telephone = "3502457896",
+                    email = "manollo@caracol.com.co",
+                ),
+                performers = listOf(
+                    Performer(
+                        id = 100,
+                        type = PerformerType.MUSICIAN,
+                        name = "Rubén Blades Bellido de Luna",
+                        image = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Ruben_Blades_by_Gage_Skidmore.jpg/800px-Ruben_Blades_by_Gage_Skidmore.jpg",
+                        description = "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.",
+                        birthDate = Instant.parse("1948-07-16T00:00:00.000Z")
+                    ),
+                    Performer(
+                        id = 101,
+                        type = PerformerType.BAND,
+                        name = "Queen",
+                        image = "https://pm1.narvii.com/6724/a8b29909071e9d08517b40c748b6689649372852v2_hq.jpg",
+                        description = "Queen es una banda británica de rock formada en 1970 en Londres por el cantante Freddie Mercury, el guitarrista Brian May, el baterista Roger Taylor y el bajista John Deacon. Si bien el grupo ha presentado bajas de dos de sus miembros (Mercury, fallecido en 1991, y Deacon, retirado en 1997), los integrantes restantes, May y Taylor, continúan trabajando bajo el nombre Queen, por lo que la banda aún se considera activa.",
+                        birthDate = Instant.parse("1970-01-01T00:00:00.000Z")
+                    )
+                )
+            ),
+            CollectorWithPerformers(
+                collector = Collector(
+                    id = 101,
+                    name = "Jaime Monsalve",
+                    telephone = "3012357936",
+                    email = "jmonsalve@rtvc.com.co",
+                ),
+                performers = listOf(
+                    Performer(
+                        id = 101,
+                        type = PerformerType.BAND,
+                        name = "Queen",
+                        image = "https://pm1.narvii.com/6724/a8b29909071e9d08517b40c748b6689649372852v2_hq.jpg",
+                        description = "Queen es una banda británica de rock formada en 1970 en Londres por el cantante Freddie Mercury, el guitarrista Brian May, el baterista Roger Taylor y el bajista John Deacon. Si bien el grupo ha presentado bajas de dos de sus miembros (Mercury, fallecido en 1991, y Deacon, retirado en 1997), los integrantes restantes, May y Taylor, continúan trabajando bajo el nombre Queen, por lo que la banda aún se considera activa.",
+                        birthDate = Instant.parse("1970-01-01T00:00:00.000Z")
+                    )
+                )
+            )
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val collectors = adapter.getCollectors().first()
+        assertEquals(collectorsExpected, collectors)
         assertTrue(mockRequest.called)
     }
 }

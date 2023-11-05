@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PerformerDAO {
-    @Query("SELECT * FROM performer WHERE type = :performerType")
+    @Query("SELECT * FROM performer WHERE type = :performerType ORDER BY name COLLATE UNICODE")
     fun getPerformersByType(performerType: PerformerType): Flow<List<Performer>>
 
     fun getMusicians(): Flow<List<Performer>> = getPerformersByType(PerformerType.MUSICIAN)

@@ -7,18 +7,18 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.Album
-import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.IAlbumRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.CollectorWithPerformers
+import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.ICollectorRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 
-class AlbumListViewModel(val albumRepository: IAlbumRepository) : ViewModel() {
-    private val _albums: MutableStateFlow<List<Album>> = MutableStateFlow(emptyList())
-    val albums = _albums.asStateFlow().onSubscription { getAlbums() }
-    private val getAlbumsStarted: AtomicBoolean = AtomicBoolean(false)
+class CollectorListViewModel(val collectorRepository: ICollectorRepository) : ViewModel() {
+    private val _collectors: MutableStateFlow<List<CollectorWithPerformers>> = MutableStateFlow(emptyList())
+    val collectors = _collectors.asStateFlow().onSubscription { getCollectors() }
+    private val getCollectorsStarted: AtomicBoolean = AtomicBoolean(false)
 
     private val _isRefreshing = MutableStateFlow(true)
     val isRefreshing = _isRefreshing.asStateFlow()
@@ -26,18 +26,17 @@ class AlbumListViewModel(val albumRepository: IAlbumRepository) : ViewModel() {
     private val _error = MutableStateFlow<ErrorUiState>(ErrorUiState.NoError)
     val error = _error.asStateFlow()
 
-
-    private fun getAlbums() {
-        if (getAlbumsStarted.getAndSet(true))
-            return // Coroutine to get albums was already started, only start once
+    private fun getCollectors() {
+        if (getCollectorsStarted.getAndSet(true))
+            return // Coroutine to get collectors was already started, only start once
 
         viewModelScope.launch {
-            albumRepository.getAlbums()
-                .collect { albums ->
-                    if (albums == null) {
+            collectorRepository.getCollectorsWithFavoritePerformers()
+                .collect { collectors ->
+                    if (collectors == null) {
                         _error.value = ErrorUiState.Error(R.string.network_error)
                     } else {
-                        _albums.value = albums
+                        _collectors.value = collectors
                         _error.value = ErrorUiState.NoError
                     }
                     _isRefreshing.value = false
@@ -50,7 +49,7 @@ class AlbumListViewModel(val albumRepository: IAlbumRepository) : ViewModel() {
         _error.value = ErrorUiState.NoError
 
         viewModelScope.launch {
-            if (!albumRepository.refresh()) {
+            if (!collectorRepository.refresh()) {
                 _isRefreshing.value = false
                 _error.value = ErrorUiState.Error(R.string.network_error)
             }
@@ -59,12 +58,12 @@ class AlbumListViewModel(val albumRepository: IAlbumRepository) : ViewModel() {
 
     // ViewModel factory
     companion object {
-        val KEY_ALBUM_REPOSITORY = object : CreationExtras.Key<IAlbumRepository> {}
+        val KEY_COLLECTOR_REPOSITORY = object : CreationExtras.Key<ICollectorRepository> {}
 
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                AlbumListViewModel(
-                    albumRepository = requireNotNull(this[KEY_ALBUM_REPOSITORY]),
+                CollectorListViewModel(
+                    collectorRepository = requireNotNull(this[KEY_COLLECTOR_REPOSITORY]),
                 )
             }
         }
