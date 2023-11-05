@@ -12,7 +12,9 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.models.UserType
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.IUserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 
 class UserViewModel(val userRepository: IUserRepository) : ViewModel() {
     @Immutable
@@ -25,9 +27,13 @@ class UserViewModel(val userRepository: IUserRepository) : ViewModel() {
     val status = _status.asStateFlow()
 
     private val _user = MutableStateFlow<User?>(null)
-    val user = _user.asStateFlow()
+    val user = _user.asStateFlow().onSubscription { getUser() }
+    private val getUserStarted: AtomicBoolean = AtomicBoolean(false)
 
     private fun getUser() {
+        if (getUserStarted.getAndSet(true))
+            return // Coroutine to get user was already started, only start once
+
         viewModelScope.launch {
             userRepository.getUser().collect { user ->
                 _user.value = user
@@ -40,10 +46,6 @@ class UserViewModel(val userRepository: IUserRepository) : ViewModel() {
             userRepository.login(userType)
             _status.value = LoginUiState.LoggedIn
         }
-    }
-
-    init {
-        getUser()
     }
 
     companion object {

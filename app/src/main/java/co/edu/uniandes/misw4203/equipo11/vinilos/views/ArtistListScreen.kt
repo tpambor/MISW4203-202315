@@ -259,7 +259,7 @@ private fun ArtistsList(performers: List<Performer>, user: User?, tab: String) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun ArtistListScreenPreview() {
-    val user = User(UserType.Collector)
+    val user = User(UserType.Collector, 1)
     val musician: List<Performer> = listOf(
         Performer(1, PerformerType.MUSICIAN,"Rubén Blades Bellido de Luna","red", "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.", Instant.now()),
         Performer(2, PerformerType.MUSICIAN, "Juan Luis Guerra","blue", "Es un cantautor, arreglista, músico, productor musical y empresario dominicano.", Instant.now()),

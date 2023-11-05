@@ -18,6 +18,6 @@ class UserRepository: IUserRepository {
     }
 
     override suspend fun login(userType: UserType) {
-        userPreferences.setUser(User(userType))
+        userPreferences.setUser(User(userType, 1))
     }
 }

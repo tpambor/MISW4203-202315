@@ -14,4 +14,6 @@
     <string name="login_visitor">Visitante</string>
     <string name="login_collector">Coleccionista</string>
     <string name="login_instruction">¿Cómo quieres ingresar?</string>
+    <string name="collectors_list_artists_title">Artistas favoritos:</string>
+    <string name="empty_collector_list">No hay coleccionistas disponibles</string>
 </resources>

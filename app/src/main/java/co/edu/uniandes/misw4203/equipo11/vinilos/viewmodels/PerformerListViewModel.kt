@@ -11,14 +11,18 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.IPerformerRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 
 class PerformerListViewModel(val performerRepository: IPerformerRepository) : ViewModel() {
     private val _musicians: MutableStateFlow<List<Performer>> = MutableStateFlow(emptyList())
-    val musicians = _musicians.asStateFlow()
+    val musicians = _musicians.asStateFlow().onSubscription { getMusicians() }
+    private val getMusiciansStarted: AtomicBoolean = AtomicBoolean(false)
 
     private val _bands: MutableStateFlow<List<Performer>> = MutableStateFlow(emptyList())
-    val bands = _bands.asStateFlow()
+    val bands = _bands.asStateFlow().onSubscription { getBands() }
+    private val getBandsStarted: AtomicBoolean = AtomicBoolean(false)
 
     private val _isRefreshing = MutableStateFlow(true)
     val isRefreshing = _isRefreshing.asStateFlow()
@@ -26,12 +30,10 @@ class PerformerListViewModel(val performerRepository: IPerformerRepository) : Vi
     private val _error = MutableStateFlow<ErrorUiState>(ErrorUiState.NoError)
     val error = _error.asStateFlow()
 
-    init {
-        getMusicians()
-        getBands()
-    }
+    private fun getMusicians() {
+        if (getMusiciansStarted.getAndSet(true))
+            return // Coroutine to get musicians was already started, only start once
 
-    private fun getMusicians(){
         viewModelScope.launch {
             performerRepository.getMusicians()
                 .collect { musicians ->
@@ -46,7 +48,10 @@ class PerformerListViewModel(val performerRepository: IPerformerRepository) : Vi
         }
     }
 
-    private fun getBands(){
+    private fun getBands() {
+        if (getBandsStarted.getAndSet(true))
+            return // Coroutine to get bands was already started, only start once
+
         viewModelScope.launch {
             performerRepository.getBands()
                 .collect { bands ->
