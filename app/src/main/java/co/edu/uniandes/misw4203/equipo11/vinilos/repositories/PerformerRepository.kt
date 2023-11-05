@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.flow
 interface IPerformerRepository {
     fun getMusicians(): Flow<List<Performer>?>
     fun getBands(): Flow<List<Performer>?>
+    fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>>
     suspend fun refreshMusicians(): Boolean
     suspend fun refreshBands(): Boolean
 }
@@ -40,6 +41,12 @@ class PerformerRepository : IPerformerRepository{
             } else {
                 emit(bands)
             }
+        }
+    }
+
+    override fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>> = flow {
+        db.performerDao().getFavoritePerformersByCollectorId(collectorId).collect { performers ->
+            emit(performers)
         }
     }
 

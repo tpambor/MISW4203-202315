@@ -4,7 +4,10 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.models.PerformerType
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.User
+import co.edu.uniandes.misw4203.equipo11.vinilos.models.UserType
 import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.IPerformerRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.IUserRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.ErrorUiState
 import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.PerformerListViewModel
 import io.github.serpro69.kfaker.Faker
@@ -28,6 +31,8 @@ class PerformerListViewModelTest {
     class FakePerformerRepository: IPerformerRepository {
         private val musiciansFlow = MutableSharedFlow<List<Performer>?>()
         private val bandsFlow = MutableSharedFlow<List<Performer>?>()
+        private val favoritesFlow = MutableSharedFlow<List<Performer>>()
+
         var failMusiciansRefresh = false
         var failBandsRefresh = false
         var refreshMusiciansCalled = false
@@ -35,8 +40,12 @@ class PerformerListViewModelTest {
 
         suspend fun emitMusicians(value: List<Performer>?) = musiciansFlow.emit(value)
         suspend fun emitBands(value: List<Performer>?) = bandsFlow.emit(value)
+        suspend fun emitFavorites(value: List<Performer>) = favoritesFlow.emit(value)
+
         override fun getMusicians(): Flow<List<Performer>?> = musiciansFlow
         override fun getBands(): Flow<List<Performer>?> = bandsFlow
+        override fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>> = favoritesFlow
+
         override suspend fun refreshMusicians(): Boolean {
             refreshMusiciansCalled = true
             return !failMusiciansRefresh
@@ -44,6 +53,21 @@ class PerformerListViewModelTest {
         override suspend fun refreshBands(): Boolean {
             refreshBandsCalled = true
             return !failBandsRefresh
+        }
+    }
+
+    class FakeUserRepository: IUserRepository {
+        private val flow = MutableSharedFlow<User?>()
+        suspend fun emit(value: User?) = flow.emit(value)
+
+        var loginCalled = false
+
+        override fun getUser(): Flow<User?> {
+            return flow
+        }
+
+        override suspend fun login(userType: UserType) {
+            loginCalled = true
         }
     }
 
@@ -56,11 +80,13 @@ class PerformerListViewModelTest {
     @Test
     fun canCreate() {
         val repository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
 
         val viewModel = PerformerListViewModel.Factory.create(
             PerformerListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
             }
         )
 
@@ -71,11 +97,13 @@ class PerformerListViewModelTest {
     @Test
     fun listsMusicians() = runTest {
         val repository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
 
         val viewModel = PerformerListViewModel.Factory.create(
             PerformerListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
             }
         )
 
@@ -105,11 +133,13 @@ class PerformerListViewModelTest {
     @Test
     fun listsBands() = runTest {
         val repository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
 
         val viewModel = PerformerListViewModel.Factory.create(
             PerformerListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
             }
         )
 
@@ -138,11 +168,13 @@ class PerformerListViewModelTest {
     @Test
     fun musiciansError() = runTest {
         val repository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
 
         val viewModel = PerformerListViewModel.Factory.create(
             PerformerListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
             }
         )
 
@@ -162,11 +194,13 @@ class PerformerListViewModelTest {
     @Test
     fun bandsError() = runTest {
         val repository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
 
         val viewModel = PerformerListViewModel.Factory.create(
             PerformerListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
             }
         )
 
@@ -185,41 +219,45 @@ class PerformerListViewModelTest {
 
     @Test
     fun refreshMusiciansSuccess() = runTest {
-        val repository = FakePerformerRepository()
+        val performerRepository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
 
         val viewModel = PerformerListViewModel.Factory.create(
             PerformerListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
-                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, performerRepository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
             }
         )
 
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
-        repository.failMusiciansRefresh = false
+        performerRepository.failMusiciansRefresh = false
 
-        assertFalse(repository.refreshMusiciansCalled)
+        assertFalse(performerRepository.refreshMusiciansCalled)
         viewModel.onRefreshMusicians()
-        assertTrue(repository.refreshMusiciansCalled)
+        assertTrue(performerRepository.refreshMusiciansCalled)
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 
     @Test
     fun refreshMusiciansFail() = runTest {
-        val repository = FakePerformerRepository()
+        val performerRepository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
 
         val viewModel = PerformerListViewModel.Factory.create(
             PerformerListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
-                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, performerRepository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
             }
         )
 
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
-        repository.failMusiciansRefresh = true
+        performerRepository.failMusiciansRefresh = true
 
-        assertFalse(repository.refreshMusiciansCalled)
+        assertFalse(performerRepository.refreshMusiciansCalled)
         viewModel.onRefreshMusicians()
-        assertTrue(repository.refreshMusiciansCalled)
+        assertTrue(performerRepository.refreshMusiciansCalled)
 
         val error = viewModel.error.value
         assert(error is ErrorUiState.Error)
@@ -229,32 +267,36 @@ class PerformerListViewModelTest {
 
     @Test
     fun refreshBandsSuccess() = runTest {
-        val repository = FakePerformerRepository()
+        val performerRepository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
 
         val viewModel = PerformerListViewModel.Factory.create(
             PerformerListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
-                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, performerRepository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
             }
         )
 
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
-        repository.failBandsRefresh = false
+        performerRepository.failBandsRefresh = false
 
-        assertFalse(repository.refreshBandsCalled)
+        assertFalse(performerRepository.refreshBandsCalled)
         viewModel.onRefreshBands()
-        assertTrue(repository.refreshBandsCalled)
+        assertTrue(performerRepository.refreshBandsCalled)
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 
     @Test
     fun refreshBandsFail() = runTest {
         val repository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
 
         val viewModel = PerformerListViewModel.Factory.create(
             PerformerListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
             }
         )
 
