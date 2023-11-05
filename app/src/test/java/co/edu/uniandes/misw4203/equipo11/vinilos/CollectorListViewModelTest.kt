@@ -2,13 +2,13 @@ package co.edu.uniandes.misw4203.equipo11.vinilos
 
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.Collector
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.CollectorWithPerformers
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.PerformerType
-import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.ICollectorRepository
-import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.CollectorListViewModel
-import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.ErrorUiState
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorWithPerformers
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.ICollectorRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.CollectorListViewModel
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
 import io.github.serpro69.kfaker.Faker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

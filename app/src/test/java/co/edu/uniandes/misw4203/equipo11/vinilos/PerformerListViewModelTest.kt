@@ -2,14 +2,14 @@ package co.edu.uniandes.misw4203.equipo11.vinilos
 
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.Performer
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.PerformerType
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.User
-import co.edu.uniandes.misw4203.equipo11.vinilos.models.UserType
-import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.IPerformerRepository
-import co.edu.uniandes.misw4203.equipo11.vinilos.repositories.IUserRepository
-import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.ErrorUiState
-import co.edu.uniandes.misw4203.equipo11.vinilos.viewmodels.PerformerListViewModel
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.User
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IPerformerRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IUserRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.PerformerListViewModel
 import io.github.serpro69.kfaker.Faker
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse

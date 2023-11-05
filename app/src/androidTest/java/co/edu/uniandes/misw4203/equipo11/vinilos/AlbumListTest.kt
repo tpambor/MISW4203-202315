@@ -6,6 +6,7 @@ import androidx.compose.ui.test.performClick
 import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.AlbumList
 import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.Login
 import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.NavBar
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.MainActivity
 import org.junit.Rule
 import org.junit.Test
 
