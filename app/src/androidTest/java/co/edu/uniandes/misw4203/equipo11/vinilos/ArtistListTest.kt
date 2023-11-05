@@ -6,6 +6,7 @@ import androidx.compose.ui.test.performClick
 import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.ArtistList
 import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.Login
 import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.NavBar
+import junit.framework.TestCase.assertFalse
 import org.junit.Rule
 import org.junit.Test
 
@@ -43,7 +44,7 @@ class ArtistListTest {
         clickAndShowListMusicians(navbar, artistList)
 
         // And I can see Fav buttons
-        assert(artistList.getFavButton().fetchSemanticsNodes().isNotEmpty())
+        assert(artistList.hasFavButtons())
     }
 
     @Test
@@ -58,7 +59,7 @@ class ArtistListTest {
         clickAndShowListMusicians(navbar, artistList)
 
         // And I can't see Fav buttons
-        assert(artistList.missingFavButton().fetchSemanticsNodes().isEmpty())
+        assertFalse(artistList.hasFavButtons())
     }
 
     @Test
@@ -73,7 +74,7 @@ class ArtistListTest {
         clickAndShowListBands(navbar, artistList)
 
         // And I can see Fav buttons
-        assert(artistList.getFavButton().fetchSemanticsNodes().isNotEmpty())
+        assert(artistList.hasFavButtons())
     }
 
     @Test
@@ -88,6 +89,6 @@ class ArtistListTest {
         clickAndShowListBands(navbar, artistList)
 
         // And I can't see Fav buttons
-        assert(artistList.missingFavButton().fetchSemanticsNodes().isEmpty())
+        assertFalse(artistList.hasFavButtons())
     }
 }
