@@ -13,7 +13,12 @@ interface PerformerDAO {
     @Query("SELECT * FROM performer WHERE type = :performerType ORDER BY name COLLATE UNICODE")
     fun getPerformersByType(performerType: PerformerType): Flow<List<Performer>>
 
+    @Query("SELECT * FROM performer WHERE id = :performerId AND type = :performerType")
+    fun getPerformersByTypeId(performerType: PerformerType, performerId: Int): Flow<Performer?>
+
     fun getMusicians(): Flow<List<Performer>> = getPerformersByType(PerformerType.MUSICIAN)
+
+    fun getMusicianById(performerId: Int): Flow<Performer?> = getPerformersByTypeId(PerformerType.MUSICIAN, performerId)
 
     fun getBands(): Flow<List<Performer>> = getPerformersByType(PerformerType.BAND)
 
