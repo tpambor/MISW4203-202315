@@ -24,7 +24,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -35,7 +34,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,21 +46,19 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.User
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.PerformerRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.UserRepository
-import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.PerformerListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
@@ -70,10 +66,9 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
-import java.time.Instant
 
 @Composable
-fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
+fun ArtistListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
     val userRepository = UserRepository()
     val viewModel: PerformerListViewModel = viewModel(
         factory = PerformerListViewModel.Factory,
@@ -143,8 +138,8 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
                 }
             }
             when (tabIndex) {
-                0 -> ArtistsList(performers = musicians, user, favoritePerformers, "musicians")
-                1 -> ArtistsList(performers = bands, user, favoritePerformers, "bands")
+                0 -> ArtistsList(performers = musicians, user, favoritePerformers, "musicians", navController)
+                1 -> ArtistsList(performers = bands, user, favoritePerformers, "bands", navController)
             }
         }
 
@@ -165,7 +160,7 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: Boolean) {
+private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: Boolean, navController: NavHostController) {
     // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
 
     var coverPreview: Placeholder? = null
@@ -178,7 +173,7 @@ private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: B
             .testTag("performer-list-item"),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
-        onClick = { /*TODO: Acción para llevar al detalle*/ }
+        onClick = { navController.navigate("artists/${performer.id}") }
     ) {
         Column {
             GlideImage(
@@ -230,7 +225,7 @@ private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: B
 
 
 @Composable
-private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerformers: Set<Int>, tab: String) {
+private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerformers: Set<Int>, tab: String, navController: NavHostController) {
     val message = when (tab) {
         "musicians" -> stringResource(R.string.empty_musicians_list)
         "bands" -> stringResource(R.string.empty_bands_list)
@@ -245,7 +240,7 @@ private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerfor
             items(performers) { item: Performer ->
                 val isFavorite = favoritePerformers.contains(item.id)
 
-                ArtistItem(item, user?.type == UserType.Collector, isFavorite)
+                ArtistItem(item, user?.type == UserType.Collector, isFavorite, navController)
             }
         }
     } else {
@@ -259,47 +254,47 @@ private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerfor
 
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-private fun ArtistListScreenPreview() {
-    val user = User(UserType.Collector, 1)
-    val musician: List<Performer> = listOf(
-        Performer(1, PerformerType.MUSICIAN,"Rubén Blades Bellido de Luna","red", "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.", Instant.now()),
-        Performer(2, PerformerType.MUSICIAN, "Juan Luis Guerra","blue", "Es un cantautor, arreglista, músico, productor musical y empresario dominicano.", Instant.now()),
-        Performer(3, PerformerType.MUSICIAN, "Freddie Mercury","green", "Fue un cantante y compositor británico de origen parsi que alcanzó fama mundial por ser el vocalista principal y pianista de la banda de rock Queen.", Instant.now())
-    )
-
-    val bands: List<Performer> = listOf(
-        Performer(1, PerformerType.BAND, "Queen","red", "Es una banda británica de rock formada en 1970 en Londres.", Instant.now()),
-        Performer(2, PerformerType.BAND,"Fania All Starts","blue", "Es una agrupación de salsa y música caribeña que a lo largo de su historia ha experimentado diversos géneros musicales como: el rock, jazz, mambo, soul, y más.", Instant.now()),
-    )
-    val tabs = listOf(
-        stringResource(R.string.artists_tab_musicans),
-        stringResource(R.string.artists_tab_bands)
-    )
-
-    var tabIndex by remember { mutableIntStateOf(0) }
-
-    VinilosTheme {
-        // A surface container using the 'background' color from the theme
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            Column {
-                TabRow(selectedTabIndex = tabIndex) {
-                    tabs.forEachIndexed { index, title ->
-                        Tab(text = { Text(title) },
-                            selected = tabIndex == index,
-                            onClick = { tabIndex = index }
-                        )
-                    }
-                }
-                when (tabIndex) {
-                    0 ->  ArtistsList(musician, user, emptySet(), "musicians")
-                    1 ->  ArtistsList(bands, user, emptySet(), "bands")
-                }
-            }
-        }
-    }
-}
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//private fun ArtistListScreenPreview() {
+//    val user = User(UserType.Collector, 1)
+//    val musician: List<Performer> = listOf(
+//        Performer(1, PerformerType.MUSICIAN,"Rubén Blades Bellido de Luna","red", "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.", Instant.now()),
+//        Performer(2, PerformerType.MUSICIAN, "Juan Luis Guerra","blue", "Es un cantautor, arreglista, músico, productor musical y empresario dominicano.", Instant.now()),
+//        Performer(3, PerformerType.MUSICIAN, "Freddie Mercury","green", "Fue un cantante y compositor británico de origen parsi que alcanzó fama mundial por ser el vocalista principal y pianista de la banda de rock Queen.", Instant.now())
+//    )
+//
+//    val bands: List<Performer> = listOf(
+//        Performer(1, PerformerType.BAND, "Queen","red", "Es una banda británica de rock formada en 1970 en Londres.", Instant.now()),
+//        Performer(2, PerformerType.BAND,"Fania All Starts","blue", "Es una agrupación de salsa y música caribeña que a lo largo de su historia ha experimentado diversos géneros musicales como: el rock, jazz, mambo, soul, y más.", Instant.now()),
+//    )
+//    val tabs = listOf(
+//        stringResource(R.string.artists_tab_musicans),
+//        stringResource(R.string.artists_tab_bands)
+//    )
+//
+//    var tabIndex by remember { mutableIntStateOf(0) }
+//
+//    VinilosTheme {
+//        // A surface container using the 'background' color from the theme
+//        Surface(
+//            modifier = Modifier.fillMaxSize(),
+//            color = MaterialTheme.colorScheme.background
+//        ) {
+//            Column {
+//                TabRow(selectedTabIndex = tabIndex) {
+//                    tabs.forEachIndexed { index, title ->
+//                        Tab(text = { Text(title) },
+//                            selected = tabIndex == index,
+//                            onClick = { tabIndex = index }
+//                        )
+//                    }
+//                }
+//                when (tabIndex) {
+//                    0 ->  ArtistsList(musician, user, emptySet(), "musicians", navController)
+//                    1 ->  ArtistsList(bands, user, emptySet(), "bands", navController)
+//                }
+//            }
+//        }
+//    }
+//}
