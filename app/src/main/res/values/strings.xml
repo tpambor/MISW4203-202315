@@ -16,4 +16,6 @@
     <string name="login_instruction">¿Cómo quieres ingresar?</string>
     <string name="collectors_list_artists_title">Artistas favoritos:</string>
     <string name="empty_collector_list">No hay coleccionistas disponibles</string>
+    <string name="musician_birthDate">Nacimiento:</string>
+    <string name="band_birthDate">Fecha de creación:</string>
 </resources>

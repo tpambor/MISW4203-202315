@@ -73,10 +73,10 @@ task<JacocoReport>("codeCoverageReportDebug") {
 
 dependencies {
     val lifecycleVersion = "2.6.2"
-    val navVersion = "2.7.5"
+    val navVersion = "2.7.4"
     val testJunitVersion = "1.1.5"
     val composeBomVersion = "2023.10.00"
-    val roomVersion = "2.6.0"
+    val roomVersion = "2.5.2"
     val fakerVersion = "1.15.0"
     val mockkVersion = "1.13.8"
     val datastoreVersion = "1.0.0"
