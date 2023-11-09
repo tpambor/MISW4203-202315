@@ -13,8 +13,8 @@ android {
         applicationId = "co.edu.uniandes.misw4203.equipo11.vinilos"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -29,6 +29,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
         debug {
             enableUnitTestCoverage = true
@@ -72,10 +73,10 @@ task<JacocoReport>("codeCoverageReportDebug") {
 
 dependencies {
     val lifecycleVersion = "2.6.2"
-    val navVersion = "2.7.4"
+    val navVersion = "2.7.5"
     val testJunitVersion = "1.1.5"
     val composeBomVersion = "2023.10.00"
-    val roomVersion = "2.5.2"
+    val roomVersion = "2.6.0"
     val fakerVersion = "1.15.0"
     val mockkVersion = "1.13.8"
     val datastoreVersion = "1.0.0"
