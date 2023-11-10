@@ -3,6 +3,8 @@ import android.util.Log
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.VinilosDB
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.MusicianJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -51,7 +53,7 @@ class PerformerRepository : IPerformerRepository{
     }
 
     override suspend fun refreshMusicians(): Boolean {
-        val musicians: List<Performer>?
+        val musicians: List<MusicianJson>
 
         try {
             musicians = adapter.getMusicians().first()
@@ -64,7 +66,7 @@ class PerformerRepository : IPerformerRepository{
     }
 
     override suspend fun refreshBands(): Boolean {
-        val bands: List<Performer>?
+        val bands: List<BandJson>
 
         try {
             bands = adapter.getBands().first()

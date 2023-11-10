@@ -6,6 +6,9 @@ import androidx.room.Query
 import androidx.room.Transaction
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toPerformer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.MusicianJson
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -27,14 +30,16 @@ interface PerformerDAO {
     suspend fun deletePerformersByType(performerType: PerformerType)
 
     @Transaction
-    suspend fun deleteAndInsertMusicians(musicians: List<Performer>) {
+    suspend fun deleteAndInsertMusicians(musicians: List<MusicianJson>) {
+        val performers = musicians.map { it.toPerformer() }
         deletePerformersByType(PerformerType.MUSICIAN)
-        insertPerformers(musicians)
+        insertPerformers(performers)
     }
 
     @Transaction
-    suspend fun deleteAndInsertBands(musicians: List<Performer>) {
+    suspend fun deleteAndInsertBands(musicians: List<BandJson>) {
+        val performers = musicians.map { it.toPerformer() }
         deletePerformersByType(PerformerType.BAND)
-        insertPerformers(musicians)
+        insertPerformers(performers)
     }
 }
