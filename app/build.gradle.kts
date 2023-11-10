@@ -47,7 +47,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+        kotlinCompilerExtensionVersion = "1.5.4"
     }
     packaging {
         resources {
@@ -71,55 +71,67 @@ task<JacocoReport>("codeCoverageReportDebug") {
     executionData.setFrom("${project.buildDir}/outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
 }
 
+ksp {
+    arg("room.generateKotlin", "true")
+}
+
 dependencies {
+    val coreVersion = "1.12.0"
     val lifecycleVersion = "2.6.2"
-    val navVersion = "2.7.4"
+    val activityVersion = "1.8.0"
+    val navVersion = "2.7.5"
     val testJunitVersion = "1.1.5"
-    val composeBomVersion = "2023.10.00"
-    val roomVersion = "2.5.2"
+    val composeBomVersion = "2023.10.01"
+    val roomVersion = "2.6.0"
     val fakerVersion = "1.15.0"
     val mockkVersion = "1.13.8"
     val datastoreVersion = "1.0.0"
+    val junitVersion = "4.13.2"
+    val coroutinesTestVersion = "1.7.3"
+    val glideVersion = "5.0.0-rc01"
+    val glideComposeVersion = "1.0.0-beta01"
+    val volleyVersion = "1.2.1"
+    val gsonVersion = "2.10.1"
+    val desugarVersion = "2.0.4"
 
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:$desugarVersion")
 
-    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.core:core-ktx:$coreVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
-    implementation("androidx.activity:activity-compose:1.8.0")
+    implementation("androidx.activity:activity-compose:$activityVersion")
     implementation(platform("androidx.compose:compose-bom:$composeBomVersion"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.navigation:navigation-compose:$navVersion")
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    implementation("androidx.datastore:datastore-preferences:$datastoreVersion")
+    implementation("me.omico.compose:compose-material3-pullrefresh")
+    implementation("com.github.bumptech.glide:glide:$glideVersion")
+    implementation("com.github.bumptech.glide:compose:$glideComposeVersion")
+    implementation("com.android.volley:volley:$volleyVersion")
+    implementation("com.google.code.gson:gson:$gsonVersion")
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+
+    ksp("com.github.bumptech.glide:ksp:$glideVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
+
+    testImplementation("io.github.serpro69:kotlin-faker:$fakerVersion")
+    testImplementation("io.mockk:mockk:$mockkVersion")
+    testImplementation("junit:junit:$junitVersion")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesTestVersion")
+
     androidTestImplementation("androidx.test.ext:junit:$testJunitVersion")
     androidTestImplementation("androidx.test.ext:junit-ktx:$testJunitVersion")
     androidTestImplementation(platform("androidx.compose:compose-bom:$composeBomVersion"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
-    implementation("androidx.datastore:datastore-preferences:$datastoreVersion")
-
-    implementation("me.omico.compose:compose-material3-pullrefresh")
-
-    implementation("com.github.bumptech.glide:glide:5.0.0-rc01")
-    ksp("com.github.bumptech.glide:ksp:5.0.0-rc01")
-    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
-
-    implementation("com.android.volley:volley:1.2.1")
-
-    implementation("com.google.code.gson:gson:2.10.1")
-
-    implementation("androidx.room:room-runtime:$roomVersion")
-    annotationProcessor("androidx.room:room-compiler:$roomVersion")
-    ksp("androidx.room:room-compiler:$roomVersion")
-    implementation("androidx.room:room-ktx:$roomVersion")
-
-    testImplementation("io.github.serpro69:kotlin-faker:$fakerVersion")
-    testImplementation("io.mockk:mockk:$mockkVersion")
 }
