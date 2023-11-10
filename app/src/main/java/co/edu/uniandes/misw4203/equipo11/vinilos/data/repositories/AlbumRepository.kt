@@ -4,6 +4,7 @@ import android.util.Log
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.VinilosDB
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -30,7 +31,7 @@ class AlbumRepository : IAlbumRepository {
     }
 
     override suspend fun refresh(): Boolean {
-        val albums: List<Album>?
+        val albums: List<AlbumJson>
 
         try {
             albums = adapter.getAlbums().first()

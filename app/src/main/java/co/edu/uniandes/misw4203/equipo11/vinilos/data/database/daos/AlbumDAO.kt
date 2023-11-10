@@ -5,6 +5,8 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toAlbum
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJson
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -19,8 +21,10 @@ interface AlbumDAO {
     suspend fun deleteAlbums()
 
     @Transaction
-    suspend fun deleteAndInsertAlbums(albums: List<Album>) {
+    suspend fun deleteAndInsertAlbums(albums: List<AlbumJson>) {
+        val mappedAlbums = albums.map { it.toAlbum() }
+
         deleteAlbums()
-        insertAlbums(albums)
+        insertAlbums(mappedAlbums)
     }
 }

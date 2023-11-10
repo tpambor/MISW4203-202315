@@ -5,6 +5,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.VinilosDB
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorWithPerformers
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -44,7 +45,7 @@ class CollectorRepository : ICollectorRepository {
     }
 
     override suspend fun refresh(): Boolean {
-        val collectors: List<CollectorWithPerformers>?
+        val collectors: List<CollectorJson>
 
         try {
             collectors = adapter.getCollectors().first()
@@ -56,6 +57,7 @@ class CollectorRepository : ICollectorRepository {
         db.collectorDao().deleteAndInsertCollectors(collectors)
         return true
     }
+
     companion object {
         private val TAG = CollectorRepository::class.simpleName!!
     }
