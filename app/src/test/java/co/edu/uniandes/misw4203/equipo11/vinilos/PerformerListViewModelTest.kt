@@ -40,7 +40,6 @@ class PerformerListViewModelTest {
 
         suspend fun emitMusicians(value: Result<List<Performer>>) = musiciansFlow.emit(value)
         suspend fun emitBands(value: Result<List<Performer>>) = bandsFlow.emit(value)
-        suspend fun emitFavorites(value: List<Performer>) = favoritesFlow.emit(value)
 
         override fun getMusicians(): Flow<Result<List<Performer>>> = musiciansFlow
         override fun getBands(): Flow<Result<List<Performer>>> = bandsFlow
@@ -62,17 +61,12 @@ class PerformerListViewModelTest {
 
     class FakeUserRepository: IUserRepository {
         private val flow = MutableSharedFlow<User?>()
-        suspend fun emit(value: User?) = flow.emit(value)
-
-        var loginCalled = false
 
         override fun getUser(): Flow<User?> {
             return flow
         }
 
-        override suspend fun login(userType: UserType) {
-            loginCalled = true
-        }
+        override suspend fun login(userType: UserType) { }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
