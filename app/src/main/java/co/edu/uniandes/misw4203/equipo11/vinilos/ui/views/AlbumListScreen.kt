@@ -1,5 +1,6 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -76,7 +77,10 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState) {
         onRefresh = { viewModel.onRefresh() }
     )
 
-    Box(Modifier.pullRefresh(pullRefreshState)) {
+    Box(
+        Modifier
+            .pullRefresh(pullRefreshState)
+            .padding(16.dp)) {
         AlbumList(albums)
 
         PullRefreshIndicator(
@@ -103,9 +107,7 @@ private fun AlbumItem(album: Album) {
     }
 
     Card(
-        modifier = Modifier
-            .padding(8.dp)
-            .testTag("album-list-item"),
+        modifier = Modifier.testTag("album-list-item"),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
         onClick = { /*TODO*/ }
@@ -140,11 +142,13 @@ private fun AlbumItem(album: Album) {
 }
 
 @Composable
-private fun AlbumList(albums: List<Album>) {
+fun AlbumList(albums: List<Album>, cantColumns: Int = 2) {
     if(albums.isNotEmpty()){
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(180.dp),
-            modifier = Modifier.fillMaxSize()
+            columns = GridCells.Fixed(cantColumns),
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(albums) {
                     item: Album -> AlbumItem(item)
@@ -180,7 +184,10 @@ private fun AlbumListScreenPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            AlbumList(albums)
+            Column(Modifier.padding(16.dp)) {
+                AlbumList(albums)
+            }
+
         }
     }
 }
