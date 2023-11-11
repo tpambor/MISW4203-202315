@@ -15,8 +15,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 
 sealed class NavBarItem(val route: String, @StringRes val stringId: Int, @DrawableRes val iconId: Int) {
@@ -41,8 +43,14 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
     ) {
         composable(route = "login") { LoginScreen(navController) }
         composable(route = "albums") { AlbumListScreen(snackbarHostState) }
-        composable(route = "artists") { ArtistListScreen(snackbarHostState) }
+        composable(route = "artists") { ArtistListScreen(snackbarHostState, navController) }
         composable(route = "collectors") { CollectorListScreen(snackbarHostState) }
+        composable(
+            route = "artists/{artistId}",
+            arguments = listOf(navArgument("artistId") { type = NavType.IntType })
+        ){ backStackEntry ->
+            ArtistDetailScreen(snackbarHostState, backStackEntry.arguments?.getInt("artistId"))
+        }
     }
 }
 
