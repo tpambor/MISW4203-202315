@@ -96,7 +96,7 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun AlbumItem(album: Album) {
+fun AlbumItem(album: Album) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
         coverPreview = placeholder(ColorPainter(Color(album.cover.toColorInt())))

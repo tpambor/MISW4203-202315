@@ -1,16 +1,27 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -29,6 +40,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.PerformerRepository
@@ -55,19 +67,66 @@ fun ArtistDetailScreen(snackbarHostState: SnackbarHostState, artistId: Int) {
         null
     )
 
+    val albums: List<Album> = listOf(
+        Album(1, "Buscando américa","https://upload.wikimedia.org/wikipedia/en/b/b9/Buscando_Am%C3%A9rica.jpg", Instant.now(), "", "Salsa", ""),
+        Album(3, "Pa'lla Voy", "https://www.marcanthonyonline.com/wp-content/uploads/2021/08/playlist-profile-image.jpg", Instant.now(), "", "Salsa", "" ),
+        Album(4, "Recordando el Ayer","https://fania.com/wp-content/uploads/2021/03/RecordandoElAyer.jpg", Instant.now(), "", "Salsa", "blue"),
+        Album(6, "Vagabundo", "https://i.scdn.co/image/ab67616d0000b2732d6016751b8ea5e66e83cd04", Instant.now(), "", "Salsa", ""),
+    )
+
     Column(
         modifier = Modifier.padding(16.dp)
     ) {
-        musician?.let { MusicianDetail(it) }
+        musician?.let { MusicianDetail(it, albums) }
     }
-
-
-
 }
 
 @Composable
-fun MusicianDetail(musician: Performer) {
-    ArtistDescription(musician)
+private fun ArtistHeader() {
+    Row(
+        modifier = Modifier
+            .padding(0.dp, 16.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.nav_albums),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.W500
+        )
+        Button(
+            onClick = { /*TODO*/ },
+            modifier = Modifier
+                .height(40.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        ) {
+            Text(text = "+ Agregar")
+        }
+    }
+}
+
+@Composable
+private fun MusicianDetail(musician: Performer, albums: List<Album>) {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(120.dp),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                ArtistDescription(musician)
+                ArtistHeader()
+            }
+        }
+        items(albums) {
+                item: Album -> AlbumItem(item)
+        }
+    }
 }
 
 fun birthDateFormatted(performer: Performer): String {
@@ -96,7 +155,9 @@ fun ArtistDescription(performer: Performer){
             contentScale = ContentScale.Crop
         )
         Text(
-            modifier = Modifier.fillMaxWidth().padding(0.dp, 10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp, 10.dp),
             text = performer.name,
             fontSize = 24.sp,
             fontWeight = FontWeight.W500,
@@ -137,9 +198,16 @@ fun ArtistDescription(performer: Performer){
 private fun ArtistDetailScreenPreview() {
     val performer = Performer(1, PerformerType.MUSICIAN,"Rubén Blades Bellido de Luna","red", "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.", Instant.now())
 
+    val albums: List<Album> = listOf(
+        Album(1, "Buscando américa","red", Instant.now(), "", "Salsa", ""),
+        Album(3, "Pa'lla Voy", "green", Instant.now(), "", "Salsa", "" ),
+        Album(4, "Recordando el Ayer","blue", Instant.now(), "", "Salsa", "blue"),
+        Album(6, "Vagabundo", "yellow", Instant.now(), "", "Salsa", ""),
+    )
+
     Column(
         modifier = Modifier.padding(16.dp)
     ) {
-         MusicianDetail(performer)
+         MusicianDetail(performer, albums)
     }
 }
