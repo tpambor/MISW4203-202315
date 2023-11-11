@@ -62,7 +62,7 @@ class PerformerRepository : IPerformerRepository{
     }
 
     override fun getAlbums(performerId: Int): Flow<List<Album>> = flow {
-        db.albumDao().getAlbumsByPerformer(performerId).collect { albums ->
+        db.albumDao().getAlbumsByPerformerId(performerId).collect { albums ->
             emit(albums)
         }
     }

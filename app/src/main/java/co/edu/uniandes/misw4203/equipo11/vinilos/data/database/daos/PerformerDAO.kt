@@ -2,10 +2,14 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.data.database.daos
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toPerformer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.MusicianJson
@@ -34,11 +38,38 @@ interface PerformerDAO {
     @Query("DELETE FROM performer WHERE type = :performerType")
     suspend fun deletePerformersByType(performerType: PerformerType)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAlbums(albums: List<Album>)
+
+    // Internal use only
+    @Insert
+    suspend fun insertPerformerAlbums(performerAlbum: List<PerformerAlbum>)
+
+    // Internal use only
+    @Query("DELETE FROM PerformerAlbum")
+    suspend fun deletePerformerAlbums()
+
     @Transaction
     suspend fun deleteAndInsertMusicians(musicians: List<MusicianJson>) {
-        val performers = musicians.map { it.toPerformer() }
+        val performerAlbums: MutableList<PerformerAlbum> = mutableListOf()
+        val albums: MutableList<Album> = mutableListOf()
+        val performers = musicians.map { musician ->
+            if (musician.albums != null) {
+                val musicianAlbums = musician.albums.map { album ->
+                    performerAlbums.add(PerformerAlbum(musician.id, album.id))
+
+                    album.toAlbum()
+                }
+                albums.addAll(musicianAlbums)
+            }
+
+            musician.toPerformer()
+        }
         deletePerformersByType(PerformerType.MUSICIAN)
         insertPerformers(performers)
+        insertAlbums(albums)
+        deletePerformerAlbums()
+        insertPerformerAlbums(performerAlbums)
     }
 
     @Transaction

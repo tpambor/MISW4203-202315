@@ -1,7 +1,6 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -67,11 +66,8 @@ fun ArtistDetailScreen(snackbarHostState: SnackbarHostState, artistId: Int) {
         null
     )
 
-    val albums: List<Album> = listOf(
-        Album(1, "Buscando américa","https://upload.wikimedia.org/wikipedia/en/b/b9/Buscando_Am%C3%A9rica.jpg", Instant.now(), "", "Salsa", ""),
-        Album(3, "Pa'lla Voy", "https://www.marcanthonyonline.com/wp-content/uploads/2021/08/playlist-profile-image.jpg", Instant.now(), "", "Salsa", "" ),
-        Album(4, "Recordando el Ayer","https://fania.com/wp-content/uploads/2021/03/RecordandoElAyer.jpg", Instant.now(), "", "Salsa", "blue"),
-        Album(6, "Vagabundo", "https://i.scdn.co/image/ab67616d0000b2732d6016751b8ea5e66e83cd04", Instant.now(), "", "Salsa", ""),
+    val albums by viewModel.albums.collectAsStateWithLifecycle(
+        emptyList()
     )
 
     Column(

@@ -7,11 +7,11 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IPerformerRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
@@ -23,6 +23,10 @@ class MusicianViewModel(
     private val _musician: MutableStateFlow<Performer?> = MutableStateFlow(null)
     val musician = _musician.asStateFlow().onSubscription { getMusician() }
     private val getMusicianStarted: AtomicBoolean = AtomicBoolean(false)
+
+    private val _albums: MutableStateFlow<List<Album>> = MutableStateFlow(emptyList())
+    val albums = _albums.asStateFlow().onSubscription { getAlbums() }
+    private val getAlbumsStarted: AtomicBoolean = AtomicBoolean(false)
 
     private val _isRefreshing = MutableStateFlow(true)
     val isRefreshing = _isRefreshing.asStateFlow()
@@ -43,6 +47,20 @@ class MusicianViewModel(
                         _musician.value = musician
                         _error.value = ErrorUiState.NoError
                     }
+                    _isRefreshing.value = false
+                }
+        }
+    }
+
+    private fun getAlbums() {
+        if (getAlbumsStarted.getAndSet(true))
+            return // Coroutine to get albums was already started, only start once
+
+        viewModelScope.launch {
+            performerRepository.getAlbums(performerId)
+                .collect { albums ->
+                    _albums.value = albums
+                    _error.value = ErrorUiState.NoError
                     _isRefreshing.value = false
                 }
         }

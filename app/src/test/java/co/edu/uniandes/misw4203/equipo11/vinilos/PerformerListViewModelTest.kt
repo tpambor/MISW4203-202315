@@ -2,6 +2,7 @@ package co.edu.uniandes.misw4203.equipo11.vinilos
 
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.User
@@ -45,6 +46,14 @@ class PerformerListViewModelTest {
         override fun getMusicians(): Flow<List<Performer>?> = musiciansFlow
         override fun getBands(): Flow<List<Performer>?> = bandsFlow
         override fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>> = favoritesFlow
+        
+        override fun getMusician(performerId: Int): Flow<Performer?> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getAlbums(performerId: Int): Flow<List<Album>> {
+            throw UnsupportedOperationException()
+        }
 
         override suspend fun refreshMusicians(): Boolean {
             refreshMusiciansCalled = true
