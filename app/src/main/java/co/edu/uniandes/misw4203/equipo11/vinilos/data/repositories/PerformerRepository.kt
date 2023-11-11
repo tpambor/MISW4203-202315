@@ -1,6 +1,7 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories
 import android.util.Log
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.VinilosDB
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
@@ -15,6 +16,7 @@ interface IPerformerRepository {
     fun getBands(): Flow<List<Performer>?>
     fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>>
     fun getMusician(performerId: Int): Flow<Performer?>
+    fun getAlbums(performerId: Int): Flow<List<Album>>
     suspend fun refreshMusicians(): Boolean
     suspend fun refreshBands(): Boolean
 }
@@ -56,6 +58,12 @@ class PerformerRepository : IPerformerRepository{
     override fun getMusician(performerId: Int): Flow<Performer?> = flow {
         db.performerDao().getMusicianById(performerId).collect { musician ->
             emit(musician)
+        }
+    }
+
+    override fun getAlbums(performerId: Int): Flow<List<Album>> = flow {
+        db.albumDao().getAlbumsByPerformer(performerId).collect { albums ->
+            emit(albums)
         }
     }
 

@@ -14,6 +14,9 @@ interface AlbumDAO {
     @Query("SELECT * FROM album ORDER BY name COLLATE UNICODE")
     fun getAlbums(): Flow<List<Album>>
 
+    @Query("SELECT * FROM album WHERE id = :performerId ORDER BY name COLLATE UNICODE")
+    fun getAlbumsByPerformer(performerId: Int): Flow<List<Album>>
+
     @Insert
     suspend fun insertAlbums(albums: List<Album>)
 
