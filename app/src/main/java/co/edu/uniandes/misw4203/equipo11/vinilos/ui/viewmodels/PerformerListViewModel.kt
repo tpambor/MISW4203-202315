@@ -47,12 +47,15 @@ class PerformerListViewModel(
         viewModelScope.launch {
             performerRepository.getMusicians()
                 .collect { musicians ->
-                    if (musicians == null) {
-                        _error.value = ErrorUiState.Error(R.string.network_error)
-                    } else {
-                        _musicians.value = musicians
-                        _error.value = ErrorUiState.NoError
-                    }
+                    musicians
+                        .onFailure {
+                            _error.value = ErrorUiState.Error(R.string.network_error)
+                        }
+                        .onSuccess {
+                            _musicians.value = it
+                            _error.value = ErrorUiState.NoError
+                        }
+
                     _isRefreshing.value = false
                 }
         }
@@ -65,12 +68,15 @@ class PerformerListViewModel(
         viewModelScope.launch {
             performerRepository.getBands()
                 .collect { bands ->
-                    if (bands == null) {
-                        _error.value = ErrorUiState.Error(R.string.network_error)
-                    } else {
-                        _bands.value = bands
-                        _error.value = ErrorUiState.NoError
-                    }
+                    bands
+                        .onFailure {
+                            _error.value = ErrorUiState.Error(R.string.network_error)
+                        }
+                        .onSuccess {
+                            _bands.value = it
+                            _error.value = ErrorUiState.NoError
+                        }
+
                     _isRefreshing.value = false
                 }
         }
@@ -99,7 +105,9 @@ class PerformerListViewModel(
         _error.value = ErrorUiState.NoError
 
         viewModelScope.launch {
-            if (!performerRepository.refreshMusicians()) {
+            try {
+                performerRepository.refreshMusicians()
+            } catch (ex: Exception) {
                 _isRefreshing.value = false
                 _error.value = ErrorUiState.Error(R.string.network_error)
             }
@@ -111,7 +119,9 @@ class PerformerListViewModel(
         _error.value = ErrorUiState.NoError
 
         viewModelScope.launch {
-            if (!performerRepository.refreshBands()) {
+            try {
+                performerRepository.refreshBands()
+            } catch (ex: Exception) {
                 _isRefreshing.value = false
                 _error.value = ErrorUiState.Error(R.string.network_error)
             }

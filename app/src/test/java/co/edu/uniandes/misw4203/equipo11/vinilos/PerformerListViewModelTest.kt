@@ -29,8 +29,8 @@ import java.time.Instant
 
 class PerformerListViewModelTest {
     class FakePerformerRepository: IPerformerRepository {
-        private val musiciansFlow = MutableSharedFlow<List<Performer>?>()
-        private val bandsFlow = MutableSharedFlow<List<Performer>?>()
+        private val musiciansFlow = MutableSharedFlow<Result<List<Performer>>>()
+        private val bandsFlow = MutableSharedFlow<Result<List<Performer>>>()
         private val favoritesFlow = MutableSharedFlow<List<Performer>>()
 
         var failMusiciansRefresh = false
@@ -38,21 +38,25 @@ class PerformerListViewModelTest {
         var refreshMusiciansCalled = false
         var refreshBandsCalled = false
 
-        suspend fun emitMusicians(value: List<Performer>?) = musiciansFlow.emit(value)
-        suspend fun emitBands(value: List<Performer>?) = bandsFlow.emit(value)
+        suspend fun emitMusicians(value: Result<List<Performer>>) = musiciansFlow.emit(value)
+        suspend fun emitBands(value: Result<List<Performer>>) = bandsFlow.emit(value)
         suspend fun emitFavorites(value: List<Performer>) = favoritesFlow.emit(value)
 
-        override fun getMusicians(): Flow<List<Performer>?> = musiciansFlow
-        override fun getBands(): Flow<List<Performer>?> = bandsFlow
+        override fun getMusicians(): Flow<Result<List<Performer>>> = musiciansFlow
+        override fun getBands(): Flow<Result<List<Performer>>> = bandsFlow
         override fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>> = favoritesFlow
 
-        override suspend fun refreshMusicians(): Boolean {
+        override suspend fun refreshMusicians() {
             refreshMusiciansCalled = true
-            return !failMusiciansRefresh
+
+            if (failMusiciansRefresh)
+                throw Exception()
         }
-        override suspend fun refreshBands(): Boolean {
+        override suspend fun refreshBands() {
             refreshBandsCalled = true
-            return !failBandsRefresh
+
+            if (failBandsRefresh)
+                throw Exception()
         }
     }
 
@@ -123,7 +127,7 @@ class PerformerListViewModelTest {
         assertEquals(emptyList<Performer>(), viewModel.musicians.first())
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
-        repository.emitMusicians(data)
+        repository.emitMusicians(Result.success(data))
 
         assertEquals(data, viewModel.musicians.first())
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
@@ -159,7 +163,7 @@ class PerformerListViewModelTest {
         assertEquals(emptyList<Performer>(), viewModel.bands.first())
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
-        repository.emitBands(data)
+        repository.emitBands(Result.success(data))
 
         assertEquals(data, viewModel.bands.first())
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
@@ -181,7 +185,7 @@ class PerformerListViewModelTest {
         assertEquals(emptyList<Performer>(), viewModel.musicians.first())
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
-        repository.emitMusicians(null)
+        repository.emitMusicians(Result.failure(Exception()))
 
         assertEquals(emptyList<Performer>(), viewModel.musicians.first())
 
@@ -207,7 +211,7 @@ class PerformerListViewModelTest {
         assertEquals(emptyList<Performer>(), viewModel.bands.first())
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
-        repository.emitBands(null)
+        repository.emitBands(Result.failure(Exception()))
 
         assertEquals(emptyList<Performer>(), viewModel.bands.first())
 
