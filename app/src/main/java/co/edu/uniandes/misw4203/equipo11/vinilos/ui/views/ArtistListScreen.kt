@@ -2,7 +2,6 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -141,20 +140,13 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState, navController: NavHos
                         text = { Text(title) },
                         selected = tabIndex == index,
                         onClick = { tabIndex = index  },
-                        modifier = Modifier
-                            .testTag(title)
+                        modifier = Modifier.testTag(title)
                     )
                 }
             }
             when (tabIndex) {
-                0 ->
-                    Box(Modifier.padding(16.dp)){
-                        ArtistsList(performers = musicians, user, favoritePerformers, "musicians", navController)
-                    }
-                1 ->
-                    Box(Modifier.padding(16.dp)){
-                        ArtistsList(performers = bands, user, favoritePerformers, "bands", navController)
-                    }
+                0 -> ArtistsList(performers = musicians, user, favoritePerformers, "musicians", navController)
+                1 -> ArtistsList(performers = bands, user, favoritePerformers, "bands", navController)
             }
         }
 
@@ -184,6 +176,7 @@ private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: B
     }
     Card(
         modifier = Modifier
+            .padding(8.dp)
             .testTag("performer-list-item"),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
@@ -239,7 +232,7 @@ private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: B
 
 
 @Composable
-private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerformers: Set<Int>, tab: String, navController: NavHostController,  cantColumns: Int = 2) {
+private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerformers: Set<Int>, tab: String, navController: NavHostController) {
     val message = when (tab) {
         "musicians" -> stringResource(R.string.empty_musicians_list)
         "bands" -> stringResource(R.string.empty_bands_list)
@@ -248,10 +241,8 @@ private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerfor
 
     if(performers.isNotEmpty()) {
         LazyVerticalGrid(
-            columns = GridCells.Fixed(cantColumns),
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            columns = GridCells.Adaptive(180.dp),
+            modifier = Modifier.fillMaxSize()
         ) {
             items(performers) { item: Performer ->
                 val isFavorite = favoritePerformers.contains(item.id)
@@ -300,22 +291,15 @@ private fun ArtistListScreenPreview() {
             Column {
                 TabRow(selectedTabIndex = tabIndex) {
                     tabs.forEachIndexed { index, title ->
-                        Tab(
-                            text = { Text(title) },
+                        Tab(text = { Text(title) },
                             selected = tabIndex == index,
-                            onClick = { tabIndex = index },
+                            onClick = { tabIndex = index }
                         )
                     }
                 }
                 when (tabIndex) {
-                    0 ->
-                        Box(Modifier.padding(16.dp)){
-                            ArtistsList(musician, user, emptySet(), "musicians", rememberNavController())
-                        }
-                    1 ->
-                        Box(Modifier.padding(16.dp)){
-                            ArtistsList(bands, user, emptySet(), "bands", rememberNavController())
-                        }
+                    0 ->  ArtistsList(musician, user, emptySet(), "musicians", rememberNavController())
+                    1 ->  ArtistsList(bands, user, emptySet(), "bands", rememberNavController())
                 }
             }
         }
