@@ -1,5 +1,8 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -52,9 +55,11 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
 import java.time.Instant
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun AlbumListScreen(snackbarHostState: SnackbarHostState) {
+fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
     val viewModel: AlbumListViewModel = viewModel(
         factory = AlbumListViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
@@ -76,8 +81,11 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState) {
         onRefresh = { viewModel.onRefresh() }
     )
 
-    Box(Modifier.pullRefresh(pullRefreshState)) {
-        AlbumList(albums)
+    Box(
+        Modifier
+            .pullRefresh(pullRefreshState)
+            .padding(16.dp)) {
+        AlbumList(albums,navController)
 
         PullRefreshIndicator(
             refreshing = isRefreshing,
@@ -96,19 +104,17 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun AlbumItem(album: Album) {
+private fun AlbumItem(album: Album, navController: NavHostController) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
         coverPreview = placeholder(ColorPainter(Color(album.cover.toColorInt())))
     }
 
     Card(
-        modifier = Modifier
-            .padding(8.dp)
-            .testTag("album-list-item"),
+        modifier = Modifier.testTag("album-list-item"),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
-        onClick = { /*TODO*/ }
+        onClick = { navController.navigate("albums/${album.id}") }
     ) {
         Column {
             GlideImage(
@@ -140,14 +146,16 @@ private fun AlbumItem(album: Album) {
 }
 
 @Composable
-private fun AlbumList(albums: List<Album>) {
+fun AlbumList(albums: List<Album>, navController: NavHostController ,cantColumns: Int = 2) {
     if(albums.isNotEmpty()){
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(180.dp),
-            modifier = Modifier.fillMaxSize()
+            columns = GridCells.Fixed(cantColumns),
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(albums) {
-                    item: Album -> AlbumItem(item)
+                    item: Album -> AlbumItem(item, navController)
             }
         }
     }else{
@@ -158,9 +166,10 @@ private fun AlbumList(albums: List<Album>) {
             Text(text = stringResource(R.string.empty_albums_list))
         }
     }
-    
+
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun AlbumListScreenPreview() {
@@ -180,7 +189,10 @@ private fun AlbumListScreenPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            AlbumList(albums)
+            Column(Modifier.padding(16.dp)) {
+                AlbumList(albums, rememberNavController())
+            }
+
         }
     }
 }

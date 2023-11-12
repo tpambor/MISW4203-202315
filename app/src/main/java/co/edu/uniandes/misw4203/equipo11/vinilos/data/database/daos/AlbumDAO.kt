@@ -23,4 +23,8 @@ interface AlbumDAO {
         deleteAlbums()
         insertAlbums(albums)
     }
+
+    @Query("SELECT * FROM album WHERE id = :albumId")
+    fun getAlbumById(albumId: Int): Flow<Album?>
+
 }

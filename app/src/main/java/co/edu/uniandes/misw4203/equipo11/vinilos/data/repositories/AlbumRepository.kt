@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.flow
 interface IAlbumRepository {
     fun getAlbums(): Flow<List<Album>?>
     suspend fun refresh(): Boolean
+    fun getAlbum(albumId: Int): Flow<Album?>
 }
 
 class AlbumRepository : IAlbumRepository {
@@ -29,6 +30,11 @@ class AlbumRepository : IAlbumRepository {
         }
     }
 
+    override fun getAlbum(albumId: Int): Flow<Album?> = flow {
+        db.albumDao().getAlbumById(albumId).collect { album ->
+            emit(album)
+        }
+    }
     override suspend fun refresh(): Boolean {
         val albums: List<Album>?
 

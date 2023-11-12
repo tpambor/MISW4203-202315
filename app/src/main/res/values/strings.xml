@@ -16,4 +16,8 @@
     <string name="login_instruction">¿Cómo quieres ingresar?</string>
     <string name="collectors_list_artists_title">Artistas favoritos:</string>
     <string name="empty_collector_list">No hay coleccionistas disponibles</string>
+    <string name="album_gender">Género</string>
+    <string name="album_discografia">Discografia</string>
+    <string name="album_fechaPublicacion">Fecha de publicación</string>
+    <string name="artists_tab_albums">Álbumes</string>
 </resources>
