@@ -104,7 +104,7 @@ private fun CollectorItem(collector: CollectorWithPerformers, testTag: String) {
         modifier = Modifier
             .padding(8.dp)
             .testTag(testTag),
-        onClick = { /*TODO*/ }
+        onClick = { }
     ) {
         Column(
             modifier = Modifier.padding(20.dp, 16.dp)
@@ -168,16 +168,16 @@ private fun CollectorList(collectors: List<CollectorWithPerformers>, userId: Int
 private fun AlbumListScreenPreview() {
     @Suppress("SpellCheckingInspection")
     val performers: List<Performer> = listOf(
-        Performer(1, PerformerType.MUSICIAN, "Fulanito", "Red", "description", Instant.now())
+        Performer(1, PerformerType.MUSICIAN, "Aventura", "Red", "description", Instant.now())
     )
 
     val collectors: List<CollectorWithPerformers> = listOf(
-        CollectorWithPerformers(Collector(1, "Buscando américa", "Salsa", "red"), performers),
-        CollectorWithPerformers(Collector(2, "Buscando américa", "Salsa", "red"), performers),
-        CollectorWithPerformers(Collector(3, "Buscando américa", "Salsa", "red"), performers),
-        CollectorWithPerformers(Collector(4, "Buscando américa", "Salsa", "red"), performers),
-        CollectorWithPerformers(Collector(5, "Buscando américa", "Salsa", "red"), performers),
-        CollectorWithPerformers(Collector(6, "Marcela Jimenez Suarez", "Salsa", "red"), performers),
+        CollectorWithPerformers(Collector(1, "Demetrio Ayuso Camps", "+57 (1) 5551234", "demetrio@correo.co"), performers),
+        CollectorWithPerformers(Collector(2, "Cristian Barbero", "+57 (1) 5554321", "cristian@correo.co"), performers),
+        CollectorWithPerformers(Collector(3, "Hugo Mínguez", "+57 (1) 5551111", "hugo@correo.co"), performers),
+        CollectorWithPerformers(Collector(4, "Julio Alonso", "+57 (1) 5553333", "julio@correo.co"), performers),
+        CollectorWithPerformers(Collector(5, "Paco Araujo", "+57 (1) 5551777", "paco@correo.co"), performers),
+        CollectorWithPerformers(Collector(6, "Rafael Trujillo Canales", "+57 (1) 5554422", "rafael@correo.co"), performers),
     )
 
     VinilosTheme {
