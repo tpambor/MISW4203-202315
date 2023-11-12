@@ -19,7 +19,7 @@ import java.time.Instant
 
 class NetworkServiceAdapter {
     companion object {
-        const val API_BASE_URL = "https://misw4203-vinilos-back-dev-f134d6283b6e.herokuapp.com"
+        const val API_BASE_URL = "https://misw4203-vinilos-back-prod-36e2c70f7f9e.herokuapp.com"
 
         private val gsonBuilder = GsonBuilder()
             .registerTypeAdapter(Instant::class.java, InstantAdapter())
