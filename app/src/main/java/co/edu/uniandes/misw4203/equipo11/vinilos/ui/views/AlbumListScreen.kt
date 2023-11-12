@@ -108,7 +108,7 @@ private fun AlbumItem(album: Album) {
             .testTag("album-list-item"),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
-        onClick = { /*TODO*/ }
+        onClick = { }
     ) {
         Column {
             GlideImage(

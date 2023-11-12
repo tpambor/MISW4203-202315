@@ -15,7 +15,7 @@ class CollectorList(composeTestRule: AndroidComposeTestRule<ActivityScenarioRule
         )
     }
 
-    fun getUserCollector(): SemanticsNodeInteraction {
+    private fun getUserCollector(): SemanticsNodeInteraction {
         return findExactlyOne(
             hasTestTag("collector-list-item-user")
         )

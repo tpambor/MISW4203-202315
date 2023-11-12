@@ -166,19 +166,18 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
 private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: Boolean) {
-    // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
-
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
         coverPreview = placeholder(ColorPainter(Color(performer.image.toColorInt())))
     }
+
     Card(
         modifier = Modifier
             .padding(8.dp)
             .testTag("performer-list-item"),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
-        onClick = { /*TODO: Acción para llevar al detalle*/ }
+        onClick = { }
     ) {
         Column {
             GlideImage(
@@ -204,9 +203,7 @@ private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: B
                 // Favorite button
                 if(isCollector){
                     IconButton(
-                        onClick = {
-                            // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
-                        },
+                        onClick = { },
                         modifier = Modifier
                             .background(
                                 color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
