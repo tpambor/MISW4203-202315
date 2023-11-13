@@ -128,6 +128,9 @@ class PerformerListViewModel(
         }
     }
 
+    fun addFavoritePerformer(performerId: Int) {
+    }
+
     // ViewModel factory edit
     companion object {
         val KEY_PERFORMER_REPOSITORY = object : CreationExtras.Key<IPerformerRepository> {}

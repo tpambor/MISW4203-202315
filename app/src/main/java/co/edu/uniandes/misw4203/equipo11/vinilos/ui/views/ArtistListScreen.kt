@@ -143,8 +143,8 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
                 }
             }
             when (tabIndex) {
-                0 -> ArtistsList(performers = musicians, user, favoritePerformers, "musicians")
-                1 -> ArtistsList(performers = bands, user, favoritePerformers, "bands")
+                0 -> ArtistsList(musicians, user, favoritePerformers, "musicians", viewModel::addFavoritePerformer)
+                1 -> ArtistsList(bands, user, favoritePerformers, "bands", viewModel::addFavoritePerformer)
             }
         }
 
@@ -165,7 +165,7 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: Boolean) {
+private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: Boolean, addFavoritePerformer: (Int) -> Unit) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
         coverPreview = placeholder(ColorPainter(Color(performer.image.toColorInt())))
@@ -201,9 +201,9 @@ private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: B
                 )
 
                 // Favorite button
-                if(isCollector){
+                if (isCollector) {
                     IconButton(
-                        onClick = { },
+                        onClick = { addFavoritePerformer(performer.id) },
                         modifier = Modifier
                             .background(
                                 color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
@@ -227,7 +227,7 @@ private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: B
 
 
 @Composable
-private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerformers: Set<Int>, tab: String) {
+private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerformers: Set<Int>, tab: String, addFavoritePerformer: (Int) -> Unit) {
     val message = when (tab) {
         "musicians" -> stringResource(R.string.empty_musicians_list)
         "bands" -> stringResource(R.string.empty_bands_list)
@@ -242,7 +242,7 @@ private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerfor
             items(performers) { item: Performer ->
                 val isFavorite = favoritePerformers.contains(item.id)
 
-                ArtistItem(item, user?.type == UserType.Collector, isFavorite)
+                ArtistItem(item, user?.type == UserType.Collector, isFavorite, addFavoritePerformer)
             }
         }
     } else {
@@ -293,8 +293,8 @@ private fun ArtistListScreenPreview() {
                     }
                 }
                 when (tabIndex) {
-                    0 ->  ArtistsList(musician, user, emptySet(), "musicians")
-                    1 ->  ArtistsList(bands, user, emptySet(), "bands")
+                    0 ->  ArtistsList(musician, user, emptySet(), "musicians", addFavoritePerformer = {})
+                    1 ->  ArtistsList(bands, user, emptySet(), "bands", addFavoritePerformer = {})
                 }
             }
         }
