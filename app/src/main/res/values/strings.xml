@@ -4,6 +4,7 @@
     <string name="nav_artists">Artistas</string>
     <string name="nav_collectors">Coleccionistas</string>
     <string name="nav_login">Salir</string>
+    <string name="members">Integrantes</string>
     <string name="network_error">Error al cargar los datos</string>
     <string name="artists_tab_musicans">Músicos</string>
     <string name="artists_tab_bands">Bandas</string>

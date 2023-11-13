@@ -49,7 +49,7 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
             route = "artists/{artistId}",
             arguments = listOf(navArgument("artistId") { type = NavType.IntType })
         ){ backStackEntry ->
-            ArtistDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"))
+            ArtistDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController)
         }
     }
 }

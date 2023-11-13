@@ -2,6 +2,7 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -167,7 +168,7 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState, navController: NavHos
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: Boolean, navController: NavHostController) {
+fun ArtistItem(performer: Performer, isCollector: Boolean?, isFavorite: Boolean?, navController: NavHostController) {
     // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
 
     var coverPreview: Placeholder? = null
@@ -176,11 +177,12 @@ private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: B
     }
     Card(
         modifier = Modifier
-            .padding(8.dp)
             .testTag("performer-list-item"),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
-        onClick = { navController.navigate("artists/${performer.id}") }
+        onClick = {
+            navController.navigate("artists/${performer.id}")
+        }
     ) {
         Column {
             GlideImage(
@@ -204,14 +206,14 @@ private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: B
                 )
 
                 // Favorite button
-                if(isCollector){
+                if(isCollector == true){
                     IconButton(
                         onClick = {
                             // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
                         },
                         modifier = Modifier
                             .background(
-                                color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
+                                color = if (isFavorite == true) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
                                 shape = CircleShape,
                             )
                             .size(35.dp)
@@ -241,8 +243,10 @@ private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerfor
 
     if(performers.isNotEmpty()) {
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(180.dp),
-            modifier = Modifier.fillMaxSize()
+            columns = GridCells.Fixed(2),
+            modifier = Modifier.fillMaxSize().padding(8.dp, 8.dp, 8.dp, 0.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(performers) { item: Performer ->
                 val isFavorite = favoritePerformers.contains(item.id)
