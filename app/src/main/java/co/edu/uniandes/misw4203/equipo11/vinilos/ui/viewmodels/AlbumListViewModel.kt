@@ -34,12 +34,15 @@ class AlbumListViewModel(val albumRepository: IAlbumRepository) : ViewModel() {
         viewModelScope.launch {
             albumRepository.getAlbums()
                 .collect { albums ->
-                    if (albums == null) {
-                        _error.value = ErrorUiState.Error(R.string.network_error)
-                    } else {
-                        _albums.value = albums
-                        _error.value = ErrorUiState.NoError
-                    }
+                    albums
+                        .onFailure {
+                            _error.value = ErrorUiState.Error(R.string.network_error)
+                        }
+                        .onSuccess {
+                            _albums.value = it
+                            _error.value = ErrorUiState.NoError
+                        }
+
                     _isRefreshing.value = false
                 }
         }
@@ -50,7 +53,9 @@ class AlbumListViewModel(val albumRepository: IAlbumRepository) : ViewModel() {
         _error.value = ErrorUiState.NoError
 
         viewModelScope.launch {
-            if (!albumRepository.refresh()) {
+            try {
+                albumRepository.refresh()
+            } catch (ex: Exception) {
                 _isRefreshing.value = false
                 _error.value = ErrorUiState.Error(R.string.network_error)
             }
