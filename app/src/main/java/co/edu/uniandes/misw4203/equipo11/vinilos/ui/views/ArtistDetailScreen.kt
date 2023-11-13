@@ -71,7 +71,7 @@ fun ArtistDetailScreen(snackbarHostState: SnackbarHostState, artistId: Int) {
     )
 
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(8.dp)
     ) {
         musician?.let { MusicianDetail(it, albums) }
     }
@@ -108,13 +108,13 @@ private fun ArtistHeader() {
 @Composable
 private fun MusicianDetail(musician: Performer, albums: List<Album>) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(120.dp),
-        modifier = Modifier.fillMaxSize()
+        columns = GridCells.Fixed(3),
+        modifier = Modifier.fillMaxSize(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
+            Column {
                 ArtistDescription(musician)
                 ArtistHeader()
             }
@@ -202,7 +202,7 @@ private fun ArtistDetailScreenPreview() {
     )
 
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(8.dp)
     ) {
          MusicianDetail(performer, albums)
     }
