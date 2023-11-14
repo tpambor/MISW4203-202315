@@ -50,15 +50,15 @@ class NetworkServiceAdapter {
         }
     }
 
-    fun addFavoriteMusicianToCollector(collectorId: Int, musicianId: Int): Flow<PerformerJson> {
+    fun addFavoriteMusicianToCollector(collectorId: Int, musicianId: Int): Flow<MusicianJson> {
         return HttpRequestQueue.post("$API_BASE_URL/collectors/$collectorId/musicians/$musicianId", "").map { response ->
-            gson().fromJson(response, PerformerJson::class.java)
+            gson().fromJson(response, MusicianJson::class.java)
         }
     }
 
-    fun addFavoriteBandToCollector(collectorId: Int, musicianId: Int): Flow<PerformerJson> {
+    fun addFavoriteBandToCollector(collectorId: Int, musicianId: Int): Flow<BandJson> {
         return HttpRequestQueue.post("$API_BASE_URL/collectors/$collectorId/bands/$musicianId", "").map { response ->
-            gson().fromJson(response, PerformerJson::class.java)
+            gson().fromJson(response, BandJson::class.java)
         }
     }
 

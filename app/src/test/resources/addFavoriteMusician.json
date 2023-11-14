@@ -1,0 +1,33 @@
+{
+  "id": 1044,
+  "name": "Aventura",
+  "image": "https://i.scdn.co/image/ab6761610000e5eb4cd0464ef7d8eb8521f72dd8",
+  "description": "Maybe table give now partner. Recently campaign send pressure yes large themselves.",
+  "birthDate": "1912-04-24T00:00:00.000Z",
+  "collectors": [
+    {
+      "id": 18,
+      "name": "Celia Núñez Peral",
+      "telephone": "+34 822 976 548",
+      "email": "garridoaurelio@chico-perez.es"
+    },
+    {
+      "id": 57,
+      "name": "Cleto Bertrán Morán",
+      "telephone": "+34841 738 680",
+      "email": "kperello@yahoo.com"
+    },
+    {
+      "id": 71,
+      "name": "Paz Paz-Lucena",
+      "telephone": "+34972 022 379",
+      "email": "paredesamilcar@yuste.org"
+    },
+    {
+      "id": 1,
+      "name": "Demetrio Ayuso Camps",
+      "telephone": "+34886 156 537",
+      "email": "florramirez@belda.com"
+    }
+  ]
+}

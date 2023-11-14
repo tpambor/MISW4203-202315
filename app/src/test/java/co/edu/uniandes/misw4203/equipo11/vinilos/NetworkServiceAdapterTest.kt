@@ -7,6 +7,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.MusicianJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.PerformerJson
+import io.github.serpro69.kfaker.Faker
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.slot
@@ -32,6 +33,39 @@ class NetworkServiceAdapterTest {
             mockkObject(HttpRequestQueue)
             val urlSlot = slot<String>()
             every { HttpRequestQueue.get(capture(urlSlot)) } answers {
+                called = true
+
+                flow {
+                    emit(handler(urlSlot.captured))
+                }
+            }
+        }
+    }
+
+    class MockPostRequest(val handler: (String, String) -> String) {
+        var called = false
+
+        init {
+            mockkObject(HttpRequestQueue)
+            val urlSlot = slot<String>()
+            val contentSlot = slot<String>()
+            every { HttpRequestQueue.post(capture(urlSlot), capture(contentSlot)) } answers {
+                called = true
+
+                flow {
+                    emit(handler(urlSlot.captured, contentSlot.captured))
+                }
+            }
+        }
+    }
+
+    class MockDeleteRequest(val handler: (String) -> String) {
+        var called = false
+
+        init {
+            mockkObject(HttpRequestQueue)
+            val urlSlot = slot<String>()
+            every { HttpRequestQueue.delete(capture(urlSlot)) } answers {
                 called = true
 
                 flow {
@@ -258,6 +292,91 @@ class NetworkServiceAdapterTest {
         val adapter = NetworkServiceAdapter()
         val collectors = adapter.getCollectors().first()
         assertEquals(collectorsExpected, collectors)
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldAddFavoriteMusician() = runTest {
+        val collectorId = 1
+        val musicianId = 1044
+        val addMusicianJSON = javaClass.getResource("/addFavoriteMusician.json").readText()
+        val mockRequest = MockPostRequest { url, content ->
+            assertEquals( "${NetworkServiceAdapter.API_BASE_URL}/collectors/$collectorId/musicians/$musicianId", url)
+            assertEquals("", content)
+            addMusicianJSON
+        }
+
+        val expectedPerformer = MusicianJson(
+            id = 1044,
+            name = "Aventura",
+            image = "https://i.scdn.co/image/ab6761610000e5eb4cd0464ef7d8eb8521f72dd8",
+            description = "Maybe table give now partner. Recently campaign send pressure yes large themselves.",
+            birthDate = Instant.parse("1912-04-24T00:00:00.000Z"),
+            albums = null
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val performer = adapter.addFavoriteMusicianToCollector(collectorId, musicianId).first()
+        assertEquals(expectedPerformer, performer)
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldAddFavoriteBand() = runTest {
+        val collectorId = 2
+        val bandId = 12
+        val addMusicianJSON = javaClass.getResource("/addFavoriteBand.json").readText()
+        val mockRequest = MockPostRequest { url, content ->
+            assertEquals( "${NetworkServiceAdapter.API_BASE_URL}/collectors/$collectorId/bands/$bandId", url)
+            assertEquals("", content)
+            addMusicianJSON
+        }
+
+        val expectedPerformer = BandJson(
+            id = 12,
+            name = "Grupo Niche",
+            image = "https://i.scdn.co/image/ab6761610000e5eb1ede9ddcf3ca7ebc0de49652",
+            description = "Reach role another agree future term officer. Drug standard million evidence expert. Ask drop conference attorney themselves.",
+            creationDate = Instant.parse("1922-09-12T00:00:00.000Z"),
+            albums = null,
+            musicians = null
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val performer = adapter.addFavoriteBandToCollector(collectorId, bandId).first()
+        assertEquals(expectedPerformer, performer)
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldRemoveFavoriteMusician() = runTest {
+        val faker = Faker()
+        val collectorId = faker.random.nextInt(0, 100)
+        val musicianId = faker.random.nextInt(0, 100)
+
+        val mockRequest = MockDeleteRequest { url ->
+            assertEquals( "${NetworkServiceAdapter.API_BASE_URL}/collectors/$collectorId/musicians/$musicianId", url)
+            ""
+        }
+
+        val adapter = NetworkServiceAdapter()
+        adapter.removeFavoriteMusicianFromCollector(collectorId, musicianId).first()
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldRemoveFavoriteBand() = runTest {
+        val faker = Faker()
+        val collectorId = faker.random.nextInt(0, 100)
+        val bandId = faker.random.nextInt(0, 100)
+
+        val mockRequest = MockDeleteRequest { url ->
+            assertEquals( "${NetworkServiceAdapter.API_BASE_URL}/collectors/$collectorId/bands/$bandId", url)
+            ""
+        }
+
+        val adapter = NetworkServiceAdapter()
+        adapter.removeFavoriteBandFromCollector(collectorId, bandId).first()
         assertTrue(mockRequest.called)
     }
 }
