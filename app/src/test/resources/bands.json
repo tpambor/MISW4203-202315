@@ -34,6 +34,20 @@
         "birthDate": "1948-07-16T00:00:00.000Z"
       }
     ],
+    "collectors": [
+      {
+        "id": 2,
+        "name": "Fernando Cañellas Hervás",
+        "telephone": "+34916 03 21 53",
+        "email": "onino@gmail.com"
+      },
+      {
+        "id": 29,
+        "name": "Amílcar Sales Maldonado",
+        "telephone": "+34827647490",
+        "email": "lladoconcepcion@gmail.com"
+      }
+    ],
     "performerPrizes": [
       {
         "id": 101,
@@ -49,6 +63,7 @@
     "creationDate": "1960-01-01T00:00:00.000Z",
     "albums": [],
     "musicians": [],
+    "collectors": [],
     "performerPrizes": []
   }
 ]
