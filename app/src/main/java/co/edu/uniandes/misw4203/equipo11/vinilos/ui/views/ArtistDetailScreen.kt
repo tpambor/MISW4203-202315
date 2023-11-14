@@ -177,7 +177,7 @@ private fun BandDetail(band: Performer, albums: List<Album>, members: List<Perfo
             }
         }
         items(members) {
-                item: Performer -> ArtistItem(item, null, null, navController)
+                item: Performer -> ArtistItem(item, false, false, navController)
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
             Column{

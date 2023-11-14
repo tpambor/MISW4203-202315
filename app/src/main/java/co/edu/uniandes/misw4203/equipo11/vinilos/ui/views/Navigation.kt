@@ -22,10 +22,10 @@ import androidx.navigation.navArgument
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 
 sealed class NavBarItem(val route: String, @StringRes val stringId: Int, @DrawableRes val iconId: Int) {
-    object Albums : NavBarItem("albums", R.string.nav_albums, R.drawable.ic_album_24)
-    object Artists : NavBarItem("artists", R.string.nav_artists, R.drawable.ic_artist_24)
-    object Collectors : NavBarItem("collectors", R.string.nav_collectors, R.drawable.ic_collector_24)
-    object Login : NavBarItem("login", R.string.nav_login, R.drawable.ic_leave_24)
+    data object Albums : NavBarItem("albums", R.string.nav_albums, R.drawable.ic_album_24)
+    data object Artists : NavBarItem("artists", R.string.nav_artists, R.drawable.ic_artist_24)
+    data object Collectors : NavBarItem("collectors", R.string.nav_collectors, R.drawable.ic_collector_24)
+    data object Login : NavBarItem("login", R.string.nav_login, R.drawable.ic_leave_24)
 }
 
 private val navBarItems = listOf(

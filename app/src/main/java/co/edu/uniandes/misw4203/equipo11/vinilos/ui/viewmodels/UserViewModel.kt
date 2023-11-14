@@ -19,8 +19,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 class UserViewModel(val userRepository: IUserRepository) : ViewModel() {
     @Immutable
     sealed interface LoginUiState {
-        object NotLoggedIn : LoginUiState
-        object LoggedIn : LoginUiState
+        data object NotLoggedIn : LoginUiState
+        data object LoggedIn : LoginUiState
     }
 
     private val _status = MutableStateFlow<LoginUiState>(LoginUiState.NotLoggedIn)

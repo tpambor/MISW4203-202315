@@ -168,13 +168,12 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState, navController: NavHos
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-fun ArtistItem(performer: Performer, isCollector: Boolean?, isFavorite: Boolean?, navController: NavHostController) {
-    // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
-
+fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: Boolean, navController: NavHostController) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
         coverPreview = placeholder(ColorPainter(Color(performer.image.toColorInt())))
     }
+
     Card(
         modifier = Modifier
             .testTag("performer-list-item"),
@@ -208,9 +207,7 @@ fun ArtistItem(performer: Performer, isCollector: Boolean?, isFavorite: Boolean?
                 // Favorite button
                 if(isCollector == true){
                     IconButton(
-                        onClick = {
-                            // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
-                        },
+                        onClick = { },
                         modifier = Modifier
                             .background(
                                 color = if (isFavorite == true) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
