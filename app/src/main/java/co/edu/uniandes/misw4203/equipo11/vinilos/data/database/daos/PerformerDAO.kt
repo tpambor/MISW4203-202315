@@ -37,4 +37,5 @@ interface PerformerDAO {
         deletePerformersByType(PerformerType.BAND)
         insertPerformers(musicians)
     }
+
 }

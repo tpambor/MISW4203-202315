@@ -57,6 +57,8 @@ import com.bumptech.glide.integration.compose.placeholder
 import java.time.Instant
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 
 @Composable
 fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
@@ -174,11 +176,19 @@ fun AlbumList(albums: List<Album>, navController: NavHostController ,cantColumns
 @Composable
 private fun AlbumListScreenPreview() {
     @Suppress("SpellCheckingInspection")
+
+    val performersList: List<Performer> = listOf(
+        Performer(1, PerformerType.MUSICIAN, "Fulanito", "Red", "description", Instant.now()),
+                Performer(1, PerformerType.MUSICIAN, "Fulanito", "Red", "description", Instant.now()),
+        Performer(1, PerformerType.MUSICIAN, "Fulanito", "Red", "description", Instant.now())
+
+    )
+
     val albums: List<Album> = listOf(
-        Album(1, "Buscando américa","red", Instant.now(), "", "Salsa", ""),
+        Album(1, "Buscando américa","red", Instant.now(), "", "Salsa", "" ),
         Album(2,"Lo mas lejos a tu lado", "green", Instant.now(), "", "Rock", ""),
-        Album(3, "Pa'lla Voy", "yellow", Instant.now(), "", "Salsa", "" ),
-        Album(4, "Recordando el Ayer","blue", Instant.now(), "", "Salsa", "blue"),
+        Album(3, "Pa'lla Voy", "yellow", Instant.now(), "", "Salsa", ""  ),
+        Album(4, "Recordando el Ayer","blue", Instant.now(), "", "Salsa", "blue" ),
         Album(5, "Único", "magenta", Instant.now(), "", "Salsa", ""),
         Album(6, "Vagabundo", "olive", Instant.now(), "", "Salsa", ""),
     )
