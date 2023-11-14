@@ -97,8 +97,7 @@ interface CollectorDAO {
     @Query("DELETE FROM collector")
     suspend fun deleteCollectors()
 
-    // Internal use only
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCollectorFavoritePerformers(collectorFavoritePerformers: List<CollectorFavoritePerformer>)
 
     // Internal use only
