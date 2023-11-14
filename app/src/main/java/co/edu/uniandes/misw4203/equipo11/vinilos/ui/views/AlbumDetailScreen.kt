@@ -46,6 +46,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.AlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -90,7 +91,7 @@ fun AlbumDetailScreen(snackbarHostState: SnackbarHostState, albumId: Int) {
 
 
 
-    album?.let { AlbumDetail(it, performances) }
+    album?.let { AlbumDetail(it, performances, tracks) }
 
     // Muestra la lista de pistas
     // TracksList(tracks = album.tracks)
@@ -151,6 +152,36 @@ private fun PerformerItem(performer: Performer) {
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
+@Composable
+private fun TrackItem(track: Track) {
+
+    Card(
+        modifier = Modifier.testTag("album-list-item"),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
+        shape = RectangleShape,
+        onClick = { }
+    ) {
+        Column {
+            Text(
+                text = track.name,
+                modifier = Modifier
+                    .padding(4.dp, 4.dp, 4.dp, 1.dp)
+                    .fillMaxWidth(),
+                style = typography.titleMedium
+            )
+            Text(
+                text = track.duration,
+                modifier = Modifier
+                    .padding(4.dp, 4.dp, 4.dp, 1.dp)
+                    .fillMaxWidth(),
+                style = typography.titleMedium
+            )
+
+        }
+    }
+}
 /*
 @Composable
 fun PerformerImage(imageUrl: String) {
@@ -176,7 +207,7 @@ fun CommentsList(comments: List<Comment>) {
 }
 */
 @Composable
-private fun AlbumDetail(album: Album, performer: List<Performer>) {
+private fun AlbumDetail(album: Album, performer: List<Performer>, tracks: List<Track>) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(120.dp),
         modifier = Modifier.fillMaxSize()
@@ -190,6 +221,9 @@ private fun AlbumDetail(album: Album, performer: List<Performer>) {
         }
         items(performer) {
                 item: Performer -> PerformerItem(item)
+        }
+        items(tracks) {
+                item: Track -> TrackItem(item)
         }
     }
 }
