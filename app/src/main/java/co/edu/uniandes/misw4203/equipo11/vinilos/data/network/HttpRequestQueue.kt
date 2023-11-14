@@ -78,4 +78,20 @@ object HttpRequestQueue {
 
         awaitClose { request.cancel() }
     }
+
+    fun delete(url: String): Flow<String> = callbackFlow {
+        val stringRequest = StringRequest(
+            Request.Method.DELETE,
+            url,
+            { response ->
+                trySendBlocking(response)
+                channel.close()
+            },
+            { err -> cancel(CancellationException(err)) }
+        )
+
+        val request = requestQueue.add(stringRequest)
+
+        awaitClose { request.cancel() }
+    }
 }

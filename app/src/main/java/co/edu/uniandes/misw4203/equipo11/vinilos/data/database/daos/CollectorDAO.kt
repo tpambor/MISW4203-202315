@@ -1,6 +1,7 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.data.database.daos
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Embedded
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -102,7 +103,10 @@ interface CollectorDAO {
 
     // Internal use only
     @Query("DELETE FROM collectorfavoriteperformer")
-    suspend fun deleteCollectorFavoritePerformer()
+    suspend fun deleteAllCollectorFavoritePerformer()
+
+    @Delete
+    suspend fun deleteCollectorFavoritePerformer(collectorFavoritePerformer: CollectorFavoritePerformer)
 
     // Internal use only
     // This is necessary, so that the list of collector with their favorite performers can
@@ -131,7 +135,7 @@ interface CollectorDAO {
 
         deleteCollectors()
         insertCollectors(mappedCollectors)
-        deleteCollectorFavoritePerformer()
+        deleteAllCollectorFavoritePerformer()
         insertCollectorFavoritePerformers(collectorFavoritePerformers)
         insertPerformers(performers)
     }

@@ -13,7 +13,10 @@ interface IPerformerRepository {
     fun getMusicians(): Flow<Result<List<Performer>>>
     fun getBands(): Flow<Result<List<Performer>>>
     fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>>
-    suspend fun addFavoritePerformer(collectorId: Int, performerId: Int)
+    suspend fun addFavoriteMusician(collectorId: Int, performerId: Int)
+    suspend fun addFavoriteBand(collectorId: Int, performerId: Int)
+    suspend fun removeFavoriteMusician(collectorId: Int, performerId: Int)
+    suspend fun removeFavoriteBand(collectorId: Int, performerId: Int)
     suspend fun refreshMusicians()
     suspend fun refreshBands()
 }
@@ -82,12 +85,36 @@ class PerformerRepository : IPerformerRepository{
         }
     }
 
-    override suspend fun addFavoritePerformer(collectorId: Int, performerId: Int) {
+    override suspend fun addFavoriteMusician(collectorId: Int, performerId: Int) {
         adapter.addFavoriteMusicianToCollector(collectorId, performerId).first()
 
         db.collectorDao().insertCollectorFavoritePerformers(listOf(
             CollectorFavoritePerformer(collectorId, performerId)
         ))
+    }
+
+    override suspend fun addFavoriteBand(collectorId: Int, performerId: Int) {
+        adapter.addFavoriteBandToCollector(collectorId, performerId).first()
+
+        db.collectorDao().insertCollectorFavoritePerformers(listOf(
+            CollectorFavoritePerformer(collectorId, performerId)
+        ))
+    }
+
+    override suspend fun removeFavoriteMusician(collectorId: Int, performerId: Int) {
+        adapter.removeFavoriteMusicianFromCollector(collectorId, performerId).first()
+
+        db.collectorDao().deleteCollectorFavoritePerformer(
+            CollectorFavoritePerformer(collectorId, performerId)
+        )
+    }
+
+    override suspend fun removeFavoriteBand(collectorId: Int, performerId: Int) {
+        adapter.removeFavoriteBandFromCollector(collectorId, performerId).first()
+
+        db.collectorDao().deleteCollectorFavoritePerformer(
+            CollectorFavoritePerformer(collectorId, performerId)
+        )
     }
 
     override suspend fun refreshMusicians() {

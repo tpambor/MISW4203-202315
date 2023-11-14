@@ -55,4 +55,18 @@ class NetworkServiceAdapter {
             gson().fromJson(response, PerformerJson::class.java)
         }
     }
+
+    fun addFavoriteBandToCollector(collectorId: Int, musicianId: Int): Flow<PerformerJson> {
+        return HttpRequestQueue.post("$API_BASE_URL/collectors/$collectorId/bands/$musicianId", "").map { response ->
+            gson().fromJson(response, PerformerJson::class.java)
+        }
+    }
+
+    fun removeFavoriteMusicianFromCollector(collectorId: Int, musicianId: Int): Flow<Unit> {
+        return HttpRequestQueue.delete("$API_BASE_URL/collectors/$collectorId/musicians/$musicianId").map {}
+    }
+
+    fun removeFavoriteBandFromCollector(collectorId: Int, bandId: Int): Flow<Unit> {
+        return HttpRequestQueue.delete("$API_BASE_URL/collectors/$collectorId/bands/$bandId").map {}
+    }
 }
