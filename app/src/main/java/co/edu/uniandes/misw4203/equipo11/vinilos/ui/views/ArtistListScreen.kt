@@ -185,6 +185,45 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
     }
 }
 
+@Composable
+private fun FavoriteButton(
+    performerId: Int,
+    isFavorite: Boolean,
+    isUpdating: Boolean,
+    addFavoritePerformer: (Int) -> Unit,
+    removeFavoritePerformer: (Int) -> Unit
+) {
+    if(isUpdating) {
+        CircularProgressIndicator(modifier = Modifier
+            .size(31.dp)
+            .padding(2.dp, 2.dp, 3.dp, 2.dp)
+        )
+    } else {
+        IconButton(
+            onClick = {
+                if (isFavorite)
+                    removeFavoritePerformer(performerId)
+                else
+                    addFavoritePerformer(performerId)
+            },
+            modifier = Modifier
+                .background(
+                    color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
+                    shape = CircleShape,
+                )
+                .size(35.dp)
+                .padding(0.dp, 0.dp, 1.dp, 0.dp)
+                .testTag("performer-fav-button")
+        ) {
+            Icon(
+                imageVector = Icons.Default.FavoriteBorder,
+                contentDescription = stringResource(R.string.artists_add_favorite),
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
 private fun ArtistItem(
@@ -231,35 +270,7 @@ private fun ArtistItem(
 
                 // Favorite button
                 if (isCollector) {
-                    if(isUpdating) {
-                        CircularProgressIndicator(modifier = Modifier
-                            .size(31.dp)
-                            .padding(2.dp, 2.dp, 3.dp, 2.dp)
-                        )
-                    } else {
-                        IconButton(
-                            onClick = {
-                                if (isFavorite)
-                                    removeFavoritePerformer(performer.id)
-                                else
-                                    addFavoritePerformer(performer.id)
-                            },
-                            modifier = Modifier
-                                .background(
-                                    color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
-                                    shape = CircleShape,
-                                )
-                                .size(35.dp)
-                                .padding(0.dp, 0.dp, 1.dp, 0.dp)
-                                .testTag("performer-fav-button")
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.FavoriteBorder,
-                                contentDescription = stringResource(R.string.artists_add_favorite),
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
+                    FavoriteButton(performer.id, isFavorite, isUpdating, addFavoritePerformer, removeFavoritePerformer)
                 }
             }
         }
