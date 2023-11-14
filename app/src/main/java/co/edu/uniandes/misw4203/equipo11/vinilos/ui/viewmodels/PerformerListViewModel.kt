@@ -130,7 +130,7 @@ class PerformerListViewModel(
         }
     }
 
-    fun addFavoritePerformer(performerId: Int) {
+    fun addFavoriteMusician(performerId: Int) {
         _updatingFavoritePerformers.value = _updatingFavoritePerformers.value + performerId
 
         viewModelScope.launch {
@@ -141,7 +141,67 @@ class PerformerListViewModel(
                 return@launch
 
             try {
-                performerRepository.addFavoritePerformer(collector.id, performerId)
+                performerRepository.addFavoriteMusician(collector.id, performerId)
+            } catch (ex: Exception) {
+                _error.value = ErrorUiState.Error(R.string.network_error)
+            }
+
+            _updatingFavoritePerformers.value = _updatingFavoritePerformers.value - performerId
+        }
+    }
+
+    fun addFavoriteBand(performerId: Int) {
+        _updatingFavoritePerformers.value = _updatingFavoritePerformers.value + performerId
+
+        viewModelScope.launch {
+            val collector = user.await()
+
+            // Visitors do not have favorite performers
+            if (collector.type == UserType.Visitor)
+                return@launch
+
+            try {
+                performerRepository.addFavoriteBand(collector.id, performerId)
+            } catch (ex: Exception) {
+                _error.value = ErrorUiState.Error(R.string.network_error)
+            }
+
+            _updatingFavoritePerformers.value = _updatingFavoritePerformers.value - performerId
+        }
+    }
+
+    fun removeFavoriteMusician(performerId: Int) {
+        _updatingFavoritePerformers.value = _updatingFavoritePerformers.value + performerId
+
+        viewModelScope.launch {
+            val collector = user.await()
+
+            // Visitors do not have favorite performers
+            if (collector.type == UserType.Visitor)
+                return@launch
+
+            try {
+                performerRepository.removeFavoriteMusician(collector.id, performerId)
+            } catch (ex: Exception) {
+                _error.value = ErrorUiState.Error(R.string.network_error)
+            }
+
+            _updatingFavoritePerformers.value = _updatingFavoritePerformers.value - performerId
+        }
+    }
+
+    fun removeFavoriteBand(performerId: Int) {
+        _updatingFavoritePerformers.value = _updatingFavoritePerformers.value + performerId
+
+        viewModelScope.launch {
+            val collector = user.await()
+
+            // Visitors do not have favorite performers
+            if (collector.type == UserType.Visitor)
+                return@launch
+
+            try {
+                performerRepository.removeFavoriteBand(collector.id, performerId)
             } catch (ex: Exception) {
                 _error.value = ErrorUiState.Error(R.string.network_error)
             }

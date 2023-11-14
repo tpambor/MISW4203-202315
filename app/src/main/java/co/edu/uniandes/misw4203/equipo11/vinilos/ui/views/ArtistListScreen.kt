@@ -148,8 +148,24 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
                 }
             }
             when (tabIndex) {
-                0 -> ArtistsList(musicians, user, favoritePerformers, updatingFavoritePerformers, "musicians", viewModel::addFavoritePerformer)
-                1 -> ArtistsList(bands, user, favoritePerformers, updatingFavoritePerformers, "bands", viewModel::addFavoritePerformer)
+                0 -> ArtistsList(
+                    musicians,
+                    user,
+                    favoritePerformers,
+                    updatingFavoritePerformers,
+                    "musicians",
+                    viewModel::addFavoriteMusician,
+                    viewModel::removeFavoriteMusician
+                )
+                1 -> ArtistsList(
+                    bands,
+                    user,
+                    favoritePerformers,
+                    updatingFavoritePerformers,
+                    "bands",
+                    viewModel::addFavoriteBand,
+                    viewModel::removeFavoriteBand
+                )
             }
         }
 
@@ -176,7 +192,8 @@ private fun ArtistItem(
     isCollector: Boolean,
     isFavorite: Boolean,
     isUpdating: Boolean,
-    addFavoritePerformer: (Int) -> Unit
+    addFavoritePerformer: (Int) -> Unit,
+    removeFavoritePerformer: (Int) -> Unit
 ) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
@@ -221,7 +238,12 @@ private fun ArtistItem(
                         )
                     } else {
                         IconButton(
-                            onClick = { addFavoritePerformer(performer.id) },
+                            onClick = {
+                                if (isFavorite)
+                                    removeFavoritePerformer(performer.id)
+                                else
+                                    addFavoritePerformer(performer.id)
+                            },
                             modifier = Modifier
                                 .background(
                                     color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
@@ -246,7 +268,15 @@ private fun ArtistItem(
 
 
 @Composable
-private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerformers: Set<Int>, updatingFavoritePerformers: Set<Int>, tab: String, addFavoritePerformer: (Int) -> Unit) {
+private fun ArtistsList(
+    performers: List<Performer>,
+    user: User?,
+    favoritePerformers: Set<Int>,
+    updatingFavoritePerformers: Set<Int>,
+    tab: String,
+    addFavoritePerformer: (Int) -> Unit,
+    removeFavoritePerformer: (Int) -> Unit
+) {
     val message = when (tab) {
         "musicians" -> stringResource(R.string.empty_musicians_list)
         "bands" -> stringResource(R.string.empty_bands_list)
@@ -262,7 +292,7 @@ private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerfor
                 val isFavorite = favoritePerformers.contains(item.id)
                 val isUpdating = updatingFavoritePerformers.contains(item.id)
 
-                ArtistItem(item, user?.type == UserType.Collector, isFavorite, isUpdating, addFavoritePerformer)
+                ArtistItem(item, user?.type == UserType.Collector, isFavorite, isUpdating, addFavoritePerformer, removeFavoritePerformer)
             }
         }
     } else {
@@ -313,8 +343,8 @@ private fun ArtistListScreenPreview() {
                     }
                 }
                 when (tabIndex) {
-                    0 ->  ArtistsList(musician, user, emptySet(), emptySet(),"musicians", addFavoritePerformer = {})
-                    1 ->  ArtistsList(bands, user, emptySet(), emptySet(), "bands", addFavoritePerformer = {})
+                    0 ->  ArtistsList(musician, user, emptySet(), emptySet(),"musicians", addFavoritePerformer = {}, removeFavoritePerformer = {})
+                    1 ->  ArtistsList(bands, user, emptySet(), emptySet(), "bands", addFavoritePerformer = {}, removeFavoritePerformer = {})
                 }
             }
         }
