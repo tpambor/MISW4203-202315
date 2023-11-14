@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -94,6 +95,10 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
         emptySet()
     )
 
+    val updatingFavoritePerformers by viewModel.updatingFavoritePerformers.collectAsStateWithLifecycle(
+        emptySet()
+    )
+
     val userViewModel: UserViewModel = viewModel(
         factory = UserViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
@@ -143,8 +148,8 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
                 }
             }
             when (tabIndex) {
-                0 -> ArtistsList(musicians, user, favoritePerformers, "musicians", viewModel::addFavoritePerformer)
-                1 -> ArtistsList(bands, user, favoritePerformers, "bands", viewModel::addFavoritePerformer)
+                0 -> ArtistsList(musicians, user, favoritePerformers, updatingFavoritePerformers, "musicians", viewModel::addFavoritePerformer)
+                1 -> ArtistsList(bands, user, favoritePerformers, updatingFavoritePerformers, "bands", viewModel::addFavoritePerformer)
             }
         }
 
@@ -159,13 +164,20 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
         val message = stringResource((error as ErrorUiState.Error).resourceId)
         LaunchedEffect(error) {
             snackbarHostState.showSnackbar(message)
+            viewModel.onErrorShown()
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: Boolean, addFavoritePerformer: (Int) -> Unit) {
+private fun ArtistItem(
+    performer: Performer,
+    isCollector: Boolean,
+    isFavorite: Boolean,
+    isUpdating: Boolean,
+    addFavoritePerformer: (Int) -> Unit
+) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
         coverPreview = placeholder(ColorPainter(Color(performer.image.toColorInt())))
@@ -202,22 +214,29 @@ private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: B
 
                 // Favorite button
                 if (isCollector) {
-                    IconButton(
-                        onClick = { addFavoritePerformer(performer.id) },
-                        modifier = Modifier
-                            .background(
-                                color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
-                                shape = CircleShape,
-                            )
-                            .size(35.dp)
-                            .padding(0.dp, 0.dp, 1.dp, 0.dp)
-                            .testTag("performer-fav-button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.FavoriteBorder,
-                            contentDescription = stringResource(R.string.artists_add_favorite),
-                            modifier = Modifier.size(20.dp)
+                    if(isUpdating) {
+                        CircularProgressIndicator(modifier = Modifier
+                            .size(31.dp)
+                            .padding(2.dp, 2.dp, 3.dp, 2.dp)
                         )
+                    } else {
+                        IconButton(
+                            onClick = { addFavoritePerformer(performer.id) },
+                            modifier = Modifier
+                                .background(
+                                    color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
+                                    shape = CircleShape,
+                                )
+                                .size(35.dp)
+                                .padding(0.dp, 0.dp, 1.dp, 0.dp)
+                                .testTag("performer-fav-button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FavoriteBorder,
+                                contentDescription = stringResource(R.string.artists_add_favorite),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -227,7 +246,7 @@ private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: B
 
 
 @Composable
-private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerformers: Set<Int>, tab: String, addFavoritePerformer: (Int) -> Unit) {
+private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerformers: Set<Int>, updatingFavoritePerformers: Set<Int>, tab: String, addFavoritePerformer: (Int) -> Unit) {
     val message = when (tab) {
         "musicians" -> stringResource(R.string.empty_musicians_list)
         "bands" -> stringResource(R.string.empty_bands_list)
@@ -241,8 +260,9 @@ private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerfor
         ) {
             items(performers) { item: Performer ->
                 val isFavorite = favoritePerformers.contains(item.id)
+                val isUpdating = updatingFavoritePerformers.contains(item.id)
 
-                ArtistItem(item, user?.type == UserType.Collector, isFavorite, addFavoritePerformer)
+                ArtistItem(item, user?.type == UserType.Collector, isFavorite, isUpdating, addFavoritePerformer)
             }
         }
     } else {
@@ -293,8 +313,8 @@ private fun ArtistListScreenPreview() {
                     }
                 }
                 when (tabIndex) {
-                    0 ->  ArtistsList(musician, user, emptySet(), "musicians", addFavoritePerformer = {})
-                    1 ->  ArtistsList(bands, user, emptySet(), "bands", addFavoritePerformer = {})
+                    0 ->  ArtistsList(musician, user, emptySet(), emptySet(),"musicians", addFavoritePerformer = {})
+                    1 ->  ArtistsList(bands, user, emptySet(), emptySet(), "bands", addFavoritePerformer = {})
                 }
             }
         }
