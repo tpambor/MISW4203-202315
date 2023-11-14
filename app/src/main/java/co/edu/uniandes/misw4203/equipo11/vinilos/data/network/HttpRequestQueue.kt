@@ -2,6 +2,8 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.data.network
 
 import com.android.volley.Request
 import com.android.volley.RequestQueue
+import com.android.volley.Response
+import com.android.volley.Response.ErrorListener
 import com.android.volley.toolbox.BasicNetwork
 import com.android.volley.toolbox.HurlStack
 import com.android.volley.toolbox.NoCache
@@ -40,6 +42,39 @@ object HttpRequestQueue {
         )
 
         val request = requestQueue.add(stringRequest)
+
+        awaitClose { request.cancel() }
+    }
+
+    private class PostRequest(
+        method: Int,
+        url: String,
+        private val content: String,
+        listener: Response.Listener<String>,
+        errorListener: ErrorListener
+    ) : StringRequest(method, url, listener, errorListener) {
+        override fun getBody(): ByteArray {
+            return content.toByteArray()
+        }
+
+        override fun getBodyContentType(): String {
+            return "application/json; charset=utf-8"
+        }
+    }
+
+    fun post(url: String, content: String): Flow<String> = callbackFlow {
+        val postRequest = PostRequest(
+            Request.Method.POST,
+            url,
+            content,
+            { response ->
+                trySendBlocking(response)
+                channel.close()
+            },
+            { err -> cancel(CancellationException(err)) },
+        )
+
+        val request = requestQueue.add(postRequest)
 
         awaitClose { request.cancel() }
     }
