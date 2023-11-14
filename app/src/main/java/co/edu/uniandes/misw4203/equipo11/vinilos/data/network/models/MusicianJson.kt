@@ -8,5 +8,6 @@ data class MusicianJson(
     val image: String,
     val description: String,
     val birthDate: Instant,
-    val albums: List<AlbumJson>?
+    val albums: List<AlbumJson>?,
+    val collectors: List<CollectorJson>?
 )

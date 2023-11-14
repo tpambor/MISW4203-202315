@@ -122,7 +122,7 @@ interface CollectorDAO {
         val performers: MutableList<Performer> = mutableListOf()
         val collectorFavoritePerformers: MutableList<CollectorFavoritePerformer> = mutableListOf()
         val mappedCollectors = collectors.map { collector ->
-            val favoritePerformers: List<Performer> = collector.favoritePerformers.map { it.toPerformer() }
+            val favoritePerformers: List<Performer> = requireNotNull(collector.favoritePerformers).map { it.toPerformer() }
             performers.addAll(favoritePerformers)
             favoritePerformers.forEach { favPerformer ->
                 collectorFavoritePerformers.add(
