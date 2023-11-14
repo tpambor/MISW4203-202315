@@ -213,7 +213,7 @@ private fun FavoriteButton(
                 )
                 .size(35.dp)
                 .padding(0.dp, 0.dp, 1.dp, 0.dp)
-                .testTag("performer-fav-button")
+                .testTag(if (isFavorite) "performer-fav-button-checked" else "performer-fav-button-unchecked")
         ) {
             Icon(
                 imageVector = Icons.Default.FavoriteBorder,
