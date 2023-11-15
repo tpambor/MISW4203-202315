@@ -21,6 +21,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.PreferenceDataSt
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.views.NavBar
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.views.NavContent
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.views.TopBar
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,6 +51,9 @@ class MainActivity : ComponentActivity() {
                         ) {
                             NavContent(navController, snackbarHostState)
                         }
+                    },
+                    topBar = {
+                        TopBar(navController, currentBackStackEntry)
                     },
                     bottomBar = {
                         NavBar(navController, currentBackStackEntry)

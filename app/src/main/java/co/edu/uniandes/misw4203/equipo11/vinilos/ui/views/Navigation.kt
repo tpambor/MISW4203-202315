@@ -2,11 +2,16 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -58,6 +63,32 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
             BandDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController)
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopBar(navController: NavHostController, currentBackStackEntry: NavBackStackEntry?) {
+    val route = currentBackStackEntry?.destination?.route ?: return
+    var title: String? = null
+
+    if (route.startsWith("artists/")) {
+        title = stringResource(R.string.topbar_artist)
+    }
+
+    if (title == null)
+        return
+
+    TopAppBar(
+        title = { Text(text = title) },
+        navigationIcon = {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = null
+                )
+            }
+        }
+    )
 }
 
 @Composable
