@@ -1,8 +1,5 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -55,13 +52,9 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
 import java.time.Instant
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 
 @Composable
-fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
+fun AlbumListScreen(snackbarHostState: SnackbarHostState) {
     val viewModel: AlbumListViewModel = viewModel(
         factory = AlbumListViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
@@ -83,11 +76,8 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHost
         onRefresh = { viewModel.onRefresh() }
     )
 
-    Box(
-        Modifier
-            .pullRefresh(pullRefreshState)
-            .padding(16.dp)) {
-        AlbumList(albums,navController)
+    Box(Modifier.pullRefresh(pullRefreshState)) {
+        AlbumList(albums)
 
         PullRefreshIndicator(
             refreshing = isRefreshing,
@@ -106,17 +96,19 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHost
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun AlbumItem(album: Album, navController: NavHostController) {
+private fun AlbumItem(album: Album) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
         coverPreview = placeholder(ColorPainter(Color(album.cover.toColorInt())))
     }
 
     Card(
-        modifier = Modifier.testTag("album-list-item"),
+        modifier = Modifier
+            .padding(8.dp)
+            .testTag("album-list-item"),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
-        onClick = { navController.navigate("albums/${album.id}") }
+        onClick = { }
     ) {
         Column {
             GlideImage(
@@ -148,16 +140,14 @@ private fun AlbumItem(album: Album, navController: NavHostController) {
 }
 
 @Composable
-fun AlbumList(albums: List<Album>, navController: NavHostController ,cantColumns: Int = 2) {
+private fun AlbumList(albums: List<Album>) {
     if(albums.isNotEmpty()){
         LazyVerticalGrid(
-            columns = GridCells.Fixed(cantColumns),
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            columns = GridCells.Adaptive(180.dp),
+            modifier = Modifier.fillMaxSize()
         ) {
             items(albums) {
-                    item: Album -> AlbumItem(item, navController)
+                    item: Album -> AlbumItem(item)
             }
         }
     }else{
@@ -168,27 +158,18 @@ fun AlbumList(albums: List<Album>, navController: NavHostController ,cantColumns
             Text(text = stringResource(R.string.empty_albums_list))
         }
     }
-
+    
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun AlbumListScreenPreview() {
     @Suppress("SpellCheckingInspection")
-
-    val performersList: List<Performer> = listOf(
-        Performer(1, PerformerType.MUSICIAN, "Fulanito", "Red", "description", Instant.now()),
-                Performer(1, PerformerType.MUSICIAN, "Fulanito", "Red", "description", Instant.now()),
-        Performer(1, PerformerType.MUSICIAN, "Fulanito", "Red", "description", Instant.now())
-
-    )
-
     val albums: List<Album> = listOf(
-        Album(1, "Buscando américa","red", Instant.now(), "", "Salsa", "" ),
+        Album(1, "Buscando américa","red", Instant.now(), "", "Salsa", ""),
         Album(2,"Lo mas lejos a tu lado", "green", Instant.now(), "", "Rock", ""),
-        Album(3, "Pa'lla Voy", "yellow", Instant.now(), "", "Salsa", ""  ),
-        Album(4, "Recordando el Ayer","blue", Instant.now(), "", "Salsa", "blue" ),
+        Album(3, "Pa'lla Voy", "yellow", Instant.now(), "", "Salsa", "" ),
+        Album(4, "Recordando el Ayer","blue", Instant.now(), "", "Salsa", "blue"),
         Album(5, "Único", "magenta", Instant.now(), "", "Salsa", ""),
         Album(6, "Vagabundo", "olive", Instant.now(), "", "Salsa", ""),
     )
@@ -199,10 +180,7 @@ private fun AlbumListScreenPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            Column(Modifier.padding(16.dp)) {
-                AlbumList(albums, rememberNavController())
-            }
-
+            AlbumList(albums)
         }
     }
 }

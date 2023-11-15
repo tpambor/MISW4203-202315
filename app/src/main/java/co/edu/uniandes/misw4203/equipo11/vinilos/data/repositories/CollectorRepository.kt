@@ -2,7 +2,6 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories
 
 import android.util.Log
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.VinilosDB
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorWithPerformers
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import kotlinx.coroutines.flow.Flow
@@ -10,52 +9,45 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 
 interface ICollectorRepository {
-    fun getCollectors(): Flow<List<Collector>?>
-    fun getCollectorsWithFavoritePerformers(): Flow<List<CollectorWithPerformers>?>
-    suspend fun refresh(): Boolean
+    fun getCollectorsWithFavoritePerformers(): Flow<Result<List<CollectorWithPerformers>>>
+    suspend fun refresh()
 }
 
 class CollectorRepository : ICollectorRepository {
     private val adapter = NetworkServiceAdapter()
     private val db = VinilosDB.getInstance()
 
-    override fun getCollectors(): Flow<List<Collector>?> = flow {
-        db.collectorDao().getCollectors().collect { collectors ->
-            if (collectors.isEmpty()) {
-                if(!refresh()) {
-                    emit(null)
-                }
-            } else {
-                emit(collectors)
-            }
-        }
-    }
+    override fun getCollectorsWithFavoritePerformers(): Flow<Result<List<CollectorWithPerformers>>> = flow {
+        var isFirst = true
 
-    override fun getCollectorsWithFavoritePerformers(): Flow<List<CollectorWithPerformers>?> = flow {
         db.collectorDao().getCollectorsWithPerformers().collect { collectors ->
-            if (collectors.isEmpty()) {
-                if(!refresh()) {
-                    emit(null)
+            if (!isFirst)
+                emit(Result.success(collectors))
+
+            // Handle first list returned differently
+            //
+            // If the first list is empty, there is no data in the database.
+            // This is mostly likely due to never have loaded data from the API,
+            // therefore call refresh() in this case to load the data from the API.
+            isFirst = true
+            if(collectors.isNotEmpty()) {
+                emit(Result.success(collectors))
+            }
+            else {
+                try {
+                    refresh()
+                } catch (ex: Exception) {
+                    Log.e(TAG, "Error loading albums: $ex")
+                    emit(Result.failure(ex))
                 }
-            } else {
-                emit(collectors)
             }
         }
     }
 
-    override suspend fun refresh(): Boolean {
-        val collectors: List<CollectorWithPerformers>?
-
-        try {
-            collectors = adapter.getCollectors().first()
-        } catch (ex: Exception) {
-            Log.e(TAG, "Error loading Collectors: $ex")
-            return false
-        }
-
-        db.collectorDao().deleteAndInsertCollectors(collectors)
-        return true
+    override suspend fun refresh() {
+        db.collectorDao().deleteAndInsertCollectors(adapter.getCollectors().first())
     }
+
     companion object {
         private val TAG = CollectorRepository::class.simpleName!!
     }

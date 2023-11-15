@@ -33,12 +33,15 @@ class CollectorListViewModel(val collectorRepository: ICollectorRepository) : Vi
         viewModelScope.launch {
             collectorRepository.getCollectorsWithFavoritePerformers()
                 .collect { collectors ->
-                    if (collectors == null) {
-                        _error.value = ErrorUiState.Error(R.string.network_error)
-                    } else {
-                        _collectors.value = collectors
-                        _error.value = ErrorUiState.NoError
-                    }
+                    collectors
+                        .onFailure {
+                            _error.value = ErrorUiState.Error(R.string.network_error)
+                        }
+                        .onSuccess {
+                            _collectors.value = it
+                            _error.value = ErrorUiState.NoError
+                        }
+
                     _isRefreshing.value = false
                 }
         }
@@ -49,7 +52,9 @@ class CollectorListViewModel(val collectorRepository: ICollectorRepository) : Vi
         _error.value = ErrorUiState.NoError
 
         viewModelScope.launch {
-            if (!collectorRepository.refresh()) {
+            try {
+                collectorRepository.refresh()
+            } catch (ex: Exception) {
                 _isRefreshing.value = false
                 _error.value = ErrorUiState.Error(R.string.network_error)
             }

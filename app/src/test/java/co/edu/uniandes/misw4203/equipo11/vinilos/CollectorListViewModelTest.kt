@@ -27,25 +27,21 @@ import java.time.Instant
 
 class CollectorListViewModelTest {
     class FakeCollectorRepository : ICollectorRepository {
-        private val flowCollectors = MutableSharedFlow<List<Collector>?>()
-        private val flowCollectorsWithPerformers = MutableSharedFlow<List<CollectorWithPerformers>?>()
-        suspend fun emit(value: List<CollectorWithPerformers>?) = flowCollectorsWithPerformers.emit(value)
+        private val flowCollectorsWithPerformers = MutableSharedFlow<Result<List<CollectorWithPerformers>>>()
+        suspend fun emit(value: Result<List<CollectorWithPerformers>>) = flowCollectorsWithPerformers.emit(value)
 
         var failRefresh = false
         var refreshCalled = false
 
-        override fun getCollectors(): Flow<List<Collector>?> {
-            return flowCollectors
-        }
-
-        override fun getCollectorsWithFavoritePerformers(): Flow<List<CollectorWithPerformers>?> {
+        override fun getCollectorsWithFavoritePerformers(): Flow<Result<List<CollectorWithPerformers>>> {
             return flowCollectorsWithPerformers
         }
 
-        override suspend fun refresh(): Boolean {
+        override suspend fun refresh() {
             refreshCalled = true
 
-            return !failRefresh
+            if (failRefresh)
+                throw Exception()
         }
     }
 
@@ -107,7 +103,7 @@ class CollectorListViewModelTest {
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
         // Repository emits Collectors
-        repository.emit(data)
+        repository.emit(Result.success(data))
 
         // Then, list of Collectors is filled with the data
         assertEquals(data, viewModel.collectors.first())
@@ -130,7 +126,7 @@ class CollectorListViewModelTest {
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
         // Repository emits null (unable to fetch data)
-        repository.emit(null)
+        repository.emit(Result.failure(Exception()))
 
         // Then, list of Collectors is filled with the data
         assertEquals(emptyList<CollectorWithPerformers>(), viewModel.collectors.first())
