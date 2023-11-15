@@ -251,7 +251,8 @@ fun ArtistItem(
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
         onClick = {
-            navController.navigate("artists/${performer.id}")
+            val prefix = if (performer.type == PerformerType.MUSICIAN) "musician" else "band"
+            navController.navigate("artists/$prefix/${performer.id}")
         }
     ) {
         Column {

@@ -46,10 +46,16 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
         composable(route = "artists") { ArtistListScreen(snackbarHostState, navController) }
         composable(route = "collectors") { CollectorListScreen(snackbarHostState) }
         composable(
-            route = "artists/{artistId}",
+            route = "artists/musician/{artistId}",
             arguments = listOf(navArgument("artistId") { type = NavType.IntType })
         ){ backStackEntry ->
-            ArtistDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController)
+            MusicianDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController)
+        }
+        composable(
+            route = "artists/band/{artistId}",
+            arguments = listOf(navArgument("artistId") { type = NavType.IntType })
+        ){ backStackEntry ->
+            BandDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController)
         }
     }
 }
