@@ -240,7 +240,7 @@ private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerfor
 
     if(performers.isNotEmpty()) {
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+            columns = GridCells.Adaptive(160.dp),
             modifier = Modifier.fillMaxSize().padding(8.dp, 8.dp, 8.dp, 0.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
