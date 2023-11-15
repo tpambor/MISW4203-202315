@@ -49,4 +49,24 @@ class NetworkServiceAdapter {
             gson().fromJson(response, Array<CollectorJson>::class.java).toList()
         }
     }
+
+    fun addFavoriteMusicianToCollector(collectorId: Int, musicianId: Int): Flow<MusicianJson> {
+        return HttpRequestQueue.post("$API_BASE_URL/collectors/$collectorId/musicians/$musicianId", "").map { response ->
+            gson().fromJson(response, MusicianJson::class.java)
+        }
+    }
+
+    fun addFavoriteBandToCollector(collectorId: Int, musicianId: Int): Flow<BandJson> {
+        return HttpRequestQueue.post("$API_BASE_URL/collectors/$collectorId/bands/$musicianId", "").map { response ->
+            gson().fromJson(response, BandJson::class.java)
+        }
+    }
+
+    fun removeFavoriteMusicianFromCollector(collectorId: Int, musicianId: Int): Flow<Unit> {
+        return HttpRequestQueue.delete("$API_BASE_URL/collectors/$collectorId/musicians/$musicianId").map {}
+    }
+
+    fun removeFavoriteBandFromCollector(collectorId: Int, bandId: Int): Flow<Unit> {
+        return HttpRequestQueue.delete("$API_BASE_URL/collectors/$collectorId/bands/$bandId").map {}
+    }
 }

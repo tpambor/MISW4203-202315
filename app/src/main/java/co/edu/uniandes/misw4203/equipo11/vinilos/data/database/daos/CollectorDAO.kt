@@ -1,6 +1,7 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.data.database.daos
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Embedded
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -97,13 +98,15 @@ interface CollectorDAO {
     @Query("DELETE FROM collector")
     suspend fun deleteCollectors()
 
-    // Internal use only
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCollectorFavoritePerformers(collectorFavoritePerformers: List<CollectorFavoritePerformer>)
 
     // Internal use only
     @Query("DELETE FROM collectorfavoriteperformer")
-    suspend fun deleteCollectorFavoritePerformer()
+    suspend fun deleteAllCollectorFavoritePerformer()
+
+    @Delete
+    suspend fun deleteCollectorFavoritePerformer(collectorFavoritePerformer: CollectorFavoritePerformer)
 
     // Internal use only
     // This is necessary, so that the list of collector with their favorite performers can
@@ -119,7 +122,7 @@ interface CollectorDAO {
         val performers: MutableList<Performer> = mutableListOf()
         val collectorFavoritePerformers: MutableList<CollectorFavoritePerformer> = mutableListOf()
         val mappedCollectors = collectors.map { collector ->
-            val favoritePerformers: List<Performer> = collector.favoritePerformers.map { it.toPerformer() }
+            val favoritePerformers: List<Performer> = requireNotNull(collector.favoritePerformers).map { it.toPerformer() }
             performers.addAll(favoritePerformers)
             favoritePerformers.forEach { favPerformer ->
                 collectorFavoritePerformers.add(
@@ -132,7 +135,7 @@ interface CollectorDAO {
 
         deleteCollectors()
         insertCollectors(mappedCollectors)
-        deleteCollectorFavoritePerformer()
+        deleteAllCollectorFavoritePerformer()
         insertCollectorFavoritePerformers(collectorFavoritePerformers)
         insertPerformers(performers)
     }

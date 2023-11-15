@@ -9,5 +9,6 @@ data class BandJson(
     val description: String,
     val creationDate: Instant,
     val albums: List<AlbumJson>?,
-    val musicians: List<MusicianJson>?
+    val musicians: List<MusicianJson>?,
+    val collectors: List<CollectorJson>?
 )
