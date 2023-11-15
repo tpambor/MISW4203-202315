@@ -51,8 +51,9 @@ interface PerformerDAO {
     suspend fun insertPerformerAlbums(performerAlbum: List<PerformerAlbum>)
 
     // Internal use only
-    @Query("DELETE FROM PerformerAlbum")
-    suspend fun deletePerformerAlbums()
+    @Transaction
+    @Query("DELETE FROM PerformerAlbum WHERE performerId IN (SELECT id FROM Performer WHERE Performer.type = :performerType)")
+    suspend fun deletePerformerAlbumsByPerformerType(performerType: PerformerType)
 
     // Internal use only
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -98,12 +99,12 @@ interface PerformerDAO {
         deletePerformersByType(PerformerType.MUSICIAN)
         insertPerformers(mappedMusicians)
 
+        insertCollectors(collectors)
         deleteCollectorFavoritePerformerByPerformerType(PerformerType.MUSICIAN)
         insertCollectorFavoritePerformers(collectorFavoritePerformers)
-        insertCollectors(collectors)
 
         insertAlbums(albums)
-        deletePerformerAlbums()
+        deletePerformerAlbumsByPerformerType(PerformerType.MUSICIAN)
         insertPerformerAlbums(performerAlbums)
     }
 
@@ -114,6 +115,10 @@ interface PerformerDAO {
     suspend fun deleteAndInsertBands(musicians: List<BandJson>) {
         val collectors: MutableList<Collector> = mutableListOf()
         val collectorFavoritePerformers: MutableList<CollectorFavoritePerformer> = mutableListOf()
+
+        val albums: MutableList<Album> = mutableListOf()
+        val performerAlbums: MutableList<PerformerAlbum> = mutableListOf()
+
         val mappedBands = musicians.map { band ->
             val favoriteCollectors: List<Collector> = requireNotNull(band.collectors).map { it.toCollector() }
             collectors.addAll(favoriteCollectors)
@@ -123,13 +128,24 @@ interface PerformerDAO {
                 )
             }
 
+            val bandAlbums = requireNotNull(band.albums).map { it.toAlbum() }
+            albums.addAll(bandAlbums)
+            bandAlbums.forEach { album ->
+                performerAlbums.add(PerformerAlbum(band.id, album.id))
+            }
+
             band.toPerformer()
         }
 
         deletePerformersByType(PerformerType.BAND)
         insertPerformers(mappedBands)
+
+        insertCollectors(collectors)
         deleteCollectorFavoritePerformerByPerformerType(PerformerType.BAND)
         insertCollectorFavoritePerformers(collectorFavoritePerformers)
-        insertCollectors(collectors)
+
+        insertAlbums(albums)
+        deletePerformerAlbumsByPerformerType(PerformerType.BAND)
+        insertPerformerAlbums(performerAlbums)
     }
 }
