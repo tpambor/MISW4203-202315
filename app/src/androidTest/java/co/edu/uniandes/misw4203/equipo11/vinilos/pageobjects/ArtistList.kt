@@ -15,9 +15,10 @@ class ArtistList(composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<Ma
             hasTestTag("performer-list-item")
         )
     }
-    fun getFavButton(): SemanticsNodeInteractionCollection {
+
+    private fun getFavButton(): SemanticsNodeInteractionCollection {
         return findAtLeastOne(
-            hasTestTag("performer-fav-button")
+            hasTestTag("performer-fav-button-unchecked").or(hasTestTag("performer-fav-button-checked"))
         )
     }
 

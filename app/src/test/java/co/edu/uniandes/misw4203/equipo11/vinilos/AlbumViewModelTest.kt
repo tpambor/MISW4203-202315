@@ -27,7 +27,7 @@ import java.time.Instant
 class AlbumViewModelTest {
     class FakeAlbumRepository: IAlbumRepository {
 
-        private val albumFlow = MutableSharedFlow<List<Album>?>()
+        private val albumFlow = MutableSharedFlow<Result<List<Album>>>()
 
 
         var getAlbumCalled = false
@@ -35,11 +35,9 @@ class AlbumViewModelTest {
         var getCommentsCalled = false
         var getTracksCalled = false
 
-        override fun getAlbums(): Flow<List<Album>?> = albumFlow.asSharedFlow()
+        override fun getAlbums(): Flow<Result<List<Album>>> = albumFlow.asSharedFlow()
 
-        override suspend fun refresh(): Boolean {
-            return true
-        }
+        override suspend fun refresh() { }
 
         override fun getAlbum(albumId: Int): Flow<Album?> {
             getAlbumCalled = true

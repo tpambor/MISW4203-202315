@@ -8,6 +8,8 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toAlbum
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJson
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -22,9 +24,11 @@ interface AlbumDAO {
     suspend fun deleteAlbums()
 
     @Transaction
-    suspend fun deleteAndInsertAlbums(albums: List<Album>) {
+    suspend fun deleteAndInsertAlbums(albums: List<AlbumJson>) {
+        val mappedAlbums = albums.map { it.toAlbum() }
+
         deleteAlbums()
-        insertAlbums(albums)
+        insertAlbums(mappedAlbums)
     }
     @Query("SELECT * FROM album WHERE id = :albumId")
     fun getAlbumById(albumId: Int): Flow<Album?>
