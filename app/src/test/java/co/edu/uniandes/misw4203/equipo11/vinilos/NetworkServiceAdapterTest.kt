@@ -7,6 +7,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.MusicianJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.PerformerJson
+import io.github.serpro69.kfaker.Faker
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.slot
@@ -32,6 +33,39 @@ class NetworkServiceAdapterTest {
             mockkObject(HttpRequestQueue)
             val urlSlot = slot<String>()
             every { HttpRequestQueue.get(capture(urlSlot)) } answers {
+                called = true
+
+                flow {
+                    emit(handler(urlSlot.captured))
+                }
+            }
+        }
+    }
+
+    class MockPostRequest(val handler: (String, String) -> String) {
+        var called = false
+
+        init {
+            mockkObject(HttpRequestQueue)
+            val urlSlot = slot<String>()
+            val contentSlot = slot<String>()
+            every { HttpRequestQueue.post(capture(urlSlot), capture(contentSlot)) } answers {
+                called = true
+
+                flow {
+                    emit(handler(urlSlot.captured, contentSlot.captured))
+                }
+            }
+        }
+    }
+
+    class MockDeleteRequest(val handler: (String) -> String) {
+        var called = false
+
+        init {
+            mockkObject(HttpRequestQueue)
+            val urlSlot = slot<String>()
+            every { HttpRequestQueue.delete(capture(urlSlot)) } answers {
                 called = true
 
                 flow {
@@ -129,6 +163,22 @@ class NetworkServiceAdapterTest {
                         genre = "Salsa",
                         recordLabel = "Elektra"
                     )
+                ),
+                collectors = listOf(
+                    CollectorJson(
+                        id = 2,
+                        name = "Fernando Cañellas Hervás",
+                        telephone = "+34916 03 21 53",
+                        email = "onino@gmail.com",
+                        favoritePerformers = null
+                    ),
+                    CollectorJson(
+                        id = 29,
+                        name = "Amílcar Sales Maldonado",
+                        telephone = "+34827647490",
+                        email = "lladoconcepcion@gmail.com",
+                        favoritePerformers = null
+                    )
                 )
             )
         )
@@ -181,7 +231,24 @@ class NetworkServiceAdapterTest {
                         image = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Ruben_Blades_by_Gage_Skidmore.jpg/800px-Ruben_Blades_by_Gage_Skidmore.jpg",
                         birthDate = Instant.parse("1948-07-16T00:00:00.000Z"),
                         description = "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.",
-                        albums = null
+                        albums = null,
+                        collectors = null
+                    )
+                ),
+                collectors = listOf(
+                    CollectorJson(
+                        id = 2,
+                        name = "Fernando Cañellas Hervás",
+                        telephone = "+34916 03 21 53",
+                        email = "onino@gmail.com",
+                        favoritePerformers = null
+                    ),
+                    CollectorJson(
+                        id = 29,
+                        name = "Amílcar Sales Maldonado",
+                        telephone = "+34827647490",
+                        email = "lladoconcepcion@gmail.com",
+                        favoritePerformers = null
                     )
                 )
             ),
@@ -192,7 +259,8 @@ class NetworkServiceAdapterTest {
                 creationDate = Instant.parse("1960-01-01T00:00:00.000Z"),
                 description = "The Beatles, más conocido en el mundo hispano como los Beatles, fue un grupo de rock británico formado en Liverpool durante los años 1960; estando integrado desde 1962 hasta su separación en 1970 por John Lennon, Paul McCartney, George Harrison y Ringo Starr.",
                 albums = emptyList(),
-                musicians = emptyList()
+                musicians = emptyList(),
+                collectors = emptyList()
             )
         )
 
@@ -223,7 +291,8 @@ class NetworkServiceAdapterTest {
                         image = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Ruben_Blades_by_Gage_Skidmore.jpg/800px-Ruben_Blades_by_Gage_Skidmore.jpg",
                         description = "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.",
                         birthDate = Instant.parse("1948-07-16T00:00:00.000Z"),
-                        albums = null
+                        albums = null,
+                        collectors = null
                     )),
                     PerformerJson.Band(BandJson(
                         id = 101,
@@ -232,7 +301,8 @@ class NetworkServiceAdapterTest {
                         description = "Queen es una banda británica de rock formada en 1970 en Londres por el cantante Freddie Mercury, el guitarrista Brian May, el baterista Roger Taylor y el bajista John Deacon. Si bien el grupo ha presentado bajas de dos de sus miembros (Mercury, fallecido en 1991, y Deacon, retirado en 1997), los integrantes restantes, May y Taylor, continúan trabajando bajo el nombre Queen, por lo que la banda aún se considera activa.",
                         creationDate = Instant.parse("1970-01-01T00:00:00.000Z"),
                         albums = null,
-                        musicians = null
+                        musicians = null,
+                        collectors = null
                     ))
                 )
             ),
@@ -249,7 +319,8 @@ class NetworkServiceAdapterTest {
                         description = "Queen es una banda británica de rock formada en 1970 en Londres por el cantante Freddie Mercury, el guitarrista Brian May, el baterista Roger Taylor y el bajista John Deacon. Si bien el grupo ha presentado bajas de dos de sus miembros (Mercury, fallecido en 1991, y Deacon, retirado en 1997), los integrantes restantes, May y Taylor, continúan trabajando bajo el nombre Queen, por lo que la banda aún se considera activa.",
                         creationDate = Instant.parse("1970-01-01T00:00:00.000Z"),
                         albums = null,
-                        musicians = null
+                        musicians = null,
+                        collectors = null
                     ))
                 )
             )
@@ -258,6 +329,123 @@ class NetworkServiceAdapterTest {
         val adapter = NetworkServiceAdapter()
         val collectors = adapter.getCollectors().first()
         assertEquals(collectorsExpected, collectors)
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldAddFavoriteMusician() = runTest {
+        val collectorId = 1
+        val musicianId = 1044
+        val addMusicianJSON = javaClass.getResource("/addFavoriteMusician.json").readText()
+        val mockRequest = MockPostRequest { url, content ->
+            assertEquals( "${NetworkServiceAdapter.API_BASE_URL}/collectors/$collectorId/musicians/$musicianId", url)
+            assertEquals("", content)
+            addMusicianJSON
+        }
+
+        val expectedPerformer = MusicianJson(
+            id = 1044,
+            name = "Aventura",
+            image = "https://i.scdn.co/image/ab6761610000e5eb4cd0464ef7d8eb8521f72dd8",
+            description = "Maybe table give now partner. Recently campaign send pressure yes large themselves.",
+            birthDate = Instant.parse("1912-04-24T00:00:00.000Z"),
+            albums = null,
+            collectors = listOf(
+                CollectorJson(
+                    id = 18,
+                    name = "Celia Núñez Peral",
+                    telephone = "+34 822 976 548",
+                    email = "garridoaurelio@chico-perez.es",
+                    favoritePerformers = null
+                ),
+                CollectorJson(
+                    id = 57,
+                    name = "Cleto Bertrán Morán",
+                    telephone = "+34841 738 680",
+                    email = "kperello@yahoo.com",
+                    favoritePerformers = null
+                )
+            )
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val performer = adapter.addFavoriteMusicianToCollector(collectorId, musicianId).first()
+        assertEquals(expectedPerformer, performer)
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldAddFavoriteBand() = runTest {
+        val collectorId = 2
+        val bandId = 12
+        val addMusicianJSON = javaClass.getResource("/addFavoriteBand.json").readText()
+        val mockRequest = MockPostRequest { url, content ->
+            assertEquals( "${NetworkServiceAdapter.API_BASE_URL}/collectors/$collectorId/bands/$bandId", url)
+            assertEquals("", content)
+            addMusicianJSON
+        }
+
+        val expectedPerformer = BandJson(
+            id = 12,
+            name = "Grupo Niche",
+            image = "https://i.scdn.co/image/ab6761610000e5eb1ede9ddcf3ca7ebc0de49652",
+            description = "Reach role another agree future term officer. Drug standard million evidence expert. Ask drop conference attorney themselves.",
+            creationDate = Instant.parse("1922-09-12T00:00:00.000Z"),
+            albums = null,
+            musicians = null,
+            collectors = listOf(
+                CollectorJson(
+                    id = 29,
+                    name = "Amílcar Sales Maldonado",
+                    telephone = "+34827647490",
+                    email = "lladoconcepcion@gmail.com",
+                    favoritePerformers = null
+                ),
+                CollectorJson(
+                    id = 34,
+                    name = "Fabiana Alcalde Bayón",
+                    telephone = "+34976997506",
+                    email = "montserratnunez@galan.es",
+                    favoritePerformers = null
+                )
+            )
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val performer = adapter.addFavoriteBandToCollector(collectorId, bandId).first()
+        assertEquals(expectedPerformer, performer)
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldRemoveFavoriteMusician() = runTest {
+        val faker = Faker()
+        val collectorId = faker.random.nextInt(0, 100)
+        val musicianId = faker.random.nextInt(0, 100)
+
+        val mockRequest = MockDeleteRequest { url ->
+            assertEquals( "${NetworkServiceAdapter.API_BASE_URL}/collectors/$collectorId/musicians/$musicianId", url)
+            ""
+        }
+
+        val adapter = NetworkServiceAdapter()
+        adapter.removeFavoriteMusicianFromCollector(collectorId, musicianId).first()
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldRemoveFavoriteBand() = runTest {
+        val faker = Faker()
+        val collectorId = faker.random.nextInt(0, 100)
+        val bandId = faker.random.nextInt(0, 100)
+
+        val mockRequest = MockDeleteRequest { url ->
+            assertEquals( "${NetworkServiceAdapter.API_BASE_URL}/collectors/$collectorId/bands/$bandId", url)
+            ""
+        }
+
+        val adapter = NetworkServiceAdapter()
+        adapter.removeFavoriteBandFromCollector(collectorId, bandId).first()
         assertTrue(mockRequest.called)
     }
 }

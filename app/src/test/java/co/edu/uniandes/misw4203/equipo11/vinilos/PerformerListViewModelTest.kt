@@ -41,6 +41,7 @@ class PerformerListViewModelTest {
 
         suspend fun emitMusicians(value: Result<List<Performer>>) = musiciansFlow.emit(value)
         suspend fun emitBands(value: Result<List<Performer>>) = bandsFlow.emit(value)
+        suspend fun emitFavoritePerformers(value: List<Performer>) = favoritesFlow.emit(value)
 
         override fun getMusicians(): Flow<Result<List<Performer>>> = musiciansFlow
         override fun getBands(): Flow<Result<List<Performer>>> = bandsFlow
@@ -52,6 +53,47 @@ class PerformerListViewModelTest {
 
         override fun getAlbums(performerId: Int): Flow<List<Album>> {
             throw UnsupportedOperationException()
+        }
+
+        var failUpdateFavorite: Boolean = false
+        var updateFavoriteMusicianCollectorId: Int? = null
+        var updateFavoriteMusicianPerformerId: Int? = null
+        var updateFavoriteAction: String? = null
+
+        override suspend fun addFavoriteMusician(collectorId: Int, performerId: Int) {
+            updateFavoriteAction = "AddMusician"
+            updateFavoriteMusicianCollectorId = collectorId
+            updateFavoriteMusicianPerformerId = performerId
+
+            if (failUpdateFavorite)
+                throw Exception()
+        }
+
+        override suspend fun addFavoriteBand(collectorId: Int, performerId: Int) {
+            updateFavoriteAction = "AddBand"
+            updateFavoriteMusicianCollectorId = collectorId
+            updateFavoriteMusicianPerformerId = performerId
+
+            if (failUpdateFavorite)
+                throw Exception()
+        }
+
+        override suspend fun removeFavoriteMusician(collectorId: Int, performerId: Int) {
+            updateFavoriteAction = "RemoveMusician"
+            updateFavoriteMusicianCollectorId = collectorId
+            updateFavoriteMusicianPerformerId = performerId
+
+            if (failUpdateFavorite)
+                throw Exception()
+        }
+
+        override suspend fun removeFavoriteBand(collectorId: Int, performerId: Int) {
+            updateFavoriteAction = "RemoveBand"
+            updateFavoriteMusicianCollectorId = collectorId
+            updateFavoriteMusicianPerformerId = performerId
+
+            if (failUpdateFavorite)
+                throw Exception()
         }
 
         override suspend fun refreshMusicians() {
@@ -70,6 +112,8 @@ class PerformerListViewModelTest {
 
     class FakeUserRepository: IUserRepository {
         private val flow = MutableSharedFlow<User?>()
+
+        suspend fun emitUser(value: User) = flow.emit(value)
 
         override fun getUser(): Flow<User?> {
             return flow
@@ -173,6 +217,42 @@ class PerformerListViewModelTest {
     }
 
     @Test
+    fun listsFavoritePerformers() = runTest {
+        val repository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
+
+        val viewModel = PerformerListViewModel.Factory.create(
+            PerformerListViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+            }
+        )
+
+        val faker = Faker()
+
+        val data = (1..4).map { id ->
+            Performer(
+                id = id,
+                type = PerformerType.MUSICIAN,
+                name = faker.name.name(),
+                image = "https://loremflickr.com/480/480/album?lock=${faker.random.nextInt(0, 100)}",
+                description = faker.quote.yoda(),
+                birthDate = Instant.ofEpochMilli(faker.random.nextLong(System.currentTimeMillis())),
+            )
+        }
+
+        assertEquals(emptySet<Int>(), viewModel.favoritePerformers.first())
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+
+        userRepository.emitUser(User(UserType.Collector, 1))
+        repository.emitFavoritePerformers(data)
+
+        assertEquals(data.map { it.id }.toSet(), viewModel.favoritePerformers.first())
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+    }
+
+    @Test
     fun musiciansError() = runTest {
         val repository = FakePerformerRepository()
         val userRepository = FakeUserRepository()
@@ -196,6 +276,8 @@ class PerformerListViewModelTest {
         assert(error is ErrorUiState.Error)
         val errorState: ErrorUiState.Error = error as ErrorUiState.Error
         assertEquals(R.string.network_error, errorState.resourceId)
+        viewModel.onErrorShown()
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 
     @Test
@@ -222,6 +304,8 @@ class PerformerListViewModelTest {
         assert(error is ErrorUiState.Error)
         val errorState: ErrorUiState.Error = error as ErrorUiState.Error
         assertEquals(R.string.network_error, errorState.resourceId)
+        viewModel.onErrorShown()
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 
     @Test
@@ -270,6 +354,8 @@ class PerformerListViewModelTest {
         assert(error is ErrorUiState.Error)
         val errorState: ErrorUiState.Error = error as ErrorUiState.Error
         assertEquals(R.string.network_error, errorState.resourceId)
+        viewModel.onErrorShown()
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 
     @Test
@@ -318,5 +404,255 @@ class PerformerListViewModelTest {
         assert(error is ErrorUiState.Error)
         val errorState: ErrorUiState.Error = error as ErrorUiState.Error
         assertEquals(R.string.network_error, errorState.resourceId)
+        viewModel.onErrorShown()
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+    }
+
+    @Test
+    fun addFavoriteMusicianSuccess() = runTest {
+        val repository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
+
+        val viewModel = PerformerListViewModel.Factory.create(
+            PerformerListViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+            }
+        )
+
+        val faker = Faker()
+
+        val userId = faker.random.nextInt(0, 100)
+        val performerId = faker.random.nextInt(1, 100)
+
+        userRepository.emitUser(User(UserType.Collector, userId))
+        viewModel.addFavoriteMusician(performerId)
+
+        assertEquals("AddMusician", repository.updateFavoriteAction)
+        assertEquals(userId, repository.updateFavoriteMusicianCollectorId)
+        assertEquals(performerId, repository.updateFavoriteMusicianPerformerId)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+    }
+
+    @Test
+    fun addFavoriteMusicianFail() = runTest {
+        val repository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
+
+        val viewModel = PerformerListViewModel.Factory.create(
+            PerformerListViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+            }
+        )
+
+        val faker = Faker()
+
+        val userId = faker.random.nextInt(0, 100)
+        val performerId = faker.random.nextInt(1, 100)
+
+        repository.failUpdateFavorite = true
+
+        userRepository.emitUser(User(UserType.Collector, userId))
+        viewModel.addFavoriteMusician(performerId)
+
+        assertEquals("AddMusician", repository.updateFavoriteAction)
+        assertEquals(userId, repository.updateFavoriteMusicianCollectorId)
+        assertEquals(performerId, repository.updateFavoriteMusicianPerformerId)
+
+        val error = viewModel.error.value
+        assert(error is ErrorUiState.Error)
+        val errorState: ErrorUiState.Error = error as ErrorUiState.Error
+        assertEquals(R.string.network_error, errorState.resourceId)
+        viewModel.onErrorShown()
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+    }
+
+    @Test
+    fun addFavoriteBandSuccess() = runTest {
+        val repository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
+
+        val viewModel = PerformerListViewModel.Factory.create(
+            PerformerListViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+            }
+        )
+
+        val faker = Faker()
+
+        val userId = faker.random.nextInt(0, 100)
+        val performerId = faker.random.nextInt(1, 100)
+
+        userRepository.emitUser(User(UserType.Collector, userId))
+        viewModel.addFavoriteBand(performerId)
+
+        assertEquals("AddBand", repository.updateFavoriteAction)
+        assertEquals(userId, repository.updateFavoriteMusicianCollectorId)
+        assertEquals(performerId, repository.updateFavoriteMusicianPerformerId)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+    }
+
+    @Test
+    fun addFavoriteBandFail() = runTest {
+        val repository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
+
+        val viewModel = PerformerListViewModel.Factory.create(
+            PerformerListViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+            }
+        )
+
+        val faker = Faker()
+
+        val userId = faker.random.nextInt(0, 100)
+        val performerId = faker.random.nextInt(1, 100)
+
+        repository.failUpdateFavorite = true
+
+        userRepository.emitUser(User(UserType.Collector, userId))
+        viewModel.addFavoriteBand(performerId)
+
+        assertEquals("AddBand", repository.updateFavoriteAction)
+        assertEquals(userId, repository.updateFavoriteMusicianCollectorId)
+        assertEquals(performerId, repository.updateFavoriteMusicianPerformerId)
+
+        val error = viewModel.error.value
+        assert(error is ErrorUiState.Error)
+        val errorState: ErrorUiState.Error = error as ErrorUiState.Error
+        assertEquals(R.string.network_error, errorState.resourceId)
+        viewModel.onErrorShown()
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+    }
+
+    @Test
+    fun removeFavoriteMusicianSuccess() = runTest {
+        val repository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
+
+        val viewModel = PerformerListViewModel.Factory.create(
+            PerformerListViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+            }
+        )
+
+        val faker = Faker()
+
+        val userId = faker.random.nextInt(0, 100)
+        val performerId = faker.random.nextInt(1, 100)
+
+        userRepository.emitUser(User(UserType.Collector, userId))
+        viewModel.removeFavoriteMusician(performerId)
+
+        assertEquals("RemoveMusician", repository.updateFavoriteAction)
+        assertEquals(userId, repository.updateFavoriteMusicianCollectorId)
+        assertEquals(performerId, repository.updateFavoriteMusicianPerformerId)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+    }
+
+    @Test
+    fun removeFavoriteMusicianFail() = runTest {
+        val repository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
+
+        val viewModel = PerformerListViewModel.Factory.create(
+            PerformerListViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+            }
+        )
+
+        val faker = Faker()
+
+        val userId = faker.random.nextInt(0, 100)
+        val performerId = faker.random.nextInt(1, 100)
+
+        repository.failUpdateFavorite = true
+
+        userRepository.emitUser(User(UserType.Collector, userId))
+        viewModel.removeFavoriteMusician(performerId)
+
+        assertEquals("RemoveMusician", repository.updateFavoriteAction)
+        assertEquals(userId, repository.updateFavoriteMusicianCollectorId)
+        assertEquals(performerId, repository.updateFavoriteMusicianPerformerId)
+
+        val error = viewModel.error.value
+        assert(error is ErrorUiState.Error)
+        val errorState: ErrorUiState.Error = error as ErrorUiState.Error
+        assertEquals(R.string.network_error, errorState.resourceId)
+        viewModel.onErrorShown()
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+    }
+
+    @Test
+    fun removeFavoriteBandSuccess() = runTest {
+        val repository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
+
+        val viewModel = PerformerListViewModel.Factory.create(
+            PerformerListViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+            }
+        )
+
+        val faker = Faker()
+
+        val userId = faker.random.nextInt(0, 100)
+        val performerId = faker.random.nextInt(1, 100)
+
+        userRepository.emitUser(User(UserType.Collector, userId))
+        viewModel.removeFavoriteBand(performerId)
+
+        assertEquals("RemoveBand", repository.updateFavoriteAction)
+        assertEquals(userId, repository.updateFavoriteMusicianCollectorId)
+        assertEquals(performerId, repository.updateFavoriteMusicianPerformerId)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+    }
+
+    @Test
+    fun removeFavoriteBandFail() = runTest {
+        val repository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
+
+        val viewModel = PerformerListViewModel.Factory.create(
+            PerformerListViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+            }
+        )
+
+        val faker = Faker()
+
+        val userId = faker.random.nextInt(0, 100)
+        val performerId = faker.random.nextInt(1, 100)
+
+        repository.failUpdateFavorite = true
+
+        userRepository.emitUser(User(UserType.Collector, userId))
+        viewModel.removeFavoriteBand(performerId)
+
+        assertEquals("RemoveBand", repository.updateFavoriteAction)
+        assertEquals(userId, repository.updateFavoriteMusicianCollectorId)
+        assertEquals(performerId, repository.updateFavoriteMusicianPerformerId)
+
+        val error = viewModel.error.value
+        assert(error is ErrorUiState.Error)
+        val errorState: ErrorUiState.Error = error as ErrorUiState.Error
+        assertEquals(R.string.network_error, errorState.resourceId)
+        viewModel.onErrorShown()
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 }

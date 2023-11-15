@@ -25,6 +25,20 @@
         "recordLabel": "Elektra"
       }
     ],
+    "collectors": [
+      {
+        "id": 2,
+        "name": "Fernando Cañellas Hervás",
+        "telephone": "+34916 03 21 53",
+        "email": "onino@gmail.com"
+      },
+      {
+        "id": 29,
+        "name": "Amílcar Sales Maldonado",
+        "telephone": "+34827647490",
+        "email": "lladoconcepcion@gmail.com"
+      }
+    ],
     "performerPrizes": [
       {
         "id": 100,

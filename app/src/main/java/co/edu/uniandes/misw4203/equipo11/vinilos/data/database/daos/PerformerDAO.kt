@@ -6,10 +6,13 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorFavoritePerformer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toAlbum
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toCollector
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toPerformer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.MusicianJson
@@ -51,33 +54,82 @@ interface PerformerDAO {
     @Query("DELETE FROM PerformerAlbum")
     suspend fun deletePerformerAlbums()
 
+    // Internal use only
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCollectors(collectors: List<Collector>)
+
+    // Internal use only
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCollectorFavoritePerformers(collectorFavoritePerformers: List<CollectorFavoritePerformer>)
+
+    @Transaction
+    @Query("DELETE FROM CollectorFavoritePerformer WHERE performerId IN (SELECT id FROM Performer WHERE Performer.type = :performerType)")
+    suspend fun deleteCollectorFavoritePerformerByPerformerType(performerType: PerformerType)
+
+    // Refresh the list of musicians and their collectors
+    // To make sure that the database is consistent it is necessary to update the collectors
+    // associated with the musicians as well
     @Transaction
     suspend fun deleteAndInsertMusicians(musicians: List<MusicianJson>) {
-        val performerAlbums: MutableList<PerformerAlbum> = mutableListOf()
-        val albums: MutableList<Album> = mutableListOf()
-        val performers = musicians.map { musician ->
-            if (musician.albums != null) {
-                val musicianAlbums = musician.albums.map { album ->
-                    performerAlbums.add(PerformerAlbum(musician.id, album.id))
+        val collectors: MutableList<Collector> = mutableListOf()
+        val collectorFavoritePerformers: MutableList<CollectorFavoritePerformer> = mutableListOf()
 
-                    album.toAlbum()
-                }
-                albums.addAll(musicianAlbums)
+        val albums: MutableList<Album> = mutableListOf()
+        val performerAlbums: MutableList<PerformerAlbum> = mutableListOf()
+
+        val mappedMusicians = musicians.map { musician ->
+            val favoriteCollectors: List<Collector> = requireNotNull(musician.collectors).map { it.toCollector() }
+            collectors.addAll(favoriteCollectors)
+            favoriteCollectors.forEach { favCollector ->
+                collectorFavoritePerformers.add(
+                    CollectorFavoritePerformer(favCollector.id, musician.id)
+                )
+            }
+
+            val musicianAlbums = requireNotNull(musician.albums).map { it.toAlbum() }
+            albums.addAll(musicianAlbums)
+            musicianAlbums.forEach { album ->
+                performerAlbums.add(PerformerAlbum(musician.id, album.id))
             }
 
             musician.toPerformer()
         }
+
         deletePerformersByType(PerformerType.MUSICIAN)
-        insertPerformers(performers)
+        insertPerformers(mappedMusicians)
+
+        deleteCollectorFavoritePerformerByPerformerType(PerformerType.MUSICIAN)
+        insertCollectorFavoritePerformers(collectorFavoritePerformers)
+        insertCollectors(collectors)
+
         insertAlbums(albums)
         deletePerformerAlbums()
         insertPerformerAlbums(performerAlbums)
     }
 
+    // Refresh the list of bands and their collectors
+    // To make sure that the database is consistent it is necessary to update the collectors
+    // associated with the bands as well
     @Transaction
     suspend fun deleteAndInsertBands(musicians: List<BandJson>) {
-        val performers = musicians.map { it.toPerformer() }
+        val collectors: MutableList<Collector> = mutableListOf()
+        val collectorFavoritePerformers: MutableList<CollectorFavoritePerformer> = mutableListOf()
+        val mappedBands = musicians.map { band ->
+            val favoriteCollectors: List<Collector> = requireNotNull(band.collectors).map { it.toCollector() }
+            collectors.addAll(favoriteCollectors)
+            favoriteCollectors.forEach { favCollector ->
+                collectorFavoritePerformers.add(
+                    CollectorFavoritePerformer(favCollector.id, band.id)
+                )
+            }
+
+            band.toPerformer()
+        }
+
         deletePerformersByType(PerformerType.BAND)
-        insertPerformers(performers)
+        insertPerformers(mappedBands)
+        deleteCollectorFavoritePerformerByPerformerType(PerformerType.BAND)
+        insertCollectorFavoritePerformers(collectorFavoritePerformers)
+        insertCollectors(collectors)
     }
 }
