@@ -72,6 +72,7 @@ task<JacocoReport>("codeCoverageReportDebug") {
 }
 
 dependencies {
+    implementation("androidx.test:core-ktx:1.5.0")
     val lifecycleVersion = "2.6.2"
     val navVersion = "2.7.4"
     val testJunitVersion = "1.1.5"

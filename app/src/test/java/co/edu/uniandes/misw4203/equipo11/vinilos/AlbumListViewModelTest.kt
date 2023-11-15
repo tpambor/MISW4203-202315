@@ -3,6 +3,9 @@ package co.edu.uniandes.misw4203.equipo11.vinilos
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IAlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
@@ -38,6 +41,22 @@ class AlbumListViewModelTest {
             refreshCalled = true
 
             return !failRefresh
+        }
+
+        override fun getAlbum(albumId: Int): Flow<Album?> {
+            TODO("Not yet implemented")
+        }
+
+        override fun getPerformanceAlbums(albumId: Int): Flow<List<Performer>> {
+            TODO("Not yet implemented")
+        }
+
+        override fun getCommentsAlbums(albumId: Int): Flow<List<Comment>> {
+            TODO("Not yet implemented")
+        }
+
+        override fun getTracksAlbums(albumId: Int): Flow<List<Track>> {
+            TODO("Not yet implemented")
         }
     }
 
