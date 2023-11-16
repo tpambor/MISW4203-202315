@@ -158,7 +158,7 @@ private fun AlbumsHeader() {
             fontWeight = FontWeight.W500
         )
         Button(
-            onClick = { /*TODO*/ },
+            onClick = { },
             modifier = Modifier
                 .height(40.dp),
             colors = ButtonDefaults.buttonColors(
@@ -185,7 +185,7 @@ private fun MembersHeader() {
             fontWeight = FontWeight.W500
         )
         Button(
-            onClick = { /*TODO*/ },
+            onClick = { },
             modifier = Modifier
                 .height(40.dp),
             colors = ButtonDefaults.buttonColors(

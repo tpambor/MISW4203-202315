@@ -285,7 +285,7 @@ fun ArtistItem(
     }
 }
 
-
+@SuppressWarnings("kotlin:S107") // Exception: This function has more than 7 parameters as it is stateless composable which receives the data from the caller
 @Composable
 private fun ArtistsList(
     performers: List<Performer>,
