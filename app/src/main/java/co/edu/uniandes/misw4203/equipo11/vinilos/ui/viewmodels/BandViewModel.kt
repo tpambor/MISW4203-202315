@@ -40,7 +40,6 @@ class BandViewModel(
                         _error.value = ErrorUiState.Error(R.string.network_error)
                     } else {
                         _band.value = band
-                        _error.value = ErrorUiState.NoError
                     }
                     _isRefreshing.value = false
                 }
@@ -55,7 +54,6 @@ class BandViewModel(
             performerRepository.getBandMembers(performerId)
                 .collect { musicians ->
                     _members.value = musicians
-                    _error.value = ErrorUiState.NoError
                     _isRefreshing.value = false
                 }
         }

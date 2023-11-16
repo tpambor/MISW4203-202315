@@ -42,10 +42,13 @@ abstract class PerformerViewModel(
             performerRepository.getAlbums(performerId)
                 .collect { albums ->
                     _albums.value = albums
-                    _error.value = ErrorUiState.NoError
                     _isRefreshing.value = false
                 }
         }
+    }
+
+    fun onErrorShown() {
+        _error.value = ErrorUiState.NoError
     }
 
     abstract fun onRefresh()

@@ -273,6 +273,8 @@ class BandViewModelTest {
         assert(error is ErrorUiState.Error)
         val errorState: ErrorUiState.Error = error as ErrorUiState.Error
         assertEquals(R.string.network_error, errorState.resourceId)
+        viewModel.onErrorShown()
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 
     @Test
@@ -323,5 +325,7 @@ class BandViewModelTest {
         assert(error is ErrorUiState.Error)
         val errorState: ErrorUiState.Error = error as ErrorUiState.Error
         assertEquals(R.string.network_error, errorState.resourceId)
+        viewModel.onErrorShown()
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 }

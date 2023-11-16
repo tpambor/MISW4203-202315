@@ -138,6 +138,7 @@ private fun PerformerDetailScreen(viewModel: PerformerViewModel, snackbarHostSta
         val message = stringResource((error as ErrorUiState.Error).resourceId)
         LaunchedEffect(error) {
             snackbarHostState.showSnackbar(message)
+            viewModel.onErrorShown()
         }
     }
 

@@ -36,7 +36,6 @@ class MusicianViewModel(
                         _error.value = ErrorUiState.Error(R.string.network_error)
                     } else {
                         _musician.value = musician
-                        _error.value = ErrorUiState.NoError
                     }
                     _isRefreshing.value = false
                 }
