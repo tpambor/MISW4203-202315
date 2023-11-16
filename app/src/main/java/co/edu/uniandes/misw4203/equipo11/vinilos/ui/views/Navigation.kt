@@ -65,6 +65,32 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopBar(navController: NavHostController, currentBackStackEntry: NavBackStackEntry?) {
+    val route = currentBackStackEntry?.destination?.route ?: return
+    var title: String? = null
+
+    if (route.startsWith("artists/")) {
+        title = stringResource(R.string.topbar_artist)
+    }
+
+    if (title == null)
+        return
+
+    TopAppBar(
+        title = { Text(text = title) },
+        navigationIcon = {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = null
+                )
+            }
+        }
+    )
+}
+
 @Composable
 fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStackEntry?) {
     val route = currentBackStackEntry?.destination?.route
