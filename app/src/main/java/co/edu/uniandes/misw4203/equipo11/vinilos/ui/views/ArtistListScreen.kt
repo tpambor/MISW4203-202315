@@ -305,7 +305,7 @@ private fun ArtistsList(
 
     if(performers.isNotEmpty()) {
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(180.dp),
+            columns = GridCells.Adaptive(150.dp),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp, 8.dp, 8.dp, 0.dp),
