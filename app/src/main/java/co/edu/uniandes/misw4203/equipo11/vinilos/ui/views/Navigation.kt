@@ -2,11 +2,16 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -89,4 +94,45 @@ fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStack
             )
         }
     }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackStackEntry?) {
+    val route = currentBackStackEntry?.destination?.route
+
+    val titleResourceId = when (route) {
+        "artists/musician/{artistId}" -> R.string.top_nav_artist
+        "artists/band/{artistId}" -> R.string.top_nav_artist
+        else -> R.string.app_name
+    }
+
+    if (
+        route == "login" ||
+        route == "albums" ||
+        route == "artists" ||
+        route == "collectors"
+        )
+        return
+
+    TopAppBar(
+        {
+            Text(
+                text =
+                stringResource(
+                    id = titleResourceId
+                )
+            )
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = {
+                    navController.navigateUp()
+                }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back"
+                )
+            }
+        },
+    )
 }
