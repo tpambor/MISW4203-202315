@@ -23,7 +23,9 @@ interface IPerformerRepository {
     suspend fun removeFavoriteMusician(collectorId: Int, performerId: Int)
     suspend fun removeFavoriteBand(collectorId: Int, performerId: Int)
     suspend fun refreshMusicians()
+    suspend fun refreshMusician(performerId: Int)
     suspend fun refreshBands()
+    suspend fun refreshBand(performerId: Int)
 }
 
 class PerformerRepository : IPerformerRepository{
@@ -109,7 +111,7 @@ class PerformerRepository : IPerformerRepository{
     }
 
     override fun getBandMembers(performerId: Int): Flow<List<Performer>> = flow {
-        db.performerDao().getBandMembers(performerId).collect() { musicians ->
+        db.performerDao().getBandMembers(performerId).collect { musicians ->
             emit(musicians)
         }
     }
@@ -152,9 +154,23 @@ class PerformerRepository : IPerformerRepository{
         )
     }
 
+    override suspend fun refreshMusician(performerId: Int) {
+        db.performerDao().deleteAndInsertMusicians(
+            listOf(adapter.getMusician(performerId).first()),
+            deleteAll = false
+        )
+    }
+
     override suspend fun refreshBands() {
         db.performerDao().deleteAndInsertBands(
             adapter.getBands().first()
+        )
+    }
+
+    override suspend fun refreshBand(performerId: Int) {
+        db.performerDao().deleteAndInsertBands(
+            listOf(adapter.getBand(performerId).first()),
+            deleteAll = false
         )
     }
 

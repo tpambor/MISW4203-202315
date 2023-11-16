@@ -17,7 +17,6 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toCollector
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toPerformer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.MusicianJson
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.PerformerJson
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -60,6 +59,9 @@ interface PerformerDAO {
     @Query("DELETE FROM PerformerAlbum WHERE performerId IN (SELECT id FROM Performer WHERE Performer.type = :performerType)")
     suspend fun deletePerformerAlbumsByPerformerType(performerType: PerformerType)
 
+    @Query("DELETE FROM PerformerAlbum WHERE performerId = :performerId")
+    suspend fun deletePerformerAlbumsByPerformerId(performerId: Int)
+
     // Internal use only
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCollectors(collectors: List<Collector>)
@@ -72,8 +74,14 @@ interface PerformerDAO {
     @Query("DELETE FROM CollectorFavoritePerformer WHERE performerId IN (SELECT id FROM Performer WHERE Performer.type = :performerType)")
     suspend fun deleteCollectorFavoritePerformerByPerformerType(performerType: PerformerType)
 
+    @Query("DELETE FROM CollectorFavoritePerformer WHERE performerId = :performerId")
+    suspend fun deleteCollectorFavoritePerformerByPerformerId(performerId: Int)
+
     @Query("DELETE FROM MusicianBand")
     suspend fun deleteMusicianBands()
+
+    @Query("DELETE FROM MusicianBand WHERE bandId = :bandId")
+    suspend fun deleteMusicianBandsByBandId(bandId: Int)
 
     @Insert
     suspend fun insertMusicianBands(musicianBands: List<MusicianBand>)
@@ -82,7 +90,7 @@ interface PerformerDAO {
     // To make sure that the database is consistent it is necessary to update the collectors
     // associated with the musicians as well
     @Transaction
-    suspend fun deleteAndInsertMusicians(musicians: List<MusicianJson>) {
+    suspend fun deleteAndInsertMusicians(musicians: List<MusicianJson>, deleteAll: Boolean = true) {
         val collectors: MutableList<Collector> = mutableListOf()
         val collectorFavoritePerformers: MutableList<CollectorFavoritePerformer> = mutableListOf()
 
@@ -107,15 +115,28 @@ interface PerformerDAO {
             musician.toPerformer()
         }
 
-        deletePerformersByType(PerformerType.MUSICIAN)
+        if (deleteAll)
+            deletePerformersByType(PerformerType.MUSICIAN)
         insertPerformers(mappedMusicians)
 
         insertCollectors(collectors)
-        deleteCollectorFavoritePerformerByPerformerType(PerformerType.MUSICIAN)
+        if (deleteAll)
+            deleteCollectorFavoritePerformerByPerformerType(PerformerType.MUSICIAN)
+        else {
+            mappedMusicians.forEach { musician ->
+                deleteCollectorFavoritePerformerByPerformerId(musician.id)
+            }
+        }
         insertCollectorFavoritePerformers(collectorFavoritePerformers)
 
         insertAlbums(albums)
-        deletePerformerAlbumsByPerformerType(PerformerType.MUSICIAN)
+        if (deleteAll)
+            deletePerformerAlbumsByPerformerType(PerformerType.MUSICIAN)
+        else {
+            mappedMusicians.forEach { musician ->
+                deletePerformerAlbumsByPerformerId(musician.id)
+            }
+        }
         insertPerformerAlbums(performerAlbums)
     }
 
@@ -123,7 +144,7 @@ interface PerformerDAO {
     // To make sure that the database is consistent it is necessary to update the collectors
     // associated with the bands as well
     @Transaction
-    suspend fun deleteAndInsertBands(bands: List<BandJson>) {
+    suspend fun deleteAndInsertBands(bands: List<BandJson>, deleteAll: Boolean = true) {
         val collectors: MutableList<Collector> = mutableListOf()
         val collectorFavoritePerformers: MutableList<CollectorFavoritePerformer> = mutableListOf()
 
@@ -157,19 +178,38 @@ interface PerformerDAO {
             band.toPerformer()
         }
 
-        deletePerformersByType(PerformerType.BAND)
+        if (deleteAll)
+            deletePerformersByType(PerformerType.BAND)
         insertPerformers(mappedBands)
 
         insertCollectors(collectors)
-        deleteCollectorFavoritePerformerByPerformerType(PerformerType.BAND)
+        if (deleteAll)
+            deleteCollectorFavoritePerformerByPerformerType(PerformerType.BAND)
+        else {
+            mappedBands.forEach { band ->
+                deleteCollectorFavoritePerformerByPerformerId(band.id)
+            }
+        }
         insertCollectorFavoritePerformers(collectorFavoritePerformers)
 
         insertAlbums(albums)
-        deletePerformerAlbumsByPerformerType(PerformerType.BAND)
+        if (deleteAll)
+            deletePerformerAlbumsByPerformerType(PerformerType.BAND)
+        else {
+            mappedBands.forEach { band ->
+                deletePerformerAlbumsByPerformerId(band.id)
+            }
+        }
         insertPerformerAlbums(performerAlbums)
 
         insertPerformers(musicians)
-        deleteMusicianBands()
+        if (deleteAll)
+            deleteMusicianBands()
+        else {
+            mappedBands.forEach { band ->
+                deleteMusicianBandsByBandId(band.id)
+            }
+        }
         insertMusicianBands(musicianBands)
     }
 }

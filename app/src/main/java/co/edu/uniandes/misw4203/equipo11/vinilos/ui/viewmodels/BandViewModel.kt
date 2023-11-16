@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IPerformerRepository
@@ -59,6 +58,19 @@ class BandViewModel(
                     _error.value = ErrorUiState.NoError
                     _isRefreshing.value = false
                 }
+        }
+    }
+
+    override fun onRefresh() {
+        _isRefreshing.value = true
+
+        viewModelScope.launch {
+            try {
+                performerRepository.refreshBand(performerId)
+            } catch (ex: Exception) {
+                _isRefreshing.value = false
+                _error.value = ErrorUiState.Error(R.string.network_error)
+            }
         }
     }
 

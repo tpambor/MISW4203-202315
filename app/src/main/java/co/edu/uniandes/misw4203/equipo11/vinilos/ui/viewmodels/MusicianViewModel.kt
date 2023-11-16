@@ -43,6 +43,19 @@ class MusicianViewModel(
         }
     }
 
+    override fun onRefresh() {
+        _isRefreshing.value = true
+
+        viewModelScope.launch {
+            try {
+                performerRepository.refreshMusician(performerId)
+            } catch (ex: Exception) {
+                _isRefreshing.value = false
+                _error.value = ErrorUiState.Error(R.string.network_error)
+            }
+        }
+    }
+
     // ViewModel factory
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {

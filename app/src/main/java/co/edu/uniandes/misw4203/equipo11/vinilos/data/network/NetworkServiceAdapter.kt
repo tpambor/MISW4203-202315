@@ -38,9 +38,21 @@ class NetworkServiceAdapter {
         }
     }
 
+    fun getMusician(musicianId: Int): Flow<MusicianJson> {
+        return HttpRequestQueue.get("$API_BASE_URL/musicians/$musicianId").map { response ->
+            gson().fromJson(response, MusicianJson::class.java)
+        }
+    }
+
     fun getBands(): Flow<List<BandJson>> {
         return HttpRequestQueue.get("$API_BASE_URL/bands").map { response ->
             gson().fromJson(response, Array<BandJson>::class.java).toList()
+        }
+    }
+
+    fun getBand(musicianId: Int): Flow<BandJson> {
+        return HttpRequestQueue.get("$API_BASE_URL/bands/$musicianId").map { response ->
+            gson().fromJson(response, BandJson::class.java)
         }
     }
 

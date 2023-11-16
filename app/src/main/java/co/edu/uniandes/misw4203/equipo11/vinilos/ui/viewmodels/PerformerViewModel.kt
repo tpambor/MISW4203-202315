@@ -26,9 +26,11 @@ abstract class PerformerViewModel(
     val albums = _albums.asStateFlow().onSubscription { getAlbums() }
     private val getAlbumsStarted: AtomicBoolean = AtomicBoolean(false)
 
+    @Suppress("PropertyName")
     protected val _isRefreshing = MutableStateFlow(true)
     val isRefreshing = _isRefreshing.asStateFlow()
 
+    @Suppress("PropertyName")
     protected val _error = MutableStateFlow<ErrorUiState>(ErrorUiState.NoError)
     val error = _error.asStateFlow()
 
@@ -46,9 +48,7 @@ abstract class PerformerViewModel(
         }
     }
 
-    fun onRefresh() {
-
-    }
+    abstract fun onRefresh()
 
     companion object {
         val KEY_PERFORMER_REPOSITORY = object : CreationExtras.Key<IPerformerRepository> {}
