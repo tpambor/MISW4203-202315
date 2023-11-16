@@ -1,12 +1,16 @@
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -16,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.typography
@@ -44,6 +49,7 @@ import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
@@ -91,53 +97,91 @@ fun AlbumDetailScreen(snackbarHostState: SnackbarHostState, albumId: Int) {
 
 
 
-    album?.let { AlbumDetail(it, performances, tracks) }
-
-    // Muestra la lista de pistas
-    // TracksList(tracks = album.tracks)
-
-    // Muestra la lista de comentarios
-    // CommentsList(comments = album.comments)
+    album?.let { AlbumDetail(it, performances, tracks, comments) }
 }
+
+
 @Composable
-fun PerformersList(performers: List<Performer> ){
-    if(performers.isNotEmpty()){
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(performers) {
-                    item: Performer -> PerformerItem(item)
+private fun AlbumDetail(album: Album, performers: List<Performer>, tracks: List<Track>, comments: List<Comment> ) {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(120.dp),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // Album description section
+        item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                AlbumDescription(album)
             }
         }
-    }else{
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text("hi")
+
+        item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.nav_artists),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.W500,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+        }
+
+        items(performers) { performer ->
+            PerformerItem(performer)
+        }
+
+
+        item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+            Text(
+                text = stringResource(R.string.nav_tracks),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.W500,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+
+        items(tracks) { track ->
+            TrackItem(track)
+        }
+
+        item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+            Text(
+                text = stringResource(R.string.nav_comments),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.W500,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+
+        items(comments) { comment ->
+            CommentItem(comment)
         }
     }
-
 }
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
 private fun PerformerItem(performer: Performer) {
-
     Card(
-        modifier = Modifier.testTag("album-list-item"),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
-        onClick = { }
+        onClick = { /* Handle click event */ }
     ) {
-        Column {
+        Column(
+            horizontalAlignment = Alignment.Start,
+        ) {
+
             GlideImage(
                 model = performer.image,
                 contentDescription = null,
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .fillMaxWidth()
+                    .width(100.dp)
                     .aspectRatio(1f),
                 contentScale = ContentScale.Crop
             )
@@ -148,66 +192,44 @@ private fun PerformerItem(performer: Performer) {
                     .fillMaxWidth(),
                 style = typography.titleMedium
             )
-
         }
+    }
+}
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
+@Composable
+private fun TrackItem(track: Track) = Card(
+    modifier = Modifier.fillMaxWidth().padding(8.dp),
+    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
+    shape = RectangleShape,
+    onClick = { /* Handle click event */ }
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = track.name, style = typography.titleMedium, modifier = Modifier.weight(1f))
+        Text(text = track.duration, style = typography.titleMedium, modifier = Modifier.width(100.dp))
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun TrackItem(track: Track) {
-
-    Card(
-        modifier = Modifier.testTag("album-list-item"),
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
-        shape = RectangleShape,
-        onClick = { }
+private fun CommentItem(comment: Comment) = Card(
+    modifier = Modifier.fillMaxWidth().padding(8.dp),
+    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
+    shape = RectangleShape,
+    onClick = { /* Handle click event */ }
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Column {
-            Text(
-                text = track.name,
-                modifier = Modifier
-                    .padding(4.dp, 4.dp, 4.dp, 1.dp)
-                    .fillMaxWidth(),
-                style = typography.titleMedium
-            )
-            Text(
-                text = track.duration,
-                modifier = Modifier
-                    .padding(4.dp, 4.dp, 4.dp, 1.dp)
-                    .fillMaxWidth(),
-                style = typography.titleMedium
-            )
-
-        }
+        Text(text = comment.description, style = typography.titleMedium, modifier = Modifier.weight(1f))
+        Text(text = comment.rating.toString(), style = typography.titleMedium, modifier = Modifier.width(100.dp))
     }
 }
-/*
-@Composable
-fun PerformerImage(imageUrl: String) {
-    Image(
-        painter = painterResource(id = R.drawable.ic_launcher_foreground),
-        contentDescription = null, // Cambia según tus necesidades
-        modifier = Modifier
-            .size(56.dp)
-            .clip(CircleShape)
-    )
-}
-
-@Composable
-fun TracksList(tracks: List<Track>) {
-    // Composable para mostrar la lista de pistas con nombre y duración
-    // ...
-}
-
-@Composable
-fun CommentsList(comments: List<Comment>) {
-    // Composable para mostrar la lista de comentarios con descripción y calificación
-    // ...
-}
-*/
-@Composable
-private fun AlbumDetail(album: Album, performer: List<Performer>, tracks: List<Track>) {
+/*@Composable
+private fun AlbumDetail(album: Album, performer: List<Performer>, tracks: List<Track>, comments: List<Comment>) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(120.dp),
         modifier = Modifier.fillMaxSize()
@@ -218,19 +240,28 @@ private fun AlbumDetail(album: Album, performer: List<Performer>, tracks: List<T
             ) {
                 AlbumDescription(album)
             }
+            Text(
+                text = stringResource(R.string.nav_artists),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.W500)
         }
+
+
         items(performer) {
                 item: Performer -> PerformerItem(item)
         }
         items(tracks) {
                 item: Track -> TrackItem(item)
         }
+        items(comments) {
+                item: Comment -> CommentItem(item)
+        }
     }
 }
-
+*/
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun AlbumDescription(album: Album){
+private fun AlbumDescription(album: Album){
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
         coverPreview = placeholder(ColorPainter(Color(album.cover.toColorInt())))
@@ -335,7 +366,7 @@ fun AlbumDescription(album: Album){
     }
 }
 
-fun releaseDateFormatted(album: Album): String {
+private fun releaseDateFormatted(album: Album): String {
     val releaseDate = album.releaseDate.atZone(ZoneId.systemDefault()).toLocalDate()
     val releaseDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     return releaseDate.format(releaseDateFormat)

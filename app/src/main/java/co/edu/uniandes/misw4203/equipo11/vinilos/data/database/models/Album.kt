@@ -12,5 +12,5 @@ data class Album(
     val releaseDate: Instant,
     val description: String,
     val genre: String,
-    val recordLabel: String,
+    val recordLabel: String
 )

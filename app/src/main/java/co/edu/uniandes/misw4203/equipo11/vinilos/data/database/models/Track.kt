@@ -8,4 +8,5 @@ data class Track (
     @PrimaryKey val id: Int,
     val name: String,
     val duration: String,
+    val albumId: Int
 )

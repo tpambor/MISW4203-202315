@@ -90,7 +90,7 @@ class AlbumViewModel(
     }
 
     private fun getCommentsAlbums() {
-        if (getTrackStarted.getAndSet(true))
+        if (getCommentStarted.getAndSet(true))
             return // Coroutine to get musicians was already started, only start once
 
         viewModelScope.launch {

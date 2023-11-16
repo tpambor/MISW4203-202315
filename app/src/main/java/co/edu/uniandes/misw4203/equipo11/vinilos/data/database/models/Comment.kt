@@ -7,4 +7,5 @@ data class Comment(
     @PrimaryKey val id: Int,
     val description: String,
     val rating: Int,
+    val albumId: Int,
 )

@@ -36,9 +36,9 @@ interface AlbumDAO {
     @Query("SELECT pe.* FROM PerformerAlbum pa JOIN Album a on pa.albumId = a.id JOIN performer pe on pe.id=pa.performerId WHERE pa.albumId == :albumId ORDER BY name COLLATE UNICODE")
     fun getPerformersByAlbumId(albumId: Int): Flow<List<Performer>>
 
-    @Query("SELECT pe.* FROM CommentAlbum pa JOIN Album a on pa.albumId = a.id JOIN Comment pe on pe.id=pa.commentId WHERE pa.albumId == :albumId ORDER BY name COLLATE UNICODE")
+    @Query("SELECT pe.* FROM Album a  JOIN Comment pe on pe.albumId=a.id WHERE a.id == :albumId ORDER BY name COLLATE UNICODE")
     fun getCommentsByAlbumId(albumId: Int): Flow<List<Comment>>
 
-    @Query("SELECT pe.* FROM TrackAlbum pa JOIN Album a on pa.albumId = a.id JOIN Track pe on pe.id=pa.trackId WHERE pa.albumId == :albumId ORDER BY name COLLATE UNICODE")
+    @Query("SELECT pe.* FROM Album a  JOIN Track pe on pe.albumId=a.id WHERE a.id == :albumId ORDER BY name COLLATE UNICODE")
     fun getTracksByAlbumId(albumId: Int): Flow<List<Track>>
 }
