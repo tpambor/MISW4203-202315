@@ -143,8 +143,10 @@ fun AlbumItem(album: Album) {
 private fun AlbumList(albums: List<Album>) {
     if(albums.isNotEmpty()){
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(160.dp),
-            modifier = Modifier.fillMaxSize().padding(8.dp, 8.dp, 8.dp, 0.dp),
+            columns = GridCells.Adaptive(180.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp, 8.dp, 8.dp, 0.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {

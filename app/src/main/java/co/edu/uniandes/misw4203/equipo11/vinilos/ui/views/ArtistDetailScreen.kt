@@ -141,8 +141,6 @@ private fun PerformerDetailScreen(viewModel: PerformerViewModel, snackbarHostSta
             viewModel.onErrorShown()
         }
     }
-
-
 }
 
 @Composable
@@ -202,7 +200,7 @@ private fun MembersHeader() {
 @Composable
 private fun MusicianDetail(musician: Performer, albums: List<Album>) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(150.dp),
+        columns = GridCells.Adaptive(180.dp),
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -222,7 +220,7 @@ private fun MusicianDetail(musician: Performer, albums: List<Album>) {
 @Composable
 private fun BandDetail(band: Performer, albums: List<Album>, members: List<Performer>, navController: NavHostController) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(150.dp),
+        columns = GridCells.Adaptive(180.dp),
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -255,7 +253,7 @@ private fun BandDetail(band: Performer, albums: List<Album>, members: List<Perfo
     }
 }
 
-fun birthDateFormatted(performer: Performer): String {
+private fun birthDateFormatted(performer: Performer): String {
     val birthDate = performer.birthDate.atZone(ZoneId.systemDefault()).toLocalDate()
     val birthDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     return birthDate.format(birthDateFormat)
@@ -263,7 +261,7 @@ fun birthDateFormatted(performer: Performer): String {
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun ArtistDescription(performer: Performer){
+private fun ArtistDescription(performer: Performer){
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
         coverPreview = placeholder(ColorPainter(Color(performer.image.toColorInt())))
@@ -316,7 +314,6 @@ fun ArtistDescription(performer: Performer){
             textAlign = TextAlign.Justify,
             modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 16.dp)
         )
-
     }
 }
 
