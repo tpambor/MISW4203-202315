@@ -2,6 +2,7 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -106,33 +107,26 @@ fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackSt
         else -> R.string.app_name
     }
 
-    if (
+    val visible = !(
         route == "login" ||
         route == "albums" ||
         route == "artists" ||
         route == "collectors"
-        )
-        return
-
-    TopAppBar(
-        {
-            Text(
-                text =
-                stringResource(
-                    id = titleResourceId
-                )
-            )
-        },
-        navigationIcon = {
-            IconButton(
-                onClick = {
-                    navController.navigateUp()
-                }) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back"
-                )
-            }
-        },
     )
+
+    AnimatedVisibility(visible) {
+        TopAppBar(
+            title = { Text(text = stringResource(titleResourceId)) },
+            navigationIcon = {
+                IconButton(
+                    onClick = { navController.navigateUp()}
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+            }
+        )
+    }
 }
