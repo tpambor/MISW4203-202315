@@ -101,10 +101,10 @@ fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStack
 fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackStackEntry?) {
     val route = currentBackStackEntry?.destination?.route
 
-    val titleResourceId = when (route) {
-        "artists/musician/{artistId}" -> R.string.top_nav_artist
-        "artists/band/{artistId}" -> R.string.top_nav_artist
-        else -> R.string.app_name
+    val title = when (route) {
+        "artists/musician/{artistId}" -> stringResource(R.string.top_nav_artist)
+        "artists/band/{artistId}" -> stringResource(R.string.top_nav_artist)
+        else -> ""
     }
 
     val visible = !(
@@ -116,7 +116,7 @@ fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackSt
 
     AnimatedVisibility(visible) {
         TopAppBar(
-            title = { Text(text = stringResource(titleResourceId)) },
+            title = { Text(text = title) },
             navigationIcon = {
                 IconButton(
                     onClick = { navController.navigateUp()}
