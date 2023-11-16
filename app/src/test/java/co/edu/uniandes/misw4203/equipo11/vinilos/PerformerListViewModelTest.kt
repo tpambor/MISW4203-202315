@@ -110,11 +110,20 @@ class PerformerListViewModelTest {
             if (failMusiciansRefresh)
                 throw Exception()
         }
+
+        override suspend fun refreshMusician(performerId: Int) {
+            throw UnsupportedOperationException()
+        }
+
         override suspend fun refreshBands() {
             refreshBandsCalled = true
 
             if (failBandsRefresh)
                 throw Exception()
+        }
+
+        override suspend fun refreshBand(performerId: Int) {
+            throw UnsupportedOperationException()
         }
     }
 
