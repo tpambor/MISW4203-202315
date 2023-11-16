@@ -8,6 +8,7 @@ import androidx.room.Transaction
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorFavoritePerformer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.MusicianBand
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
@@ -16,6 +17,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toCollector
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toPerformer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.MusicianJson
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.PerformerJson
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -34,10 +36,13 @@ interface PerformerDAO {
 
     fun getBands(): Flow<List<Performer>> = getPerformersByType(PerformerType.BAND)
 
+    @Query("SELECT p.* FROM MusicianBand mb JOIN Performer p ON mb.musicianId = p.id WHERE bandId = :performerId")
+    fun getBandMembers(performerId: Int): Flow<List<Performer>>
+
     @Query("SELECT p.* FROM CollectorFavoritePerformer cp JOIN Performer p on cp.performerId = p.id WHERE cp.collectorId = :collectorId")
     fun getFavoritePerformersByCollectorId(collectorId: Int): Flow<List<Performer>>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPerformers(musicians: List<Performer>)
 
     @Query("DELETE FROM performer WHERE type = :performerType")
@@ -66,6 +71,12 @@ interface PerformerDAO {
     @Transaction
     @Query("DELETE FROM CollectorFavoritePerformer WHERE performerId IN (SELECT id FROM Performer WHERE Performer.type = :performerType)")
     suspend fun deleteCollectorFavoritePerformerByPerformerType(performerType: PerformerType)
+
+    @Query("DELETE FROM MusicianBand")
+    suspend fun deleteMusicianBands()
+
+    @Insert
+    suspend fun insertMusicianBands(musicianBands: List<MusicianBand>)
 
     // Refresh the list of musicians and their collectors
     // To make sure that the database is consistent it is necessary to update the collectors
@@ -112,14 +123,17 @@ interface PerformerDAO {
     // To make sure that the database is consistent it is necessary to update the collectors
     // associated with the bands as well
     @Transaction
-    suspend fun deleteAndInsertBands(musicians: List<BandJson>) {
+    suspend fun deleteAndInsertBands(bands: List<BandJson>) {
         val collectors: MutableList<Collector> = mutableListOf()
         val collectorFavoritePerformers: MutableList<CollectorFavoritePerformer> = mutableListOf()
 
         val albums: MutableList<Album> = mutableListOf()
         val performerAlbums: MutableList<PerformerAlbum> = mutableListOf()
 
-        val mappedBands = musicians.map { band ->
+        val musicians: MutableList<Performer> = mutableListOf()
+        val musicianBands: MutableList<MusicianBand> = mutableListOf()
+
+        val mappedBands = bands.map { band ->
             val favoriteCollectors: List<Collector> = requireNotNull(band.collectors).map { it.toCollector() }
             collectors.addAll(favoriteCollectors)
             favoriteCollectors.forEach { favCollector ->
@@ -132,6 +146,12 @@ interface PerformerDAO {
             albums.addAll(bandAlbums)
             bandAlbums.forEach { album ->
                 performerAlbums.add(PerformerAlbum(band.id, album.id))
+            }
+
+            val bandMusicians = requireNotNull(band.musicians).map { it.toPerformer() }
+            musicians.addAll(bandMusicians)
+            bandMusicians.forEach { musician ->
+                musicianBands.add(MusicianBand(musician.id, band.id))
             }
 
             band.toPerformer()
@@ -147,5 +167,9 @@ interface PerformerDAO {
         insertAlbums(albums)
         deletePerformerAlbumsByPerformerType(PerformerType.BAND)
         insertPerformerAlbums(performerAlbums)
+
+        insertPerformers(musicians)
+        deleteMusicianBands()
+        insertMusicianBands(musicianBands)
     }
 }

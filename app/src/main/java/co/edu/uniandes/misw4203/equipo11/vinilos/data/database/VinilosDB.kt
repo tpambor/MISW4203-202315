@@ -9,6 +9,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.daos.PerformerDAO
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorFavoritePerformer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.MusicianBand
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerAlbum
 
@@ -17,10 +18,11 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerA
         Album::class,
         Collector::class,
         CollectorFavoritePerformer::class,
+        MusicianBand::class,
         Performer::class,
         PerformerAlbum::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
