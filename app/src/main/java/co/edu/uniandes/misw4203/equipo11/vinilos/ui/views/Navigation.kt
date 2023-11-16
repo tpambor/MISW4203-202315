@@ -79,7 +79,7 @@ fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStack
     ) {
         navBarItems.forEach { item ->
             NavigationBarItem(
-                selected = route == item.route,
+                selected = route?.startsWith(item.route) ?: false,
                 label = { Text(stringResource(item.stringId), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 icon = { Icon(painterResource(item.iconId), contentDescription = null) },
                 onClick = {
