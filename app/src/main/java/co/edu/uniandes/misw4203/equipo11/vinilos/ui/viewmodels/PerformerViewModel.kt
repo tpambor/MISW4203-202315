@@ -46,6 +46,10 @@ abstract class PerformerViewModel(
         }
     }
 
+    fun onRefresh() {
+
+    }
+
     companion object {
         val KEY_PERFORMER_REPOSITORY = object : CreationExtras.Key<IPerformerRepository> {}
         val KEY_PERFORMER_ID = object : CreationExtras.Key<Int> {}
