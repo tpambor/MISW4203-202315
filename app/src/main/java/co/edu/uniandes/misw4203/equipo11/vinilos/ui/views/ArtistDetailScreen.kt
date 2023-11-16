@@ -201,7 +201,7 @@ private fun MembersHeader() {
 @Composable
 private fun MusicianDetail(musician: Performer, albums: List<Album>) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(100.dp),
+        columns = GridCells.Adaptive(150.dp),
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -221,7 +221,7 @@ private fun MusicianDetail(musician: Performer, albums: List<Album>) {
 @Composable
 private fun BandDetail(band: Performer, albums: List<Album>, members: List<Performer>, navController: NavHostController) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(100.dp),
+        columns = GridCells.Adaptive(150.dp),
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
