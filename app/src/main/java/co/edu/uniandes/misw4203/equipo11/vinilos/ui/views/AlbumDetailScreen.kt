@@ -1,27 +1,24 @@
-
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.SnackbarHostState
@@ -37,6 +34,7 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -118,13 +116,13 @@ private fun AlbumDetail(album: Album, performers: List<Performer>, tracks: List<
 
         item(span = { GridItemSpan(maxCurrentLineSpan) }) {
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(8.dp)
             ) {
                 Text(
                     text = stringResource(R.string.nav_artists),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.W500,
-                    modifier = Modifier.padding(top = 16.dp)
+                    modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
                 )
             }
         }
@@ -132,35 +130,74 @@ private fun AlbumDetail(album: Album, performers: List<Performer>, tracks: List<
         items(performers) { performer ->
             PerformerItem(performer)
         }
-
-
         item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-            Text(
-                text = stringResource(R.string.nav_tracks),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.W500,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-        }
 
-        items(tracks) { track ->
+                Text(
+                    text = "",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.W500,
+                    modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
+                )
+
+        }
+        item(span = {  GridItemSpan(maxCurrentLineSpan) }) {
+            AlbumsHeader(stringResource(R.string.nav_tracks).toString())
+        }
+        items(tracks, span = { GridItemSpan(maxLineSpan) }) { track ->
             TrackItem(track)
         }
 
         item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-            Text(
-                text = stringResource(R.string.nav_comments),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.W500,
-                modifier = Modifier.padding(top = 8.dp)
-            )
+
+                Text(
+                    text = "",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.W500,
+                    modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
+                )
+
         }
 
-        items(comments) { comment ->
+        item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+            AlbumsHeader(stringResource(R.string.nav_comments).toString())
+
+        }
+
+        items(comments, span = { GridItemSpan(maxLineSpan) }) { comment ->
             CommentItem(comment)
         }
     }
 }
+
+
+@Composable
+private fun AlbumsHeader(title: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("albums-header"),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.W500
+        )
+        Button(
+            onClick = { },
+            modifier = Modifier
+                .height(40.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        ) {
+            Text(text = "+ Agregar")
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
 private fun PerformerItem(performer: Performer) {
@@ -191,74 +228,43 @@ private fun PerformerItem(performer: Performer) {
                     .padding(4.dp, 4.dp, 4.dp, 1.dp)
                     .fillMaxWidth(),
                 style = typography.titleMedium
+
             )
         }
     }
 }
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun TrackItem(track: Track) = Card(
-    modifier = Modifier.fillMaxWidth().padding(8.dp),
-    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
-    shape = RectangleShape,
-    onClick = { /* Handle click event */ }
-) {
+private fun TrackItem(track: Track) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = track.name, style = typography.titleMedium, modifier = Modifier.weight(1f))
-        Text(text = track.duration, style = typography.titleMedium, modifier = Modifier.width(100.dp))
+        Text(text = track.duration, style = typography.titleMedium, modifier = Modifier.width(100.dp), textAlign = TextAlign.Right)
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun CommentItem(comment: Comment) = Card(
-    modifier = Modifier.fillMaxWidth().padding(8.dp),
-    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
-    shape = RectangleShape,
-    onClick = { /* Handle click event */ }
-) {
+private fun CommentItem(comment: Comment) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = comment.description, style = typography.titleMedium, modifier = Modifier.weight(1f))
-        Text(text = comment.rating.toString(), style = typography.titleMedium, modifier = Modifier.width(100.dp))
-    }
-}
-/*@Composable
-private fun AlbumDetail(album: Album, performer: List<Performer>, tracks: List<Track>, comments: List<Comment>) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(120.dp),
-        modifier = Modifier.fillMaxSize()
-    ) {
-        item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                AlbumDescription(album)
-            }
-            Text(
-                text = stringResource(R.string.nav_artists),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.W500)
-        }
-
-
-        items(performer) {
-                item: Performer -> PerformerItem(item)
-        }
-        items(tracks) {
-                item: Track -> TrackItem(item)
-        }
-        items(comments) {
-                item: Comment -> CommentItem(item)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(text = comment.rating.toString(), style = typography.titleMedium)
+            Icon(
+                painter = painterResource(id = R.drawable.ic_star),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 }
-*/
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 private fun AlbumDescription(album: Album){
@@ -348,7 +354,7 @@ private fun AlbumDescription(album: Album){
                 .fillMaxWidth()
                 .padding(0.dp, 10.dp),
             text = album.name,
-            fontSize = 24.sp,
+            fontSize = 16.sp,
             fontWeight = FontWeight.W500,
             textAlign = TextAlign.Left,
             lineHeight = 24.sp
