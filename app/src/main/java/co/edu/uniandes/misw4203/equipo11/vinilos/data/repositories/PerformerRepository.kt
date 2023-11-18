@@ -1,6 +1,7 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories
 import android.util.Log
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.VinilosDB
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorFavoritePerformer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
@@ -13,12 +14,18 @@ interface IPerformerRepository {
     fun getMusicians(): Flow<Result<List<Performer>>>
     fun getBands(): Flow<Result<List<Performer>>>
     fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>>
+    fun getMusician(performerId: Int): Flow<Performer?>
+    fun getBand(performerId: Int): Flow<Performer?>
+    fun getBandMembers(performerId: Int): Flow<List<Performer>>
+    fun getAlbums(performerId: Int): Flow<List<Album>>
     suspend fun addFavoriteMusician(collectorId: Int, performerId: Int)
     suspend fun addFavoriteBand(collectorId: Int, performerId: Int)
     suspend fun removeFavoriteMusician(collectorId: Int, performerId: Int)
     suspend fun removeFavoriteBand(collectorId: Int, performerId: Int)
     suspend fun refreshMusicians()
+    suspend fun refreshMusician(performerId: Int)
     suspend fun refreshBands()
+    suspend fun refreshBand(performerId: Int)
 }
 
 class PerformerRepository : IPerformerRepository{
@@ -85,6 +92,30 @@ class PerformerRepository : IPerformerRepository{
         }
     }
 
+    override fun getMusician(performerId: Int): Flow<Performer?> = flow {
+        db.performerDao().getMusicianById(performerId).collect { musician ->
+            emit(musician)
+        }
+    }
+
+    override fun getBand(performerId: Int): Flow<Performer?> = flow {
+        db.performerDao().getBandById(performerId).collect { band ->
+            emit(band)
+        }
+    }
+
+    override fun getAlbums(performerId: Int): Flow<List<Album>> = flow {
+        db.albumDao().getAlbumsByPerformerId(performerId).collect { albums ->
+            emit(albums)
+        }
+    }
+
+    override fun getBandMembers(performerId: Int): Flow<List<Performer>> = flow {
+        db.performerDao().getBandMembers(performerId).collect { musicians ->
+            emit(musicians)
+        }
+    }
+
     override suspend fun addFavoriteMusician(collectorId: Int, performerId: Int) {
         adapter.addFavoriteMusicianToCollector(collectorId, performerId).first()
 
@@ -123,9 +154,23 @@ class PerformerRepository : IPerformerRepository{
         )
     }
 
+    override suspend fun refreshMusician(performerId: Int) {
+        db.performerDao().deleteAndInsertMusicians(
+            listOf(adapter.getMusician(performerId).first()),
+            deleteAll = false
+        )
+    }
+
     override suspend fun refreshBands() {
         db.performerDao().deleteAndInsertBands(
             adapter.getBands().first()
+        )
+    }
+
+    override suspend fun refreshBand(performerId: Int) {
+        db.performerDao().deleteAndInsertBands(
+            listOf(adapter.getBand(performerId).first()),
+            deleteAll = false
         )
     }
 
