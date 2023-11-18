@@ -136,6 +136,24 @@ class BandViewModelTest {
     }
 
     @Test
+    fun canCreateWithDispatcher() {
+        val faker = Faker()
+        val performerId = faker.random.nextInt(1, 100)
+        val repository = FakePerformerRepository(performerId)
+
+        val viewModel = BandViewModel.Factory.create(
+            BandViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(PerformerViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerViewModel.KEY_PERFORMER_ID, performerId)
+                set(PerformerViewModel.KEY_DISPATCHER, Dispatchers.Main)
+            }
+        )
+
+        TestCase.assertNotNull(viewModel)
+    }
+
+    @Test
     fun listsAlbums() = runTest {
         val faker = Faker()
         val performerId = faker.random.nextInt(1, 100)
@@ -146,6 +164,7 @@ class BandViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerViewModel.KEY_PERFORMER_ID, performerId)
+                set(PerformerViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -184,6 +203,7 @@ class BandViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerViewModel.KEY_PERFORMER_ID, performerId)
+                set(PerformerViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -221,6 +241,7 @@ class BandViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerViewModel.KEY_PERFORMER_ID, performerId)
+                set(PerformerViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -256,6 +277,7 @@ class BandViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerViewModel.KEY_PERFORMER_ID, performerId)
+                set(PerformerViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -288,6 +310,7 @@ class BandViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerViewModel.KEY_PERFORMER_ID, performerId)
+                set(PerformerViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -311,6 +334,7 @@ class BandViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerViewModel.KEY_PERFORMER_ID, performerId)
+                set(PerformerViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 

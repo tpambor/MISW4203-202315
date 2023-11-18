@@ -8,6 +8,8 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IPerformerRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,8 +19,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class MusicianViewModel(
     performerRepository: IPerformerRepository,
-    performerId: Int
-) : PerformerViewModel(performerRepository, performerId) {
+    performerId: Int,
+    dispatcher : CoroutineDispatcher
+) : PerformerViewModel(performerRepository, performerId, dispatcher) {
     override val performerType: PerformerType = PerformerType.MUSICIAN
 
     private val _musician: MutableStateFlow<Performer?> = MutableStateFlow(null)
@@ -29,7 +32,7 @@ class MusicianViewModel(
         if (getMusicianStarted.getAndSet(true))
             return // Coroutine to get musician was already started, only start once
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             performerRepository.getMusician(performerId)
                 .collect { musician ->
                     if (musician == null) {
@@ -45,7 +48,7 @@ class MusicianViewModel(
     override fun onRefresh() {
         _isRefreshing.value = true
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             try {
                 performerRepository.refreshMusician(performerId)
             } catch (ex: Exception) {
@@ -61,7 +64,8 @@ class MusicianViewModel(
             initializer {
                 MusicianViewModel(
                     performerRepository = requireNotNull(this[KEY_PERFORMER_REPOSITORY]),
-                    performerId = requireNotNull(this[KEY_PERFORMER_ID])
+                    performerId = requireNotNull(this[KEY_PERFORMER_ID]),
+                    dispatcher = this[KEY_DISPATCHER] ?: Dispatchers.IO
                 )
             }
         }

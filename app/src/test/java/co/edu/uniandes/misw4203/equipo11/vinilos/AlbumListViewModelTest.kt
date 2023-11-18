@@ -62,6 +62,22 @@ class AlbumListViewModelTest {
     }
 
     @Test
+    fun canCreateWithDispatcher() {
+        val repository = FakeAlbumRepository()
+
+        val viewModel = AlbumListViewModel.Factory.create(
+            AlbumListViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
+                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
+            }
+        )
+
+        assertNotNull(viewModel)
+    }
+
+
+    @Test
     fun listsAlbums() = runTest {
         val repository = FakeAlbumRepository()
 
@@ -69,6 +85,7 @@ class AlbumListViewModelTest {
             AlbumListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
+                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -106,6 +123,7 @@ class AlbumListViewModelTest {
             AlbumListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
+                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -133,6 +151,7 @@ class AlbumListViewModelTest {
             AlbumListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
+                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -153,6 +172,7 @@ class AlbumListViewModelTest {
             AlbumListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
+                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
