@@ -108,7 +108,7 @@ private fun AlbumDetail(album: Album, performers: List<Performer>, tracks: List<
         // Album description section
         item(span = { GridItemSpan(maxCurrentLineSpan) }) {
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.testTag("album-description")
             ) {
                 AlbumDescription(album)
             }
@@ -117,6 +117,7 @@ private fun AlbumDetail(album: Album, performers: List<Performer>, tracks: List<
         item(span = { GridItemSpan(maxCurrentLineSpan) }) {
             Column(
                 modifier = Modifier.padding(8.dp)
+                    .testTag("performer-list")
             ) {
                 Text(
                     text = stringResource(R.string.nav_artists),
@@ -204,7 +205,8 @@ private fun PerformerItem(performer: Performer) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            ,
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
         onClick = { /* Handle click event */ }
@@ -299,6 +301,7 @@ private fun AlbumDescription(album: Album){
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 8.dp)
+                .testTag("data-albumDetail")
         ) {
             Text(
                 text = stringResource(R.string.album_gender),
@@ -348,7 +351,10 @@ private fun AlbumDescription(album: Album){
         }
     }
 
-    Column {
+    Column(
+        modifier = Modifier
+            .testTag("description-albumDetail")
+    ) {
         Text(
             modifier = Modifier
                 .fillMaxWidth()
