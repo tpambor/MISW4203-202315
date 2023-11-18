@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -147,7 +148,8 @@ private fun PerformerDetailScreen(viewModel: PerformerViewModel, snackbarHostSta
 private fun AlbumsHeader() {
     Row(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .testTag("albums-header"),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -174,7 +176,8 @@ private fun AlbumsHeader() {
 private fun MembersHeader() {
     Row(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .testTag("members-header"),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -267,7 +270,9 @@ private fun ArtistDescription(performer: Performer){
         coverPreview = placeholder(ColorPainter(Color(performer.image.toColorInt())))
     }
 
-    Column {
+    Column(
+        modifier = Modifier.testTag("artist-description")
+    ) {
         GlideImage(
             model = performer.image,
             contentDescription = null,
@@ -292,6 +297,7 @@ private fun ArtistDescription(performer: Performer){
             modifier = Modifier.padding(0.dp, 12.dp)
         ) {
             Text(
+                modifier = Modifier.testTag("birthdate-text"),
                 text = stringResource(if (performer.type == PerformerType.MUSICIAN) R.string.musician_birthDate else R.string.band_birthDate),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W300,
