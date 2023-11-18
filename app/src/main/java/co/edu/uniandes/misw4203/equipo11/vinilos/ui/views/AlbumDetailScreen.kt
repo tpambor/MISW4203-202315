@@ -45,6 +45,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
@@ -62,7 +63,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun AlbumDetailScreen(snackbarHostState: SnackbarHostState, albumId: Int) {
+fun AlbumDetailScreen(snackbarHostState: SnackbarHostState, albumId: Int, navController: NavHostController) {
     val viewModel: AlbumViewModel = viewModel(
         factory = AlbumViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {

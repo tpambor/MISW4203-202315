@@ -1,7 +1,5 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -106,7 +104,7 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHost
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun AlbumItem(album: Album, navController: NavHostController) {
+fun AlbumItem(album: Album, navController: NavHostController) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
         coverPreview = placeholder(ColorPainter(Color(album.cover.toColorInt())))
@@ -148,11 +146,14 @@ private fun AlbumItem(album: Album, navController: NavHostController) {
 }
 
 @Composable
-fun AlbumList(albums: List<Album>, navController: NavHostController ,cantColumns: Int = 2) {
+fun AlbumList(albums: List<Album>, navController: NavHostController) {
     if(albums.isNotEmpty()){
         LazyVerticalGrid(
-            columns = GridCells.Fixed(cantColumns),
-            modifier = Modifier.fillMaxSize(),
+            columns = GridCells.Adaptive(150.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp, 8.dp, 8.dp, 0.dp),
+
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -171,7 +172,6 @@ fun AlbumList(albums: List<Album>, navController: NavHostController ,cantColumns
 
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun AlbumListScreenPreview() {

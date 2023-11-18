@@ -2,11 +2,17 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -43,14 +49,26 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
         startDestination = "login"
     ) {
         composable(route = "login") { LoginScreen(navController) }
-        composable(route = "albums") { AlbumListScreen(snackbarHostState,navController) }
-        composable(route = "artists") { ArtistListScreen(snackbarHostState) }
+        composable(route = "albums") { AlbumListScreen(snackbarHostState, navController) }
+        composable(route = "artists") { ArtistListScreen(snackbarHostState, navController) }
         composable(route = "collectors") { CollectorListScreen(snackbarHostState) }
         composable(
             route = "albums/{albumId}",
             arguments = listOf(navArgument("albumId") { type = NavType.IntType })
         ){ backStackEntry ->
-            AlbumDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("albumId"))
+            AlbumDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("albumId"), navController)
+        }
+        composable(
+            route = "artists/musician/{artistId}",
+            arguments = listOf(navArgument("artistId") { type = NavType.IntType })
+        ){ backStackEntry ->
+            MusicianDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController)
+        }
+        composable(
+            route = "artists/band/{artistId}",
+            arguments = listOf(navArgument("artistId") { type = NavType.IntType })
+        ){ backStackEntry ->
+            BandDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController)
         }
     }
 }
@@ -68,7 +86,7 @@ fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStack
     ) {
         navBarItems.forEach { item ->
             NavigationBarItem(
-                selected = route == item.route,
+                selected = route?.startsWith(item.route) ?: false,
                 label = { Text(stringResource(item.stringId), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 icon = { Icon(painterResource(item.iconId), contentDescription = null) },
                 onClick = {
@@ -83,5 +101,39 @@ fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStack
                 }
             )
         }
+    }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackStackEntry?) {
+    val route = currentBackStackEntry?.destination?.route
+
+    val title = when (route) {
+        "artists/musician/{artistId}" -> stringResource(R.string.top_nav_artist)
+        "artists/band/{artistId}" -> stringResource(R.string.top_nav_artist)
+        else -> ""
+    }
+
+    val visible = !(
+        route == "login" ||
+        route == "albums" ||
+        route == "artists" ||
+        route == "collectors"
+    )
+
+    AnimatedVisibility(visible) {
+        TopAppBar(
+            title = { Text(text = title) },
+            navigationIcon = {
+                IconButton(
+                    onClick = { navController.navigateUp()}
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+            }
+        )
     }
 }

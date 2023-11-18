@@ -2,6 +2,7 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -56,6 +57,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
@@ -74,7 +77,7 @@ import com.bumptech.glide.integration.compose.placeholder
 import java.time.Instant
 
 @Composable
-fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
+fun ArtistListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
     val userRepository = UserRepository()
     val viewModel: PerformerListViewModel = viewModel(
         factory = PerformerListViewModel.Factory,
@@ -155,7 +158,8 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
                     updatingFavoritePerformers,
                     "musicians",
                     viewModel::addFavoriteMusician,
-                    viewModel::removeFavoriteMusician
+                    viewModel::removeFavoriteMusician,
+                    navController
                 )
                 1 -> ArtistsList(
                     bands,
@@ -164,7 +168,8 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState) {
                     updatingFavoritePerformers,
                     "bands",
                     viewModel::addFavoriteBand,
-                    viewModel::removeFavoriteBand
+                    viewModel::removeFavoriteBand,
+                    navController
                 )
             }
         }
@@ -226,13 +231,14 @@ private fun FavoriteButton(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun ArtistItem(
+fun ArtistItem(
     performer: Performer,
     isCollector: Boolean,
     isFavorite: Boolean,
     isUpdating: Boolean,
     addFavoritePerformer: (Int) -> Unit,
-    removeFavoritePerformer: (Int) -> Unit
+    removeFavoritePerformer: (Int) -> Unit,
+    navController: NavHostController
 ) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
@@ -241,11 +247,13 @@ private fun ArtistItem(
 
     Card(
         modifier = Modifier
-            .padding(8.dp)
             .testTag("performer-list-item"),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
-        onClick = { }
+        onClick = {
+            val prefix = if (performer.type == PerformerType.MUSICIAN) "musician" else "band"
+            navController.navigate("artists/$prefix/${performer.id}")
+        }
     ) {
         Column {
             GlideImage(
@@ -277,7 +285,7 @@ private fun ArtistItem(
     }
 }
 
-
+@SuppressWarnings("kotlin:S107") // Exception: This function has more than 7 parameters as it is a stateless composable which receives the data from the caller
 @Composable
 private fun ArtistsList(
     performers: List<Performer>,
@@ -286,7 +294,8 @@ private fun ArtistsList(
     updatingFavoritePerformers: Set<Int>,
     tab: String,
     addFavoritePerformer: (Int) -> Unit,
-    removeFavoritePerformer: (Int) -> Unit
+    removeFavoritePerformer: (Int) -> Unit,
+    navController: NavHostController
 ) {
     val message = when (tab) {
         "musicians" -> stringResource(R.string.empty_musicians_list)
@@ -296,14 +305,18 @@ private fun ArtistsList(
 
     if(performers.isNotEmpty()) {
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(180.dp),
-            modifier = Modifier.fillMaxSize()
+            columns = GridCells.Adaptive(150.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp, 8.dp, 8.dp, 0.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(performers) { item: Performer ->
                 val isFavorite = favoritePerformers.contains(item.id)
                 val isUpdating = updatingFavoritePerformers.contains(item.id)
 
-                ArtistItem(item, user?.type == UserType.Collector, isFavorite, isUpdating, addFavoritePerformer, removeFavoritePerformer)
+                ArtistItem(item, user?.type == UserType.Collector, isFavorite, isUpdating, addFavoritePerformer, removeFavoritePerformer, navController)
             }
         }
     } else {
@@ -354,8 +367,8 @@ private fun ArtistListScreenPreview() {
                     }
                 }
                 when (tabIndex) {
-                    0 ->  ArtistsList(musician, user, emptySet(), emptySet(),"musicians", addFavoritePerformer = {}, removeFavoritePerformer = {})
-                    1 ->  ArtistsList(bands, user, emptySet(), emptySet(), "bands", addFavoritePerformer = {}, removeFavoritePerformer = {})
+                    0 ->  ArtistsList(musician, user, emptySet(), emptySet(),"musicians", addFavoritePerformer = {}, removeFavoritePerformer = {}, rememberNavController())
+                    1 ->  ArtistsList(bands, user, emptySet(), emptySet(), "bands", addFavoritePerformer = {}, removeFavoritePerformer = {}, rememberNavController())
                 }
             }
         }

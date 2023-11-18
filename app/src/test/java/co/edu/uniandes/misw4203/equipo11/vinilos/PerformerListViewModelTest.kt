@@ -2,6 +2,7 @@ package co.edu.uniandes.misw4203.equipo11.vinilos
 
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.User
@@ -45,6 +46,22 @@ class PerformerListViewModelTest {
         override fun getMusicians(): Flow<Result<List<Performer>>> = musiciansFlow
         override fun getBands(): Flow<Result<List<Performer>>> = bandsFlow
         override fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>> = favoritesFlow
+        
+        override fun getMusician(performerId: Int): Flow<Performer?> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getBand(performerId: Int): Flow<Performer?> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getBandMembers(performerId: Int): Flow<List<Performer>> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getAlbums(performerId: Int): Flow<List<Album>> {
+            throw UnsupportedOperationException()
+        }
 
         var failUpdateFavorite: Boolean = false
         var updateFavoriteMusicianCollectorId: Int? = null
@@ -93,11 +110,20 @@ class PerformerListViewModelTest {
             if (failMusiciansRefresh)
                 throw Exception()
         }
+
+        override suspend fun refreshMusician(performerId: Int) {
+            throw UnsupportedOperationException()
+        }
+
         override suspend fun refreshBands() {
             refreshBandsCalled = true
 
             if (failBandsRefresh)
                 throw Exception()
+        }
+
+        override suspend fun refreshBand(performerId: Int) {
+            throw UnsupportedOperationException()
         }
     }
 

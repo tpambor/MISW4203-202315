@@ -86,11 +86,13 @@ class AlbumViewModelTest {
                     id = 1,
                     description = "Description 1",
                     rating = 5,
+                    albumId = 1
                 ),
                 Comment(
                     id = 2,
                     description = "Description 2",
                     rating = 4,
+                    albumId = 1
                 )
             )
             return flow { emit(fakeComments) }
@@ -102,13 +104,15 @@ class AlbumViewModelTest {
                 Track(
                     id = 1,
                     name = "Track 1",
-                    duration = "2:30"
+                    duration = "2:30",
+                    albumId = 1
 
                 ),
                 Track(
                     id = 2,
                     name = "Track 2",
-                    duration = "3:30"
+                    duration = "3:30",
+                    albumId = 1
 
                 )
             )
