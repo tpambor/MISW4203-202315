@@ -3,6 +3,7 @@ package co.edu.uniandes.misw4203.equipo11.vinilos
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.performClick
+import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.ArtistItem
 import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.ArtistList
 import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.Login
 import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.NavBar
@@ -10,6 +11,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.ui.MainActivity
 import junit.framework.TestCase.assertFalse
 import org.junit.Rule
 import org.junit.Test
+import java.lang.Integer.min
 
 class ArtistListTest {
     @get:Rule
@@ -91,5 +93,91 @@ class ArtistListTest {
 
         // And I can't see Fav buttons
         assertFalse(artistList.hasFavButtons())
+    }
+
+    @Test
+    fun addRemoveFavoriteMusician() {
+        // Given I login as a collector
+        val login = Login(composeTestRule)
+        login.getCollectorButton().performClick()
+
+        // When - Then explained in clickAndShowListMusicians function
+        val navbar = NavBar(composeTestRule)
+        val artistList = ArtistList(composeTestRule)
+        clickAndShowListMusicians(navbar, artistList)
+
+        val list = artistList.getArtists()
+        val count = min(list.fetchSemanticsNodes().size, 4)
+
+        for (i in 0..<count) {
+            val artist = ArtistItem(list[i])
+
+            // And there is a artist that is not yet my favorite
+            if (artist.isFavorite())
+                continue
+
+            // And I click on the fav button to make it one of my favorite artists
+            artist.clickFavorite()
+
+            // Then the fav button is checked and the artist is one of my favorite artists
+            composeTestRule.waitUntil(5000) {
+                artist.isFavorite()
+            }
+
+            // And I click again on the fav button to make it no longer one of my favorite artists
+            artist.clickFavorite()
+
+            // Then the fav button is unchecked and the artist is no longer one of my favorite artists
+            composeTestRule.waitUntil(5000) {
+                artist.isNotFavorite()
+            }
+
+            return
+        }
+
+        assert(false)
+    }
+
+    @Test
+    fun addRemoveFavoriteBand() {
+        // Given I login as a collector
+        val login = Login(composeTestRule)
+        login.getCollectorButton().performClick()
+
+        // When - Then explained in clickAndShowListMusicians function
+        val navbar = NavBar(composeTestRule)
+        val artistList = ArtistList(composeTestRule)
+        clickAndShowListBands(navbar, artistList)
+
+        val list = artistList.getArtists()
+        val count = min(list.fetchSemanticsNodes().size, 4)
+
+        for (i in 0..<count) {
+            val artist = ArtistItem(list[i])
+
+            // And there is a artist that is not yet my favorite
+            if (artist.isFavorite())
+                continue
+
+            // And I click on the fav button to make it one of my favorite artists
+            artist.clickFavorite()
+
+            // Then the fav button is checked and the artist is one of my favorite artists
+            composeTestRule.waitUntil(5000) {
+                artist.isFavorite()
+            }
+
+            // And I click again on the fav button to make it no longer one of my favorite artists
+            artist.clickFavorite()
+
+            // Then the fav button is unchecked and the artist is no longer one of my favorite artists
+            composeTestRule.waitUntil(5000) {
+                artist.isNotFavorite()
+            }
+
+            return
+        }
+
+        assert(false)
     }
 }

@@ -77,10 +77,7 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState) {
         onRefresh = { viewModel.onRefresh() }
     )
 
-    Box(
-        Modifier
-            .pullRefresh(pullRefreshState)
-            .padding(16.dp)) {
+    Box(Modifier.pullRefresh(pullRefreshState)) {
         AlbumList(albums)
 
         PullRefreshIndicator(
@@ -100,17 +97,18 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun AlbumItem(album: Album) {
+fun AlbumItem(album: Album) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
         coverPreview = placeholder(ColorPainter(Color(album.cover.toColorInt())))
     }
 
     Card(
-        modifier = Modifier.testTag("album-list-item"),
+        modifier = Modifier
+            .testTag("album-list-item"),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
-        onClick = { /*TODO*/ }
+        onClick = { }
     ) {
         Column {
             GlideImage(
@@ -142,11 +140,13 @@ private fun AlbumItem(album: Album) {
 }
 
 @Composable
-fun AlbumList(albums: List<Album>, cantColumns: Int = 2) {
+private fun AlbumList(albums: List<Album>) {
     if(albums.isNotEmpty()){
         LazyVerticalGrid(
-            columns = GridCells.Fixed(cantColumns),
-            modifier = Modifier.fillMaxSize(),
+            columns = GridCells.Adaptive(150.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp, 8.dp, 8.dp, 0.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -184,10 +184,7 @@ private fun AlbumListScreenPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            Column(Modifier.padding(16.dp)) {
-                AlbumList(albums)
-            }
-
+            AlbumList(albums)
         }
     }
 }

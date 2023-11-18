@@ -15,28 +15,45 @@ import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 
-class MusicianViewModel(
+class BandViewModel(
     performerRepository: IPerformerRepository,
     performerId: Int
 ) : PerformerViewModel(performerRepository, performerId) {
-    override val performerType: PerformerType = PerformerType.MUSICIAN
+    override val performerType: PerformerType = PerformerType.BAND
 
-    private val _musician: MutableStateFlow<Performer?> = MutableStateFlow(null)
-    override val performer: SharedFlow<Performer?> = _musician.asStateFlow().onSubscription { getMusician() }
-    private val getMusicianStarted: AtomicBoolean = AtomicBoolean(false)
+    private val _band: MutableStateFlow<Performer?> = MutableStateFlow(null)
+    override val performer: SharedFlow<Performer?> = _band.asStateFlow().onSubscription { getBand() }
+    private val getBandStarted: AtomicBoolean = AtomicBoolean(false)
 
-    private fun getMusician() {
-        if (getMusicianStarted.getAndSet(true))
-            return // Coroutine to get musician was already started, only start once
+    private val _members: MutableStateFlow<List<Performer>> = MutableStateFlow(emptyList())
+    val members = _members.asStateFlow().onSubscription { getBandMembers() }
+    private val getMembersStarted: AtomicBoolean = AtomicBoolean(false)
+
+    private fun getBand() {
+        if (getBandStarted.getAndSet(true))
+            return // Coroutine to get band was already started, only start once
 
         viewModelScope.launch {
-            performerRepository.getMusician(performerId)
-                .collect { musician ->
-                    if (musician == null) {
+            performerRepository.getBand(performerId)
+                .collect { band ->
+                    if (band == null) {
                         _error.value = ErrorUiState.Error(R.string.network_error)
                     } else {
-                        _musician.value = musician
+                        _band.value = band
                     }
+                    _isRefreshing.value = false
+                }
+        }
+    }
+
+    private fun getBandMembers() {
+        if (getMembersStarted.getAndSet(true))
+            return // Coroutine to get band members was already started, only start once
+
+        viewModelScope.launch {
+            performerRepository.getBandMembers(performerId)
+                .collect { musicians ->
+                    _members.value = musicians
                     _isRefreshing.value = false
                 }
         }
@@ -47,7 +64,7 @@ class MusicianViewModel(
 
         viewModelScope.launch {
             try {
-                performerRepository.refreshMusician(performerId)
+                performerRepository.refreshBand(performerId)
             } catch (ex: Exception) {
                 _isRefreshing.value = false
                 _error.value = ErrorUiState.Error(R.string.network_error)
@@ -59,7 +76,7 @@ class MusicianViewModel(
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                MusicianViewModel(
+                BandViewModel(
                     performerRepository = requireNotNull(this[KEY_PERFORMER_REPOSITORY]),
                     performerId = requireNotNull(this[KEY_PERFORMER_ID])
                 )

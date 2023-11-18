@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -97,6 +98,10 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState, navController: NavHos
         emptySet()
     )
 
+    val updatingFavoritePerformers by viewModel.updatingFavoritePerformers.collectAsStateWithLifecycle(
+        emptySet()
+    )
+
     val userViewModel: UserViewModel = viewModel(
         factory = UserViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
@@ -141,20 +146,31 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState, navController: NavHos
                         text = { Text(title) },
                         selected = tabIndex == index,
                         onClick = { tabIndex = index  },
-                        modifier = Modifier
-                            .testTag(title)
+                        modifier = Modifier.testTag(title)
                     )
                 }
             }
             when (tabIndex) {
-                0 ->
-                    Box(Modifier.padding(16.dp)){
-                        ArtistsList(performers = musicians, user, favoritePerformers, "musicians", navController)
-                    }
-                1 ->
-                    Box(Modifier.padding(16.dp)){
-                        ArtistsList(performers = bands, user, favoritePerformers, "bands", navController)
-                    }
+                0 -> ArtistsList(
+                    musicians,
+                    user,
+                    favoritePerformers,
+                    updatingFavoritePerformers,
+                    "musicians",
+                    viewModel::addFavoriteMusician,
+                    viewModel::removeFavoriteMusician,
+                    navController
+                )
+                1 -> ArtistsList(
+                    bands,
+                    user,
+                    favoritePerformers,
+                    updatingFavoritePerformers,
+                    "bands",
+                    viewModel::addFavoriteBand,
+                    viewModel::removeFavoriteBand,
+                    navController
+                )
             }
         }
 
@@ -169,25 +185,75 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState, navController: NavHos
         val message = stringResource((error as ErrorUiState.Error).resourceId)
         LaunchedEffect(error) {
             snackbarHostState.showSnackbar(message)
+            viewModel.onErrorShown()
+        }
+    }
+}
+
+@Composable
+private fun FavoriteButton(
+    performerId: Int,
+    isFavorite: Boolean,
+    isUpdating: Boolean,
+    addFavoritePerformer: (Int) -> Unit,
+    removeFavoritePerformer: (Int) -> Unit
+) {
+    if(isUpdating) {
+        CircularProgressIndicator(modifier = Modifier
+            .size(31.dp)
+            .padding(2.dp, 2.dp, 3.dp, 2.dp)
+        )
+    } else {
+        IconButton(
+            onClick = {
+                if (isFavorite)
+                    removeFavoritePerformer(performerId)
+                else
+                    addFavoritePerformer(performerId)
+            },
+            modifier = Modifier
+                .background(
+                    color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
+                    shape = CircleShape,
+                )
+                .size(35.dp)
+                .padding(0.dp, 0.dp, 1.dp, 0.dp)
+                .testTag(if (isFavorite) "performer-fav-button-checked" else "performer-fav-button-unchecked")
+        ) {
+            Icon(
+                imageVector = Icons.Default.FavoriteBorder,
+                contentDescription = stringResource(R.string.artists_add_favorite),
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: Boolean, navController: NavHostController) {
-    // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
-
+fun ArtistItem(
+    performer: Performer,
+    isCollector: Boolean,
+    isFavorite: Boolean,
+    isUpdating: Boolean,
+    addFavoritePerformer: (Int) -> Unit,
+    removeFavoritePerformer: (Int) -> Unit,
+    navController: NavHostController
+) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
         coverPreview = placeholder(ColorPainter(Color(performer.image.toColorInt())))
     }
+
     Card(
         modifier = Modifier
             .testTag("performer-list-item"),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
-        onClick = { navController.navigate("artists/${performer.id}") }
+        onClick = {
+            val prefix = if (performer.type == PerformerType.MUSICIAN) "musician" else "band"
+            navController.navigate("artists/$prefix/${performer.id}")
+        }
     ) {
         Column {
             GlideImage(
@@ -211,35 +277,26 @@ private fun ArtistItem(performer: Performer, isCollector: Boolean, isFavorite: B
                 )
 
                 // Favorite button
-                if(isCollector){
-                    IconButton(
-                        onClick = {
-                            // TODO: Agregar lógica para manejar la acción de agregar/quitar de favoritos
-                        },
-                        modifier = Modifier
-                            .background(
-                                color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
-                                shape = CircleShape,
-                            )
-                            .size(35.dp)
-                            .padding(0.dp, 0.dp, 1.dp, 0.dp)
-                            .testTag("performer-fav-button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.FavoriteBorder,
-                            contentDescription = stringResource(R.string.artists_add_favorite),
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                if (isCollector) {
+                    FavoriteButton(performer.id, isFavorite, isUpdating, addFavoritePerformer, removeFavoritePerformer)
                 }
             }
         }
     }
 }
 
-
+@SuppressWarnings("kotlin:S107") // Exception: This function has more than 7 parameters as it is a stateless composable which receives the data from the caller
 @Composable
-private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerformers: Set<Int>, tab: String, navController: NavHostController,  cantColumns: Int = 2) {
+private fun ArtistsList(
+    performers: List<Performer>,
+    user: User?,
+    favoritePerformers: Set<Int>,
+    updatingFavoritePerformers: Set<Int>,
+    tab: String,
+    addFavoritePerformer: (Int) -> Unit,
+    removeFavoritePerformer: (Int) -> Unit,
+    navController: NavHostController
+) {
     val message = when (tab) {
         "musicians" -> stringResource(R.string.empty_musicians_list)
         "bands" -> stringResource(R.string.empty_bands_list)
@@ -248,15 +305,18 @@ private fun ArtistsList(performers: List<Performer>, user: User?, favoritePerfor
 
     if(performers.isNotEmpty()) {
         LazyVerticalGrid(
-            columns = GridCells.Fixed(cantColumns),
-            modifier = Modifier.fillMaxSize(),
+            columns = GridCells.Adaptive(150.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp, 8.dp, 8.dp, 0.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(performers) { item: Performer ->
                 val isFavorite = favoritePerformers.contains(item.id)
+                val isUpdating = updatingFavoritePerformers.contains(item.id)
 
-                ArtistItem(item, user?.type == UserType.Collector, isFavorite, navController)
+                ArtistItem(item, user?.type == UserType.Collector, isFavorite, isUpdating, addFavoritePerformer, removeFavoritePerformer, navController)
             }
         }
     } else {
@@ -300,22 +360,15 @@ private fun ArtistListScreenPreview() {
             Column {
                 TabRow(selectedTabIndex = tabIndex) {
                     tabs.forEachIndexed { index, title ->
-                        Tab(
-                            text = { Text(title) },
+                        Tab(text = { Text(title) },
                             selected = tabIndex == index,
-                            onClick = { tabIndex = index },
+                            onClick = { tabIndex = index }
                         )
                     }
                 }
                 when (tabIndex) {
-                    0 ->
-                        Box(Modifier.padding(16.dp)){
-                            ArtistsList(musician, user, emptySet(), "musicians", rememberNavController())
-                        }
-                    1 ->
-                        Box(Modifier.padding(16.dp)){
-                            ArtistsList(bands, user, emptySet(), "bands", rememberNavController())
-                        }
+                    0 ->  ArtistsList(musician, user, emptySet(), emptySet(),"musicians", addFavoritePerformer = {}, removeFavoritePerformer = {}, rememberNavController())
+                    1 ->  ArtistsList(bands, user, emptySet(), emptySet(), "bands", addFavoritePerformer = {}, removeFavoritePerformer = {}, rememberNavController())
                 }
             }
         }

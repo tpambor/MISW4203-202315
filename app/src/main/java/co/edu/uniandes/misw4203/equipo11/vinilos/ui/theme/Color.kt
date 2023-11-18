@@ -2,7 +2,7 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// val seed = Color(0xFFC8D4A9)
+// Seed: 0xFFC8D4A9
 
 val md_theme_light_primary = Color(0xFF4C6707)
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
