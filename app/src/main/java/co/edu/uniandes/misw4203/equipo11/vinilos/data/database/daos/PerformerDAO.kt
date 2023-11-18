@@ -212,5 +212,4 @@ abstract class PerformerDAO {
         }
         insertMusicianBands(musicianBands)
     }
-
 }
