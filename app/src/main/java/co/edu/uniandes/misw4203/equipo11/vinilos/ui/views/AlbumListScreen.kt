@@ -79,11 +79,8 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHost
         onRefresh = { viewModel.onRefresh() }
     )
 
-    Box(
-        Modifier
-            .pullRefresh(pullRefreshState)
-            .padding(16.dp)) {
-        AlbumList(albums,navController)
+    Box(Modifier.pullRefresh(pullRefreshState)) {
+        AlbumList(albums, navController)
 
         PullRefreshIndicator(
             refreshing = isRefreshing,
@@ -151,7 +148,6 @@ fun AlbumList(albums: List<Album>, navController: NavHostController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp, 8.dp, 8.dp, 0.dp),
-
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {

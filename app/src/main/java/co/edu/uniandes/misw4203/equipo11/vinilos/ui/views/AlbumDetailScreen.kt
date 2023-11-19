@@ -1,3 +1,5 @@
+package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -19,9 +20,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.pullrefresh.PullRefreshIndicator
@@ -39,7 +38,6 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -55,8 +53,8 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.User
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.AlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.UserRepository
@@ -72,8 +70,6 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun AlbumDetailScreen(snackbarHostState: SnackbarHostState, albumId: Int, navController: NavHostController) {
-    val userRepository = UserRepository()
-
     val viewModel: AlbumViewModel = viewModel(
         factory = AlbumViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
@@ -85,7 +81,8 @@ fun AlbumDetailScreen(snackbarHostState: SnackbarHostState, albumId: Int, navCon
     val album by viewModel.album.collectAsStateWithLifecycle(
         null
     )
-    val performances by viewModel.performers.collectAsStateWithLifecycle(
+
+    val performers by viewModel.performers.collectAsStateWithLifecycle(
         emptyList()
     )
 
@@ -105,26 +102,25 @@ fun AlbumDetailScreen(snackbarHostState: SnackbarHostState, albumId: Int, navCon
         ErrorUiState.NoError
     )
 
+    val userViewModel: UserViewModel = viewModel(
+        factory = UserViewModel.Factory,
+        extras = MutableCreationExtras(CreationExtras.Empty).apply {
+            set(UserViewModel.KEY_USER_REPOSITORY, UserRepository())
+        }
+    )
+    val user by userViewModel.user.collectAsStateWithLifecycle(
+        null
+    )
+
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
         onRefresh = { viewModel.onRefresh() }
     )
 
-    val userViewModel: UserViewModel = viewModel(
-        factory = UserViewModel.Factory,
-        extras = MutableCreationExtras(CreationExtras.Empty).apply {
-            set(UserViewModel.KEY_USER_REPOSITORY, userRepository)
-        }
-    )
-
-    val user by userViewModel.user.collectAsStateWithLifecycle(
-        null
-    )
-
+    val isCollector = user?.type == UserType.Collector
 
     Box(Modifier.pullRefresh(pullRefreshState)) {
-
-    album?.let { AlbumDetail(it, performances, tracks, comments, user) }
+        album?.let { AlbumDetail(it, performers, tracks, comments, isCollector, navController) }
 
         PullRefreshIndicator(
             refreshing = isRefreshing,
@@ -143,70 +139,79 @@ fun AlbumDetailScreen(snackbarHostState: SnackbarHostState, albumId: Int, navCon
     }
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+private fun AlbumCover(album: Album) {
+    var coverPreview: Placeholder? = null
+    if (LocalInspectionMode.current) {
+        coverPreview = placeholder(ColorPainter(Color(album.cover.toColorInt())))
+    }
+
+    GlideImage(
+        model = album.cover,
+        contentDescription = null,
+        loading = coverPreview,
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .fillMaxWidth()
+            .aspectRatio(1f)
+            .testTag("album-detail-cover"),
+        contentScale = ContentScale.Fit
+    )
+}
 
 @Composable
-private fun AlbumDetail(album: Album, performers: List<Performer>, tracks: List<Track>, comments: List<Comment>, user: User? ) {
+private fun AlbumDetail(
+    album: Album,
+    performers: List<Performer>,
+    tracks: List<Track>,
+    comments: List<Comment>,
+    isCollector: Boolean,
+    navController: NavHostController
+) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(120.dp),
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Album description section
-        item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-            Column(
-                modifier = Modifier.testTag("album-description").padding(8.dp)
-            ) {
-                AlbumDescription(album)
-            }
+        item {
+            AlbumCover(album)
         }
 
         item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-            Column(
-                modifier = Modifier.padding(8.dp)
-                    .testTag("performer-list")
-            ) {
-                Text(
-                    text = stringResource(R.string.nav_artists),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.W500,
-                )
-            }
+            AlbumInfo(album)
+        }
+
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            AlbumDescription(album)
+        }
+
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            Text(
+                text = stringResource(R.string.nav_artists),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.W500,
+            )
         }
 
         items(performers) { performer ->
-            PerformerItem(performer)
-        }
-        item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-
-                Text(
-                    text = "",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.W500,
-                    modifier = Modifier.padding(8.dp)
-                )
-
+            PerformerItem(performer, navController)
         }
 
-        item(span = {  GridItemSpan(maxCurrentLineSpan) }) {
-            AlbumsHeader(stringResource(R.string.nav_tracks), user)
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            AlbumsHeader(stringResource(R.string.nav_tracks), isCollector)
         }
+
         items(tracks, span = { GridItemSpan(maxLineSpan) }) { track ->
             TrackItem(track)
         }
 
-        item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-
-                Text(
-                    text = "",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.W500,
-                    modifier = Modifier.padding(8.dp)
-                )
-
-        }
-
-        item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-            AlbumsHeader(stringResource(R.string.nav_comments),user)
-
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            AlbumsHeader(stringResource(R.string.nav_comments), isCollector)
         }
 
         items(comments, span = { GridItemSpan(maxLineSpan) }) { comment ->
@@ -217,11 +222,9 @@ private fun AlbumDetail(album: Album, performers: List<Performer>, tracks: List<
 
 
 @Composable
-private fun AlbumsHeader(title: String,user: User?) {
+private fun AlbumsHeader(title: String, isCollector: Boolean) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .testTag("albums-header").padding(8.dp),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -230,7 +233,7 @@ private fun AlbumsHeader(title: String,user: User?) {
             fontSize = 20.sp,
             fontWeight = FontWeight.W500
         )
-        if(user?.type == UserType.Collector){
+        if(isCollector){
             Button(
                 onClick = { },
                 modifier = Modifier
@@ -249,159 +252,157 @@ private fun AlbumsHeader(title: String,user: User?) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun PerformerItem(performer: Performer) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            ,
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
-        shape = RectangleShape,
-        onClick = { /* Handle click event */ }
-    ) {
-        Column(
-            horizontalAlignment = Alignment.Start,
-        ) {
-
-            GlideImage(
-                model = performer.image,
-                contentDescription = null,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .width(100.dp)
-                    .aspectRatio(1f),
-                contentScale = ContentScale.Crop
-            )
-            Text(
-                text = performer.name,
-                modifier = Modifier
-                    .padding(4.dp, 4.dp, 4.dp, 1.dp)
-                    .fillMaxWidth(),
-                style = typography.titleMedium
-
-            )
-        }
-    }
-}
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
-@Composable
-private fun TrackItem(track: Track) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(text = track.name, style = typography.titleMedium, modifier = Modifier.weight(1f))
-        Text(text = track.duration, style = typography.titleMedium, modifier = Modifier.width(100.dp), textAlign = TextAlign.Right)
-    }
-}
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
-@Composable
-private fun CommentItem(comment: Comment) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(text = comment.description, style = typography.titleMedium, modifier = Modifier.weight(1f))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(text = comment.rating.toString(), style = typography.titleMedium)
-            Icon(
-                painter = painterResource(id = R.drawable.ic_star),
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-        }
-    }
-}
-@OptIn(ExperimentalGlideComposeApi::class)
-@Composable
-private fun AlbumDescription(album: Album){
+private fun PerformerItem(
+    performer: Performer,
+    navController: NavHostController
+) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
-        coverPreview = placeholder(ColorPainter(Color(album.cover.toColorInt())))
+        coverPreview = placeholder(ColorPainter(Color(performer.image.toColorInt())))
     }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
+
+    Card(
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
+        shape = RectangleShape,
+        onClick = {
+            val prefix = if (performer.type == PerformerType.MUSICIAN) "musician" else "band"
+            navController.navigate("artists/$prefix/${performer.id}")
+        }
     ) {
-        // First Column
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(end = 8.dp)
-        ) {
+        Column {
             GlideImage(
-                model = album.cover,
+                model = performer.image,
                 contentDescription = null,
                 loading = coverPreview,
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .fillMaxWidth()
                     .aspectRatio(1f),
-                contentScale = ContentScale.Fit
+                contentScale = ContentScale.Crop
             )
-        }
-
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 8.dp)
-                .testTag("data-albumDetail")
-        ) {
-            Text(
-                text = stringResource(R.string.album_gender),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.W300,
-                color = MaterialTheme.colorScheme.outline,
-                letterSpacing = 0.25.sp
-            )
-            Text(
-                text = album.genre,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.outline,
-                letterSpacing = 0.25.sp, modifier = Modifier.padding(top = 8.dp)
-            )
-
-            Text(
-                text = stringResource(R.string.album_discografia),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.W300,
-                color = MaterialTheme.colorScheme.outline,
-                letterSpacing = 0.25.sp, modifier = Modifier.padding(top = 8.dp)
-            )
-            Text(
-                text = album.recordLabel,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.outline,
-                letterSpacing = 0.25.sp, modifier = Modifier.padding(top = 8.dp)
-            )
-            Text(
-                text = stringResource(R.string.album_fechaPublicacion),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.W300,
-                color = MaterialTheme.colorScheme.outline,
-                letterSpacing = 0.25.sp, modifier = Modifier.padding(top = 8.dp)
-
-            )
-            Text(
-                text = " " + releaseDateFormatted(album),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.outline,
-                letterSpacing = 0.25.sp, modifier = Modifier.padding(top = 8.dp)
-            )
-
+            Row (modifier = Modifier.padding(4.dp)){
+                Text(
+                    text = performer.name,
+                    modifier = Modifier
+                        .padding(4.dp, 8.dp, 0.dp, 0.dp)
+                        .fillMaxWidth()
+                        .weight(1f),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
         }
     }
+}
 
+@Composable
+private fun TrackItem(track: Track) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            modifier = Modifier.weight(1f),
+            text = track.name,
+            style = MaterialTheme.typography.bodyLarge
+        )
+        Text(
+            modifier = Modifier
+                .width(100.dp)
+                .align(Alignment.CenterVertically),
+            text = track.duration,
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Right
+        )
+    }
+}
+
+@Composable
+private fun CommentItem(comment: Comment) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = comment.description,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f)
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = "${comment.rating}",
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Text(
+                text = "★",
+                style = MaterialTheme.typography.titleLarge
+            )
+        }
+    }
+}
+
+@Composable
+private fun AlbumInfo(album: Album){
     Column(
         modifier = Modifier
-            .testTag("description-albumDetail")
+            .padding(start = 8.dp)
+            .testTag("album-detail-info")
+    ) {
+        Text(
+            text = stringResource(R.string.album_gender),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.W300,
+            color = MaterialTheme.colorScheme.outline,
+            letterSpacing = 0.25.sp
+        )
+        Text(
+            text = album.genre,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.outline,
+            letterSpacing = 0.25.sp, modifier = Modifier.padding(top = 8.dp)
+        )
+
+        Text(
+            text = stringResource(R.string.album_discografia),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.W300,
+            color = MaterialTheme.colorScheme.outline,
+            letterSpacing = 0.25.sp, modifier = Modifier.padding(top = 8.dp)
+        )
+        Text(
+            text = album.recordLabel,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.outline,
+            letterSpacing = 0.25.sp, modifier = Modifier.padding(top = 8.dp)
+        )
+        Text(
+            text = stringResource(R.string.album_fechaPublicacion),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.W300,
+            color = MaterialTheme.colorScheme.outline,
+            letterSpacing = 0.25.sp, modifier = Modifier.padding(top = 8.dp)
+
+        )
+        Text(
+            text = releaseDateFormatted(album),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.outline,
+            letterSpacing = 0.25.sp, modifier = Modifier.padding(top = 8.dp)
+        )
+    }
+}
+
+@Composable
+private fun AlbumDescription(album: Album) {
+    Column(
+        modifier = Modifier
+            .testTag("album-detail-description")
     ) {
         Text(
             modifier = Modifier
@@ -414,7 +415,6 @@ private fun AlbumDescription(album: Album){
             lineHeight = 24.sp
         )
 
-
         Text(
             text = album.description,
             fontSize = 16.sp,
@@ -422,7 +422,6 @@ private fun AlbumDescription(album: Album){
             letterSpacing = 0.4.sp,
             textAlign = TextAlign.Justify
         )
-
     }
 }
 

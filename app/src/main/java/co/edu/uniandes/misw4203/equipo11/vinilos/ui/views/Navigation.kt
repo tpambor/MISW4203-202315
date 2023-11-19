@@ -26,7 +26,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
-import AlbumDetailScreen
 
 sealed class NavBarItem(val route: String, @StringRes val stringId: Int, @DrawableRes val iconId: Int) {
     data object Albums : NavBarItem("albums", R.string.nav_albums, R.drawable.ic_album_24)

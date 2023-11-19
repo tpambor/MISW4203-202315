@@ -22,7 +22,7 @@ class AlbumDetailTest {
 
     @Test
     fun showsAlbumDetailCollector() {
-        // Given I login  go to Album  List
+        // Given I login as a collector and go to the album list
         val login = Login(composeTestRule)
         login.getCollectorButton().performClick()
 
@@ -30,12 +30,12 @@ class AlbumDetailTest {
         val albumList = AlbumList(composeTestRule)
         clickAndShowListAlbum(navbar, albumList)
 
-        // When I click on some album Card
+        // When I click on some album card
         val list = albumList.getAlbums()
         val album = list[1]
         album.performClick()
 
-        // Then I see album Detail
+        // Then I see the details of the album
         val albumDetail = AlbumDetail(composeTestRule)
         assert(albumDetail.getAlbumDetail())
     }
@@ -43,7 +43,7 @@ class AlbumDetailTest {
 
     @Test
     fun showsAlbumDetailVisitor() {
-        // Given I login  go to Album  List
+        // Given I login as a visitor and go to the album list
         val login = Login(composeTestRule)
         login.getVisitorButton().performClick()
 
@@ -51,12 +51,12 @@ class AlbumDetailTest {
         val albumList = AlbumList(composeTestRule)
         clickAndShowListAlbum(navbar, albumList)
 
-        // When I click on some album Card
+        // When I click on some album card
         val list = albumList.getAlbums()
         val album = list[1]
         album.performClick()
 
-        // Then I see album Detail
+        // Then I see the details of the album
         val albumDetail = AlbumDetail(composeTestRule)
         assert(albumDetail.getAlbumDetail())
     }
