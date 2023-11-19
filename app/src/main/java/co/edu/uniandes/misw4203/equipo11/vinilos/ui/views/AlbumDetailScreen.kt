@@ -1,4 +1,5 @@
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -23,7 +24,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.pullrefresh.PullRefreshIndicator
+import androidx.compose.material3.pullrefresh.pullRefresh
+import androidx.compose.material3.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,20 +55,25 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.User
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.AlbumRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.UserRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumViewModel
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
-import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun AlbumDetailScreen(snackbarHostState: SnackbarHostState, albumId: Int, navController: NavHostController) {
+    val userRepository = UserRepository()
+
     val viewModel: AlbumViewModel = viewModel(
         factory = AlbumViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
@@ -87,21 +97,55 @@ fun AlbumDetailScreen(snackbarHostState: SnackbarHostState, albumId: Int, navCon
         emptyList()
     )
 
-    val performersList: List<Performer> = listOf(
-        Performer(1, PerformerType.MUSICIAN, "Fulanito", "Red", "description", Instant.now()),
-        Performer(1, PerformerType.MUSICIAN, "Fulanito", "Red", "description", Instant.now()),
-        Performer(1, PerformerType.MUSICIAN, "Fulanito", "Red", "description", Instant.now())
+    val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle(
+        true
+    )
 
+    val error by viewModel.error.collectAsStateWithLifecycle(
+        ErrorUiState.NoError
+    )
+
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = { viewModel.onRefresh() }
+    )
+
+    val userViewModel: UserViewModel = viewModel(
+        factory = UserViewModel.Factory,
+        extras = MutableCreationExtras(CreationExtras.Empty).apply {
+            set(UserViewModel.KEY_USER_REPOSITORY, userRepository)
+        }
+    )
+
+    val user by userViewModel.user.collectAsStateWithLifecycle(
+        null
     )
 
 
+    Box(Modifier.pullRefresh(pullRefreshState)) {
 
-    album?.let { AlbumDetail(it, performances, tracks, comments) }
+    album?.let { AlbumDetail(it, performances, tracks, comments, user) }
+
+        PullRefreshIndicator(
+            refreshing = isRefreshing,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter),
+
+        )
+    }
+
+    if (error is ErrorUiState.Error) {
+        val message = stringResource((error as ErrorUiState.Error).resourceId)
+        LaunchedEffect(error) {
+            snackbarHostState.showSnackbar(message)
+            viewModel.onErrorShown()
+        }
+    }
 }
 
 
 @Composable
-private fun AlbumDetail(album: Album, performers: List<Performer>, tracks: List<Track>, comments: List<Comment> ) {
+private fun AlbumDetail(album: Album, performers: List<Performer>, tracks: List<Track>, comments: List<Comment>, user: User? ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(120.dp),
         modifier = Modifier.fillMaxSize()
@@ -109,7 +153,7 @@ private fun AlbumDetail(album: Album, performers: List<Performer>, tracks: List<
         // Album description section
         item(span = { GridItemSpan(maxCurrentLineSpan) }) {
             Column(
-                modifier = Modifier.testTag("album-description")
+                modifier = Modifier.testTag("album-description").padding(8.dp)
             ) {
                 AlbumDescription(album)
             }
@@ -124,7 +168,6 @@ private fun AlbumDetail(album: Album, performers: List<Performer>, tracks: List<
                     text = stringResource(R.string.nav_artists),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.W500,
-                    modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
                 )
             }
         }
@@ -138,12 +181,13 @@ private fun AlbumDetail(album: Album, performers: List<Performer>, tracks: List<
                     text = "",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.W500,
-                    modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
+                    modifier = Modifier.padding(8.dp)
                 )
 
         }
+
         item(span = {  GridItemSpan(maxCurrentLineSpan) }) {
-            AlbumsHeader(stringResource(R.string.nav_tracks).toString())
+            AlbumsHeader(stringResource(R.string.nav_tracks), user)
         }
         items(tracks, span = { GridItemSpan(maxLineSpan) }) { track ->
             TrackItem(track)
@@ -155,13 +199,13 @@ private fun AlbumDetail(album: Album, performers: List<Performer>, tracks: List<
                     text = "",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.W500,
-                    modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
+                    modifier = Modifier.padding(8.dp)
                 )
 
         }
 
         item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-            AlbumsHeader(stringResource(R.string.nav_comments).toString())
+            AlbumsHeader(stringResource(R.string.nav_comments),user)
 
         }
 
@@ -173,11 +217,11 @@ private fun AlbumDetail(album: Album, performers: List<Performer>, tracks: List<
 
 
 @Composable
-private fun AlbumsHeader(title: String) {
+private fun AlbumsHeader(title: String,user: User?) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .testTag("albums-header"),
+            .testTag("albums-header").padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -186,17 +230,20 @@ private fun AlbumsHeader(title: String) {
             fontSize = 20.sp,
             fontWeight = FontWeight.W500
         )
-        Button(
-            onClick = { },
-            modifier = Modifier
-                .height(40.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-        ) {
-            Text(text = "+ Agregar")
+        if(user?.type == UserType.Collector){
+            Button(
+                onClick = { },
+                modifier = Modifier
+                    .height(40.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            ) {
+                Text(text = "+ Agregar")
+            }
         }
+
     }
 }
 

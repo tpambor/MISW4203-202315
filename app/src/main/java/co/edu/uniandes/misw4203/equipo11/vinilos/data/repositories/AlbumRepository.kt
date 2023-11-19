@@ -18,6 +18,7 @@ interface IAlbumRepository {
     fun getPerformanceAlbums(albumId: Int): Flow<List<Performer>>
     fun getCommentsAlbums(albumId: Int): Flow<List<Comment>>
     fun getTracksAlbums(albumId: Int): Flow<List<Track>>
+    suspend fun refreshAlbum(albumId: Int)
 }
 
 class AlbumRepository : IAlbumRepository {
@@ -84,4 +85,11 @@ class AlbumRepository : IAlbumRepository {
     companion object {
         private val TAG = AlbumRepository::class.simpleName!!
     }
+    override suspend fun refreshAlbum(albumId: Int) {
+        db.albumDao().deleteAndInsertAlbums(
+            listOf(adapter.getAlbum(albumId).first()),
+            deleteAll = false
+        )
+    }
+
 }
