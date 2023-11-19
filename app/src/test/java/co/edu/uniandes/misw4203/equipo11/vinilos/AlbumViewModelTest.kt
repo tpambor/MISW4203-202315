@@ -9,14 +9,16 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerT
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IAlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumViewModel
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
+import io.github.serpro69.kfaker.Faker
+import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -25,104 +27,64 @@ import org.junit.Test
 import java.time.Instant
 
 class AlbumViewModelTest {
-    class FakeAlbumRepository: IAlbumRepository {
+    class FakeAlbumRepository(private val expectedAlbumId: Int): IAlbumRepository {
+        private val albumFlow = MutableSharedFlow<Album?>()
+        suspend fun emitAlbum(value: Album?) = albumFlow.emit(value)
 
-        private val albumFlow = MutableSharedFlow<Result<List<Album>>>()
+        private val performersFlow = MutableSharedFlow<List<Performer>>()
+        suspend fun emitPerformers(value: List<Performer>) = performersFlow.emit(value)
 
+        private val commentsFlow = MutableSharedFlow<List<Comment>>()
+        suspend fun emitComments(value: List<Comment>) = commentsFlow.emit(value)
 
-        var getAlbumCalled = false
-        var getPerformersCalled = false
-        var getCommentsCalled = false
-        var getTracksCalled = false
+        private val tracksFlow = MutableSharedFlow<List<Track>>()
+        suspend fun emitTracks(value: List<Track>) = tracksFlow.emit(value)
 
-        override fun getAlbums(): Flow<Result<List<Album>>> = albumFlow.asSharedFlow()
+        var failRefresh = false
+        var refreshCalled = false
 
-        override suspend fun refresh() { }
-
-        override suspend fun refreshAlbum(albumId: Int) {
-            TODO("Not yet implemented")
+        override fun getAlbums(): Flow<Result<List<Album>>> {
+            throw UnsupportedOperationException()
         }
 
         override fun getAlbum(albumId: Int): Flow<Album?> {
-            getAlbumCalled = true
+            assertEquals(expectedAlbumId, albumId)
 
-            val fakeAlbum = Album(
-                id = albumId,
-                name = "Album $albumId",
-                cover = "red",
-                releaseDate = Instant.now(),
-                description = "Description $albumId",
-                genre = "Salsa",
-                recordLabel = "Record Label $albumId"
-            )
-
-            return flow { emit(fakeAlbum) }
+            return albumFlow
         }
 
         override fun getPerformers(albumId: Int): Flow<List<Performer>> {
-            getPerformersCalled = true
+            assertEquals(expectedAlbumId, albumId)
 
-            val fakePerformers = listOf(
-                Performer(
-                    id = 1,
-                    name = "Performer 1",
-                    image = "red",
-                    description = "description 1",
-                    birthDate = Instant.now(),
-                    type = PerformerType.BAND
-                ),
-                Performer(
-                    id = 2,
-                    name = "Performer 2",
-                    image = "red",
-                    description = "description 2",
-                    birthDate = Instant.now(),
-                    type = PerformerType.MUSICIAN
-                )
-            )
-            return flow { emit(fakePerformers) }
+            return performersFlow
         }
 
         override fun getComments(albumId: Int): Flow<List<Comment>> {
-            getCommentsCalled = true
-            val fakeComments = listOf(
-                Comment(
-                    id = 1,
-                    description = "Description 1",
-                    rating = 5,
-                    albumId = 1
-                ),
-                Comment(
-                    id = 2,
-                    description = "Description 2",
-                    rating = 4,
-                    albumId = 1
-                )
-            )
-            return flow { emit(fakeComments) }
+            assertEquals(expectedAlbumId, albumId)
+
+            return commentsFlow
         }
 
         override fun getTracks(albumId: Int): Flow<List<Track>> {
-            getTracksCalled = true
-            val fakeTracks = listOf(
-                Track(
-                    id = 1,
-                    name = "Track 1",
-                    duration = "2:30",
-                    albumId = 1
+            assertEquals(expectedAlbumId, albumId)
 
-                ),
-                Track(
-                    id = 2,
-                    name = "Track 2",
-                    duration = "3:30",
-                    albumId = 1
+            return tracksFlow
+        }
 
-                )
-            )
-            return flow { emit(fakeTracks) }
+        override suspend fun refresh() {
+            throw UnsupportedOperationException()
+        }
+
+        override suspend fun refreshAlbum(albumId: Int) {
+            assertEquals(expectedAlbumId, albumId)
+
+            refreshCalled = true
+
+            if (failRefresh)
+                throw Exception()
         }
     }
+
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -130,8 +92,9 @@ class AlbumViewModelTest {
 
     @Test
     fun canCreate() {
-        val repository = FakeAlbumRepository()
-        val albumId = 1
+        val faker = Faker()
+        val albumId = faker.random.nextInt(1, 100)
+        val repository = FakeAlbumRepository(albumId)
 
         val viewModel = AlbumViewModel.Factory.create(
             AlbumViewModel::class.java,
@@ -145,86 +108,254 @@ class AlbumViewModelTest {
     }
 
     @Test
-    fun getAlbum() = runTest {
-        // Configuración
-        val repository = FakeAlbumRepository()
-        val albumId = 1
+    fun canCreateWithDispatcher() {
+        val faker = Faker()
+        val albumId = faker.random.nextInt(1, 100)
+        val repository = FakeAlbumRepository(albumId)
+
         val viewModel = AlbumViewModel.Factory.create(
             AlbumViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(AlbumViewModel.KEY_ALBUM_REPOSITORY, repository)
                 set(AlbumViewModel.KEY_ALBUM_ID, albumId)
+                set(AlbumViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
-        // Observar el flujo del álbum en el ViewModel
-        val observedAlbum = viewModel.album.first()
-
-        // Verificar que el álbum observado es igual al álbum falso emitido por el repositorio
-        assertTrue(repository.getAlbumCalled)
-        assertNotNull(observedAlbum)
+        assertNotNull(viewModel)
     }
 
     @Test
-    fun getPerformers() = runTest {
-        // Configuración
-        val repository = FakeAlbumRepository()
-        val albumId = 1
+    fun getsAlbum() = runTest {
+        val faker = Faker()
+        val albumId = faker.random.nextInt(1, 100)
+        val repository = FakeAlbumRepository(albumId)
+
         val viewModel = AlbumViewModel.Factory.create(
             AlbumViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(AlbumViewModel.KEY_ALBUM_REPOSITORY, repository)
                 set(AlbumViewModel.KEY_ALBUM_ID, albumId)
+                set(AlbumViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
-        // Observar el flujo de los artistas en el ViewModel
-        val observedPerformers = viewModel.albumsperformers.first()
+        val data = Album(
+            id = albumId,
+            name = faker.music.albums(),
+            cover = "https://loremflickr.com/480/480/album?lock=${faker.random.nextInt(0, 100)}",
+            releaseDate = Instant.ofEpochMilli(faker.random.nextLong(System.currentTimeMillis())),
+            description = faker.quote.yoda(),
+            genre = faker.music.genres(),
+            recordLabel = faker.random.randomValue(listOf("Sony Music", "EMI", "Discos Fuentes", "Elektra", "Fania Records"))
+        )
 
-        // Verificar que los artistas observados son iguales a los artistas falsos emitidos por el repositorio
-        assertTrue(repository.getPerformersCalled)
-        assertNotNull(observedPerformers)
+        // Initially, there is no album yet
+        assertEquals(null, viewModel.album.first())
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+
+        // Repository emits album
+        repository.emitAlbum(data)
+
+        // Then, the album is available
+        assertEquals(data, viewModel.album.first())
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 
     @Test
-    fun getComments() = runTest {
-        // Configuración
-        val repository = FakeAlbumRepository()
-        val albumId = 1
+    fun getsMusicianError() = runTest {
+        val faker = Faker()
+        val albumId = faker.random.nextInt(1, 100)
+        val repository = FakeAlbumRepository(albumId)
+
         val viewModel = AlbumViewModel.Factory.create(
             AlbumViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(AlbumViewModel.KEY_ALBUM_REPOSITORY, repository)
                 set(AlbumViewModel.KEY_ALBUM_ID, albumId)
+                set(AlbumViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
-        // Observar el flujo de los comentarios en el ViewModel
-        val observedComments = viewModel.albumscomments.first()
+        // Initially, there is no album yet
+        assertEquals(null, viewModel.album.first())
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
-        // Verificar que los comentarios observados son iguales a los comentarios falsos emitidos por el repositorio
-        assertTrue(repository.getCommentsCalled)
-        assertNotNull(observedComments)
+        // Repository emits null (album not found)
+        repository.emitAlbum(null)
+
+        // Then, there is still no album and a error is generated
+        assertEquals(null, viewModel.album.first())
+
+        val error = viewModel.error.value
+        assert(error is ErrorUiState.Error)
+        val errorState: ErrorUiState.Error = error as ErrorUiState.Error
+        assertEquals(R.string.network_error, errorState.resourceId)
+        viewModel.onErrorShown()
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 
     @Test
-    fun getTracks() = runTest {
-        // Configuración
-        val repository = FakeAlbumRepository()
-        val albumId = 1
+    fun listsPerformers() = runTest {
+        val faker = Faker()
+        val albumId = faker.random.nextInt(1, 100)
+        val repository = FakeAlbumRepository(albumId)
+
         val viewModel = AlbumViewModel.Factory.create(
             AlbumViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(AlbumViewModel.KEY_ALBUM_REPOSITORY, repository)
                 set(AlbumViewModel.KEY_ALBUM_ID, albumId)
+                set(AlbumViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
-        // Observar el flujo de las canciones en el ViewModel
-        val observedTracks = viewModel.albumstracks.first()
+        val data = (1..4).map { id ->
+            Performer(
+                id = id,
+                type = PerformerType.MUSICIAN,
+                name = faker.name.name(),
+                image = "https://loremflickr.com/480/480/album?lock=${faker.random.nextInt(0, 100)}",
+                description = faker.quote.yoda(),
+                birthDate = Instant.ofEpochMilli(faker.random.nextLong(System.currentTimeMillis())),
+            )
+        }
 
-        // Verificar que las canciones observadas son iguales a las canciones falsas emitidas por el repositorio
-        assertTrue(repository.getTracksCalled)
-        assertNotNull(observedTracks)
+        // Initially, there are no performers yet
+        assertEquals(emptyList<Performer>(), viewModel.performers.first())
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+
+        // Repository emits performers
+        repository.emitPerformers(data)
+
+        // Then, list of performers is filled with the data
+        assertEquals(data, viewModel.performers.first())
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+    }
+
+    @Test
+    fun listsComments() = runTest {
+        val faker = Faker()
+        val albumId = faker.random.nextInt(1, 100)
+        val repository = FakeAlbumRepository(albumId)
+
+        val viewModel = AlbumViewModel.Factory.create(
+            AlbumViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(AlbumViewModel.KEY_ALBUM_REPOSITORY, repository)
+                set(AlbumViewModel.KEY_ALBUM_ID, albumId)
+                set(AlbumViewModel.KEY_DISPATCHER, Dispatchers.Main)
+            }
+        )
+
+        val data = (1..4).map { id ->
+            Comment(
+                id = id,
+                description = faker.starWars.quote(),
+                rating = faker.random.nextInt(1, 5),
+                albumId = albumId
+            )
+        }
+
+        // Initially, there are no comments yet
+        assertEquals(emptyList<Comment>(), viewModel.comments.first())
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+
+        // Repository emits comments
+        repository.emitComments(data)
+
+        // Then, list of comments is filled with the data
+        assertEquals(data, viewModel.comments.first())
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+    }
+
+    @Test
+    fun listsTracks() = runTest {
+        val faker = Faker()
+        val albumId = faker.random.nextInt(1, 100)
+        val repository = FakeAlbumRepository(albumId)
+
+        val viewModel = AlbumViewModel.Factory.create(
+            AlbumViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(AlbumViewModel.KEY_ALBUM_REPOSITORY, repository)
+                set(AlbumViewModel.KEY_ALBUM_ID, albumId)
+                set(AlbumViewModel.KEY_DISPATCHER, Dispatchers.Main)
+            }
+        )
+
+        val data = (1..4).map { id ->
+            Track(
+                id = id,
+                name = faker.animal.name(),
+                duration = "${faker.random.nextInt(0, 9)}:${faker.random.nextInt(10, 59)}",
+                albumId = albumId
+            )
+        }
+
+        // Initially, there are no tracks yet
+        assertEquals(emptyList<Track>(), viewModel.tracks.first())
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+
+        // Repository emits tracks
+        repository.emitTracks(data)
+
+        // Then, list of tracks is filled with the data
+        assertEquals(data, viewModel.tracks.first())
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+    }
+
+    @Test
+    fun refreshSuccess() = runTest {
+        val faker = Faker()
+        val albumId = faker.random.nextInt(1, 100)
+        val repository = FakeAlbumRepository(albumId)
+
+        val viewModel = AlbumViewModel.Factory.create(
+            AlbumViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(AlbumViewModel.KEY_ALBUM_REPOSITORY, repository)
+                set(AlbumViewModel.KEY_ALBUM_ID, albumId)
+                set(AlbumViewModel.KEY_DISPATCHER, Dispatchers.Main)
+            }
+        )
+
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+        repository.failRefresh = false
+
+        assertFalse(repository.refreshCalled)
+        viewModel.onRefresh()
+        assertTrue(repository.refreshCalled)
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+    }
+
+    @Test
+    fun refreshFail() = runTest {
+        val faker = Faker()
+        val albumId = faker.random.nextInt(1, 100)
+        val repository = FakeAlbumRepository(albumId)
+
+        val viewModel = AlbumViewModel.Factory.create(
+            AlbumViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(AlbumViewModel.KEY_ALBUM_REPOSITORY, repository)
+                set(AlbumViewModel.KEY_ALBUM_ID, albumId)
+                set(AlbumViewModel.KEY_DISPATCHER, Dispatchers.Main)
+            }
+        )
+
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
+        repository.failRefresh = true
+
+        assertFalse(repository.refreshCalled)
+        viewModel.onRefresh()
+        assertTrue(repository.refreshCalled)
+
+        val error = viewModel.error.value
+        assert(error is ErrorUiState.Error)
+        val errorState: ErrorUiState.Error = error as ErrorUiState.Error
+        assertEquals(R.string.network_error, errorState.resourceId)
+        viewModel.onErrorShown()
+        assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 }

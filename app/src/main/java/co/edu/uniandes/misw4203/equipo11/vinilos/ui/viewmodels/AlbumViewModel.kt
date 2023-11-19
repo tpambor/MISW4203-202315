@@ -22,26 +22,25 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class AlbumViewModel(
     private val albumRepository: IAlbumRepository,
-    private val albumId: Int, val dispatcher : CoroutineDispatcher) : ViewModel() {
-
+    private val albumId: Int,
+    val dispatcher : CoroutineDispatcher
+) : ViewModel() {
     private val _album: MutableStateFlow<Album?> = MutableStateFlow(null)
     val album = _album.asStateFlow().onSubscription { getAlbum() }
     private val getAlbumStarted: AtomicBoolean = AtomicBoolean(false)
 
+    private val _performers: MutableStateFlow<List<Performer>> = MutableStateFlow(emptyList())
+    val performers = _performers.asStateFlow().onSubscription { getPerformers() }
+    private val getPerformersStarted: AtomicBoolean = AtomicBoolean(false)
 
-    private val _albumsperformers: MutableStateFlow<List<Performer>> = MutableStateFlow(emptyList())
-    val albumsperformers = _albumsperformers.asStateFlow().onSubscription { getAlbumPerformances() }
-    private val getPerformerStarted: AtomicBoolean = AtomicBoolean(false)
+    private val _tracks: MutableStateFlow<List<Track>> = MutableStateFlow(emptyList())
+    val tracks = _tracks.asStateFlow().onSubscription { getTracks() }
+    private val getTracksStarted: AtomicBoolean = AtomicBoolean(false)
 
-    private val _albumstracks: MutableStateFlow<List<Track>> = MutableStateFlow(emptyList())
-    val albumstracks = _albumstracks.asStateFlow().onSubscription { getTracksAlbums() }
-    private val getTrackStarted: AtomicBoolean = AtomicBoolean(false)
+    private val _comments: MutableStateFlow<List<Comment>> = MutableStateFlow(emptyList())
+    val comments = _comments.asStateFlow().onSubscription { getComments() }
+    private val getCommentsStarted: AtomicBoolean = AtomicBoolean(false)
 
-    private val _albumscomments: MutableStateFlow<List<Comment>> = MutableStateFlow(emptyList())
-    val albumscomments = _albumscomments.asStateFlow().onSubscription { getCommentsAlbums() }
-    private val getCommentStarted: AtomicBoolean = AtomicBoolean(false)
-
-    @Suppress("PropertyName")
     private val _isRefreshing = MutableStateFlow(true)
     val isRefreshing = _isRefreshing.asStateFlow()
 
@@ -50,7 +49,7 @@ class AlbumViewModel(
 
     private fun getAlbum() {
         if (getAlbumStarted.getAndSet(true))
-            return  // Coroutine to get band was already started, only start once
+            return  // Coroutine to get album was already started, only start once
 
         viewModelScope.launch(dispatcher) {
             albumRepository.getAlbum(albumId)
@@ -65,53 +64,41 @@ class AlbumViewModel(
         }
     }
 
-    private fun getAlbumPerformances() {
-        if (getPerformerStarted.getAndSet(true))
-            return  // Coroutine to get band was already started, only start once
+    private fun getPerformers() {
+        if (getPerformersStarted.getAndSet(true))
+            return  // Coroutine to get performers was already started, only start once
 
         viewModelScope.launch(dispatcher) {
             albumRepository.getPerformers(albumId)
-                .collect { performer ->
-                    if (performer == null) {
-                        _error.value = ErrorUiState.Error(R.string.network_error)
-                    } else {
-                        _albumsperformers.value = performer
-                    }
+                .collect { performers ->
+                    _performers.value = performers
                     _isRefreshing.value = false
                 }
         }
     }
 
-    private fun getTracksAlbums() {
-        if (getTrackStarted.getAndSet(true))
-            return  // Coroutine to get band was already started, only start once
+    private fun getTracks() {
+        if (getTracksStarted.getAndSet(true))
+            return  // Coroutine to get tracks was already started, only start once
 
         viewModelScope.launch(dispatcher) {
             albumRepository.getTracks(albumId)
-                .collect { track ->
-                    if (track == null) {
-                        _error.value = ErrorUiState.Error(R.string.network_error)
-                    } else {
-                        _albumstracks.value = track
-                    }
+                .collect { tracks ->
+                    _tracks.value = tracks
                     _isRefreshing.value = false
                 }
         }
     }
 
 
-    private fun getCommentsAlbums() {
-        if (getCommentStarted.getAndSet(true))
-            return // Coroutine to get band was already started, only start once
+    private fun getComments() {
+        if (getCommentsStarted.getAndSet(true))
+            return // Coroutine to get comments was already started, only start once
 
         viewModelScope.launch(dispatcher) {
             albumRepository.getComments(albumId)
                 .collect { comment ->
-                    if (comment == null) {
-                        _error.value = ErrorUiState.Error(R.string.network_error)
-                    } else {
-                        _albumscomments.value = comment
-                    }
+                    _comments.value = comment
                     _isRefreshing.value = false
                 }
         }
@@ -120,6 +107,7 @@ class AlbumViewModel(
 
     fun onRefresh() {
         _isRefreshing.value = true
+
         viewModelScope.launch(dispatcher) {
             try {
                 albumRepository.refreshAlbum(albumId)
@@ -133,6 +121,7 @@ class AlbumViewModel(
     fun onErrorShown() {
         _error.value = ErrorUiState.NoError
     }
+
     companion object {
         val KEY_ALBUM_REPOSITORY = object : CreationExtras.Key<IAlbumRepository> {}
         val KEY_ALBUM_ID = object : CreationExtras.Key<Int> {}

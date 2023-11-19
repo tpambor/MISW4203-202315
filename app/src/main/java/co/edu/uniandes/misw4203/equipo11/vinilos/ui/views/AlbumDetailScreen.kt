@@ -85,15 +85,15 @@ fun AlbumDetailScreen(snackbarHostState: SnackbarHostState, albumId: Int, navCon
     val album by viewModel.album.collectAsStateWithLifecycle(
         null
     )
-    val performances by viewModel.albumsperformers.collectAsStateWithLifecycle(
+    val performances by viewModel.performers.collectAsStateWithLifecycle(
         emptyList()
     )
 
-    val tracks by viewModel.albumstracks.collectAsStateWithLifecycle(
+    val tracks by viewModel.tracks.collectAsStateWithLifecycle(
         emptyList()
     )
 
-    val comments by viewModel.albumscomments.collectAsStateWithLifecycle(
+    val comments by viewModel.comments.collectAsStateWithLifecycle(
         emptyList()
     )
 

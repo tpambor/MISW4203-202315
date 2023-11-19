@@ -37,6 +37,22 @@ class AlbumListViewModelTest {
             return flow
         }
 
+        override fun getAlbum(albumId: Int): Flow<Album?> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getPerformers(albumId: Int): Flow<List<Performer>> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getComments(albumId: Int): Flow<List<Comment>> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getTracks(albumId: Int): Flow<List<Track>> {
+            throw UnsupportedOperationException()
+        }
+
         override suspend fun refresh() {
             refreshCalled = true
 
@@ -45,23 +61,7 @@ class AlbumListViewModelTest {
         }
 
         override suspend fun refreshAlbum(albumId: Int) {
-            TODO("Not yet implemented")
-        }
-
-        override fun getAlbum(albumId: Int): Flow<Album?> {
-            TODO("Not yet implemented")
-        }
-
-        override fun getPerformers(albumId: Int): Flow<List<Performer>> {
-            TODO("Not yet implemented")
-        }
-
-        override fun getComments(albumId: Int): Flow<List<Comment>> {
-            TODO("Not yet implemented")
-        }
-
-        override fun getTracks(albumId: Int): Flow<List<Track>> {
-            TODO("Not yet implemented")
+            throw UnsupportedOperationException()
         }
     }
 
