@@ -1,5 +1,6 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -58,6 +59,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.MusicianViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.PerformerViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
+import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
@@ -303,8 +305,10 @@ private fun ArtistDescription(performer: Performer){
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
                 .fillMaxWidth()
-                .aspectRatio(1.7f),
-            contentScale = ContentScale.Crop
+                .aspectRatio(1.7f)
+                .background(MaterialTheme.colorScheme.outlineVariant),
+            contentScale = ContentScale.Crop,
+            transition = CrossFade
         )
         Text(
             modifier = Modifier
