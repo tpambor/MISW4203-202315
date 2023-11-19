@@ -136,7 +136,7 @@ private fun PerformerDetailScreen(viewModel: PerformerViewModel, snackbarHostSta
             modifier = Modifier.padding(8.dp)
         ) {
             when (viewModel.performerType){
-                PerformerType.MUSICIAN -> performer?.let { MusicianDetail(it, albums, isCollector) }
+                PerformerType.MUSICIAN -> performer?.let { MusicianDetail(it, albums, navController, isCollector) }
                 PerformerType.BAND -> {
                     val musicians by (viewModel as BandViewModel).members.collectAsStateWithLifecycle(
                         emptyList()
@@ -226,9 +226,9 @@ private fun MembersHeader(isCollector: Boolean) {
 }
 
 @Composable
-private fun MusicianDetail(musician: Performer, albums: List<Album>, isCollector: Boolean) {
+private fun MusicianDetail(musician: Performer, albums: List<Album>, navController: NavHostController, isCollector: Boolean) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(120.dp),
+        columns = GridCells.Adaptive(150.dp),
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -240,7 +240,7 @@ private fun MusicianDetail(musician: Performer, albums: List<Album>, isCollector
             }
         }
         items(albums) {
-                item: Album -> AlbumItem(item)
+                item: Album -> AlbumItem(item, navController)
         }
     }
 }
@@ -248,7 +248,7 @@ private fun MusicianDetail(musician: Performer, albums: List<Album>, isCollector
 @Composable
 private fun BandDetail(band: Performer, albums: List<Album>, members: List<Performer>, navController: NavHostController, isCollector: Boolean) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(120.dp),
+        columns = GridCells.Adaptive(150.dp),
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -262,11 +262,7 @@ private fun BandDetail(band: Performer, albums: List<Album>, members: List<Perfo
         items(members) {
                 item: Performer -> ArtistItem(
                     performer = item,
-                    isCollector = false,
-                    isFavorite = false,
-                    isUpdating = false,
-                    addFavoritePerformer = {},
-                    removeFavoritePerformer = {},
+                    favButton = {},
                     navController = navController
                 )
         }
@@ -276,7 +272,7 @@ private fun BandDetail(band: Performer, albums: List<Album>, members: List<Perfo
             }
         }
         items(albums) {
-                item: Album -> AlbumItem(item)
+                item: Album -> AlbumItem(item, navController)
         }
     }
 }
@@ -365,7 +361,7 @@ private fun MusicDetailScreenPreview() {
     Column(
         modifier = Modifier.padding(8.dp)
     ) {
-         MusicianDetail(musician, albums, false)
+         MusicianDetail(musician, albums, rememberNavController(), false)
     }
 }
 
