@@ -3,6 +3,9 @@ package co.edu.uniandes.misw4203.equipo11.vinilos
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IAlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
@@ -34,11 +37,31 @@ class AlbumListViewModelTest {
             return flow
         }
 
+        override fun getAlbum(albumId: Int): Flow<Album?> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getPerformers(albumId: Int): Flow<List<Performer>> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getComments(albumId: Int): Flow<List<Comment>> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getTracks(albumId: Int): Flow<List<Track>> {
+            throw UnsupportedOperationException()
+        }
+
         override suspend fun refresh() {
             refreshCalled = true
 
             if (failRefresh)
                 throw Exception()
+        }
+
+        override suspend fun refreshAlbum(albumId: Int) {
+            throw UnsupportedOperationException()
         }
     }
 

@@ -48,9 +48,15 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
         startDestination = "login"
     ) {
         composable(route = "login") { LoginScreen(navController) }
-        composable(route = "albums") { AlbumListScreen(snackbarHostState) }
+        composable(route = "albums") { AlbumListScreen(snackbarHostState, navController) }
         composable(route = "artists") { ArtistListScreen(snackbarHostState, navController) }
         composable(route = "collectors") { CollectorListScreen(snackbarHostState) }
+        composable(
+            route = "albums/{albumId}",
+            arguments = listOf(navArgument("albumId") { type = NavType.IntType })
+        ){ backStackEntry ->
+            AlbumDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("albumId"), navController)
+        }
         composable(
             route = "artists/musician/{artistId}",
             arguments = listOf(navArgument("artistId") { type = NavType.IntType })
@@ -104,6 +110,7 @@ fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackSt
     val title = when (route) {
         "artists/musician/{artistId}" -> stringResource(R.string.top_nav_artist)
         "artists/band/{artistId}" -> stringResource(R.string.top_nav_artist)
+        "albums/{albumId}" -> stringResource(R.string.top_nav_album)
         else -> ""
     }
 
