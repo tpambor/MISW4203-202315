@@ -65,6 +65,21 @@ class CollectorListViewModelTest {
     }
 
     @Test
+    fun canCreateWithDispatcher() {
+        val repository = FakeCollectorRepository()
+
+        val viewModel = CollectorListViewModel.Factory.create(
+            CollectorListViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(CollectorListViewModel.KEY_COLLECTOR_REPOSITORY, repository)
+                set(CollectorListViewModel.KEY_DISPATCHER, Dispatchers.Main)
+            }
+        )
+
+        assertNotNull(viewModel)
+    }
+
+    @Test
     fun listsCollectors() = runTest {
         val repository = FakeCollectorRepository()
 
@@ -72,6 +87,7 @@ class CollectorListViewModelTest {
             CollectorListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(CollectorListViewModel.KEY_COLLECTOR_REPOSITORY, repository)
+                set(CollectorListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -118,6 +134,7 @@ class CollectorListViewModelTest {
             CollectorListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(CollectorListViewModel.KEY_COLLECTOR_REPOSITORY, repository)
+                set(CollectorListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -145,6 +162,7 @@ class CollectorListViewModelTest {
             CollectorListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(CollectorListViewModel.KEY_COLLECTOR_REPOSITORY, repository)
+                set(CollectorListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -165,6 +183,7 @@ class CollectorListViewModelTest {
             CollectorListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(CollectorListViewModel.KEY_COLLECTOR_REPOSITORY, repositoryCollector)
+                set(CollectorListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 

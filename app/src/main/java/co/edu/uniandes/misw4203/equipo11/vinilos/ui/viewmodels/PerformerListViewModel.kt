@@ -13,6 +13,8 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IPerformerRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IUserRepository
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
@@ -22,7 +24,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class PerformerListViewModel(
     private val performerRepository: IPerformerRepository,
-    private val userRepository: IUserRepository
+    private val userRepository: IUserRepository,
+    private val dispatcher : CoroutineDispatcher
 ) : ViewModel() {
     val user: CompletableDeferred<User> = CompletableDeferred()
 
@@ -51,7 +54,7 @@ class PerformerListViewModel(
         if (getMusiciansStarted.getAndSet(true))
             return // Coroutine to get musicians was already started, only start once
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             performerRepository.getMusicians()
                 .collect { musicians ->
                     musicians
@@ -71,7 +74,7 @@ class PerformerListViewModel(
         if (getBandsStarted.getAndSet(true))
             return // Coroutine to get bands was already started, only start once
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             performerRepository.getBands()
                 .collect { bands ->
                     bands
@@ -91,7 +94,7 @@ class PerformerListViewModel(
         if (getFavoritePerformersStarted.getAndSet(true))
             return // Coroutine to get favorite performers was already started, only start once
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             val collector = user.await()
 
             // Visitors do not have favorite performers
@@ -107,7 +110,7 @@ class PerformerListViewModel(
     fun onRefreshMusicians() {
         _isRefreshing.value = true
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             try {
                 performerRepository.refreshMusicians()
             } catch (ex: Exception) {
@@ -120,7 +123,7 @@ class PerformerListViewModel(
     fun onRefreshBands() {
         _isRefreshing.value = true
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             try {
                 performerRepository.refreshBands()
             } catch (ex: Exception) {
@@ -133,7 +136,7 @@ class PerformerListViewModel(
     fun addFavoriteMusician(performerId: Int) {
         _updatingFavoritePerformers.value = _updatingFavoritePerformers.value + performerId
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             val collector = user.await()
 
             // Visitors do not have favorite performers
@@ -153,7 +156,7 @@ class PerformerListViewModel(
     fun addFavoriteBand(performerId: Int) {
         _updatingFavoritePerformers.value = _updatingFavoritePerformers.value + performerId
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             val collector = user.await()
 
             // Visitors do not have favorite performers
@@ -173,7 +176,7 @@ class PerformerListViewModel(
     fun removeFavoriteMusician(performerId: Int) {
         _updatingFavoritePerformers.value = _updatingFavoritePerformers.value + performerId
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             val collector = user.await()
 
             // Visitors do not have favorite performers
@@ -193,7 +196,7 @@ class PerformerListViewModel(
     fun removeFavoriteBand(performerId: Int) {
         _updatingFavoritePerformers.value = _updatingFavoritePerformers.value + performerId
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             val collector = user.await()
 
             // Visitors do not have favorite performers
@@ -215,7 +218,7 @@ class PerformerListViewModel(
     }
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             user.complete(requireNotNull(userRepository.getUser().first()))
         }
     }
@@ -224,12 +227,14 @@ class PerformerListViewModel(
     companion object {
         val KEY_PERFORMER_REPOSITORY = object : CreationExtras.Key<IPerformerRepository> {}
         val KEY_USER_REPOSITORY = object : CreationExtras.Key<IUserRepository> {}
+        val KEY_DISPATCHER = object : CreationExtras.Key<CoroutineDispatcher> {}
 
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 PerformerListViewModel(
                     performerRepository = requireNotNull(this[KEY_PERFORMER_REPOSITORY]),
-                    userRepository = requireNotNull(this[KEY_USER_REPOSITORY])
+                    userRepository = requireNotNull(this[KEY_USER_REPOSITORY]),
+                    dispatcher = this[KEY_DISPATCHER] ?: Dispatchers.IO
                 )
             }
         }
