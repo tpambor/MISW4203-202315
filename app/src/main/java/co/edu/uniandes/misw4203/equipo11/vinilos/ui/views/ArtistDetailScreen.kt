@@ -50,11 +50,14 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.PerformerRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.UserRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.BandViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.MusicianViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.PerformerViewModel
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
@@ -91,6 +94,8 @@ fun BandDetailScreen(snackbarHostState: SnackbarHostState, artistId: Int, navCon
 
 @Composable
 private fun PerformerDetailScreen(viewModel: PerformerViewModel, snackbarHostState: SnackbarHostState, navController: NavHostController) {
+    val userRepository = UserRepository()
+
     val performer by viewModel.performer.collectAsStateWithLifecycle(
         null
     )
@@ -106,24 +111,36 @@ private fun PerformerDetailScreen(viewModel: PerformerViewModel, snackbarHostSta
         ErrorUiState.NoError
     )
 
+    val userViewModel: UserViewModel = viewModel(
+        factory = UserViewModel.Factory,
+        extras = MutableCreationExtras(CreationExtras.Empty).apply {
+            set(UserViewModel.KEY_USER_REPOSITORY, userRepository)
+        }
+    )
+
+    val user by userViewModel.user.collectAsStateWithLifecycle(
+        null
+    )
+
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
         onRefresh = { viewModel.onRefresh() }
     )
 
+    val isCollector = user?.type == UserType.Collector
     Box(Modifier.pullRefresh(pullRefreshState)) {
 
         Column(
             modifier = Modifier.padding(8.dp)
         ) {
             when (viewModel.performerType){
-                PerformerType.MUSICIAN -> performer?.let { MusicianDetail(it, albums, navController) }
+                PerformerType.MUSICIAN -> performer?.let { MusicianDetail(it, albums, navController, isCollector) }
                 PerformerType.BAND -> {
                     val musicians by (viewModel as BandViewModel).members.collectAsStateWithLifecycle(
                         emptyList()
                     )
 
-                    performer?.let { BandDetail(it, albums, musicians, navController) }
+                    performer?.let { BandDetail(it, albums, musicians, navController, isCollector) }
                 }
             }
         }
@@ -145,7 +162,7 @@ private fun PerformerDetailScreen(viewModel: PerformerViewModel, snackbarHostSta
 }
 
 @Composable
-private fun AlbumsHeader() {
+private fun AlbumsHeader(isCollector: Boolean) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -158,22 +175,25 @@ private fun AlbumsHeader() {
             fontSize = 20.sp,
             fontWeight = FontWeight.W500
         )
-        Button(
-            onClick = { },
-            modifier = Modifier
-                .height(40.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-        ) {
-            Text(text = "+ Agregar")
+        if(isCollector){
+            Button(
+                onClick = { },
+                modifier = Modifier
+                    .height(40.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            ) {
+                Text(text = "+ Agregar")
+            }
         }
+
     }
 }
 
 @Composable
-private fun MembersHeader() {
+private fun MembersHeader(isCollector: Boolean) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -186,22 +206,25 @@ private fun MembersHeader() {
             fontSize = 20.sp,
             fontWeight = FontWeight.W500
         )
-        Button(
-            onClick = { },
-            modifier = Modifier
-                .height(40.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-        ) {
-            Text(text = "+ Agregar")
+        if (isCollector){
+            Button(
+                onClick = { },
+                modifier = Modifier
+                    .height(40.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            ) {
+                Text(text = "+ Agregar")
+            }
         }
+
     }
 }
 
 @Composable
-private fun MusicianDetail(musician: Performer, albums: List<Album>, navController: NavHostController) {
+private fun MusicianDetail(musician: Performer, albums: List<Album>, navController: NavHostController, isCollector: Boolean) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(120.dp),
         modifier = Modifier.fillMaxSize(),
@@ -211,7 +234,7 @@ private fun MusicianDetail(musician: Performer, albums: List<Album>, navControll
         item(span = { GridItemSpan(maxLineSpan) }) {
             Column {
                 ArtistDescription(musician)
-                AlbumsHeader()
+                AlbumsHeader(isCollector)
             }
         }
         items(albums) {
@@ -221,7 +244,7 @@ private fun MusicianDetail(musician: Performer, albums: List<Album>, navControll
 }
 
 @Composable
-private fun BandDetail(band: Performer, albums: List<Album>, members: List<Performer>, navController: NavHostController) {
+private fun BandDetail(band: Performer, albums: List<Album>, members: List<Performer>, navController: NavHostController, isCollector: Boolean) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(120.dp),
         modifier = Modifier.fillMaxSize(),
@@ -231,7 +254,7 @@ private fun BandDetail(band: Performer, albums: List<Album>, members: List<Perfo
         item(span = { GridItemSpan(maxLineSpan) }) {
             Column {
                 ArtistDescription(band)
-                MembersHeader()
+                MembersHeader(isCollector)
             }
         }
         items(members) {
@@ -247,7 +270,7 @@ private fun BandDetail(band: Performer, albums: List<Album>, members: List<Perfo
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
             Column{
-                AlbumsHeader()
+                AlbumsHeader(isCollector)
             }
         }
         items(albums) {
@@ -338,7 +361,7 @@ private fun MusicDetailScreenPreview() {
     Column(
         modifier = Modifier.padding(8.dp)
     ) {
-         MusicianDetail(musician, albums, rememberNavController())
+         MusicianDetail(musician, albums, rememberNavController(), false)
     }
 }
 
@@ -362,6 +385,6 @@ private fun BandDetailScreenPreview() {
     Column(
         modifier = Modifier.padding(8.dp)
     ) {
-        BandDetail(band, albums, musicians, rememberNavController())
+        BandDetail(band, albums, musicians, rememberNavController(), false)
     }
 }
