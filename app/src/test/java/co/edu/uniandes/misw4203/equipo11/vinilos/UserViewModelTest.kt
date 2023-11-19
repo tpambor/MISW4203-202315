@@ -55,6 +55,21 @@ class UserViewModelTest {
     }
 
     @Test
+    fun canCreateWithDispatcher() {
+        val repository = FakeUserRepository()
+
+        val viewModel = UserViewModel.Factory.create(
+            UserViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(UserViewModel.KEY_USER_REPOSITORY, repository)
+                set(UserViewModel.KEY_DISPATCHER, Dispatchers.Main)
+            }
+        )
+
+        assertNotNull(viewModel)
+    }
+
+    @Test
     fun getUser() = runTest {
         val repository = FakeUserRepository()
 
@@ -62,6 +77,7 @@ class UserViewModelTest {
             UserViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(UserViewModel.KEY_USER_REPOSITORY, repository)
+                set(UserViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -85,6 +101,7 @@ class UserViewModelTest {
             UserViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(UserViewModel.KEY_USER_REPOSITORY, repository)
+                set(UserViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -107,6 +124,7 @@ class UserViewModelTest {
             UserViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(UserViewModel.KEY_USER_REPOSITORY, repository)
+                set(UserViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 

@@ -27,25 +27,21 @@ import java.time.Instant
 
 class CollectorListViewModelTest {
     class FakeCollectorRepository : ICollectorRepository {
-        private val flowCollectors = MutableSharedFlow<List<Collector>?>()
-        private val flowCollectorsWithPerformers = MutableSharedFlow<List<CollectorWithPerformers>?>()
-        suspend fun emit(value: List<CollectorWithPerformers>?) = flowCollectorsWithPerformers.emit(value)
+        private val flowCollectorsWithPerformers = MutableSharedFlow<Result<List<CollectorWithPerformers>>>()
+        suspend fun emit(value: Result<List<CollectorWithPerformers>>) = flowCollectorsWithPerformers.emit(value)
 
         var failRefresh = false
         var refreshCalled = false
 
-        override fun getCollectors(): Flow<List<Collector>?> {
-            return flowCollectors
-        }
-
-        override fun getCollectorsWithFavoritePerformers(): Flow<List<CollectorWithPerformers>?> {
+        override fun getCollectorsWithFavoritePerformers(): Flow<Result<List<CollectorWithPerformers>>> {
             return flowCollectorsWithPerformers
         }
 
-        override suspend fun refresh(): Boolean {
+        override suspend fun refresh() {
             refreshCalled = true
 
-            return !failRefresh
+            if (failRefresh)
+                throw Exception()
         }
     }
 
@@ -69,6 +65,21 @@ class CollectorListViewModelTest {
     }
 
     @Test
+    fun canCreateWithDispatcher() {
+        val repository = FakeCollectorRepository()
+
+        val viewModel = CollectorListViewModel.Factory.create(
+            CollectorListViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(CollectorListViewModel.KEY_COLLECTOR_REPOSITORY, repository)
+                set(CollectorListViewModel.KEY_DISPATCHER, Dispatchers.Main)
+            }
+        )
+
+        assertNotNull(viewModel)
+    }
+
+    @Test
     fun listsCollectors() = runTest {
         val repository = FakeCollectorRepository()
 
@@ -76,6 +87,7 @@ class CollectorListViewModelTest {
             CollectorListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(CollectorListViewModel.KEY_COLLECTOR_REPOSITORY, repository)
+                set(CollectorListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -107,7 +119,7 @@ class CollectorListViewModelTest {
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
         // Repository emits Collectors
-        repository.emit(data)
+        repository.emit(Result.success(data))
 
         // Then, list of Collectors is filled with the data
         assertEquals(data, viewModel.collectors.first())
@@ -122,6 +134,7 @@ class CollectorListViewModelTest {
             CollectorListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(CollectorListViewModel.KEY_COLLECTOR_REPOSITORY, repository)
+                set(CollectorListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -130,7 +143,7 @@ class CollectorListViewModelTest {
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
         // Repository emits null (unable to fetch data)
-        repository.emit(null)
+        repository.emit(Result.failure(Exception()))
 
         // Then, list of Collectors is filled with the data
         assertEquals(emptyList<CollectorWithPerformers>(), viewModel.collectors.first())
@@ -149,6 +162,7 @@ class CollectorListViewModelTest {
             CollectorListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(CollectorListViewModel.KEY_COLLECTOR_REPOSITORY, repository)
+                set(CollectorListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -169,6 +183,7 @@ class CollectorListViewModelTest {
             CollectorListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(CollectorListViewModel.KEY_COLLECTOR_REPOSITORY, repositoryCollector)
+                set(CollectorListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 

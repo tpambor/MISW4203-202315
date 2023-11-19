@@ -1,6 +1,7 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.data.database.daos
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Embedded
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -10,6 +11,9 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorFavoritePerformer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorWithPerformers
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toCollector
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toPerformer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.text.Normalizer
@@ -94,13 +98,15 @@ interface CollectorDAO {
     @Query("DELETE FROM collector")
     suspend fun deleteCollectors()
 
-    // Internal use only
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCollectorFavoritePerformers(collectorFavoritePerformers: List<CollectorFavoritePerformer>)
 
     // Internal use only
     @Query("DELETE FROM collectorfavoriteperformer")
-    suspend fun deleteCollectorFavoritePerformer()
+    suspend fun deleteAllCollectorFavoritePerformer()
+
+    @Delete
+    suspend fun deleteCollectorFavoritePerformer(collectorFavoritePerformer: CollectorFavoritePerformer)
 
     // Internal use only
     // This is necessary, so that the list of collector with their favorite performers can
@@ -112,19 +118,24 @@ interface CollectorDAO {
     // To make sure that the database is consistent it is necessary to update the performers
     // associated with the collectors as well
     @Transaction
-    suspend fun deleteAndInsertCollectors(collectors: List<CollectorWithPerformers>) {
-        deleteCollectors()
-        insertCollectors(collectors.map { it.collector })
-        deleteCollectorFavoritePerformer()
-
+    suspend fun deleteAndInsertCollectors(collectors: List<CollectorJson>) {
         val performers: MutableList<Performer> = mutableListOf()
         val collectorFavoritePerformers: MutableList<CollectorFavoritePerformer> = mutableListOf()
-        collectors.forEach { collector ->
-            performers.addAll(collector.performers)
-            collector.performers.forEach {
-                collectorFavoritePerformers.add(CollectorFavoritePerformer(collector.collector.id, it.id))
+        val mappedCollectors = collectors.map { collector ->
+            val favoritePerformers: List<Performer> = requireNotNull(collector.favoritePerformers).map { it.toPerformer() }
+            performers.addAll(favoritePerformers)
+            favoritePerformers.forEach { favPerformer ->
+                collectorFavoritePerformers.add(
+                    CollectorFavoritePerformer(collector.id, favPerformer.id)
+                )
             }
+
+            collector.toCollector()
         }
+
+        deleteCollectors()
+        insertCollectors(mappedCollectors)
+        deleteAllCollectorFavoritePerformer()
         insertCollectorFavoritePerformers(collectorFavoritePerformers)
         insertPerformers(performers)
     }

@@ -1,5 +1,6 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -96,7 +97,7 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun AlbumItem(album: Album) {
+fun AlbumItem(album: Album) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
         coverPreview = placeholder(ColorPainter(Color(album.cover.toColorInt())))
@@ -104,11 +105,10 @@ private fun AlbumItem(album: Album) {
 
     Card(
         modifier = Modifier
-            .padding(8.dp)
             .testTag("album-list-item"),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
-        onClick = { /*TODO*/ }
+        onClick = { }
     ) {
         Column {
             GlideImage(
@@ -143,8 +143,12 @@ private fun AlbumItem(album: Album) {
 private fun AlbumList(albums: List<Album>) {
     if(albums.isNotEmpty()){
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(180.dp),
-            modifier = Modifier.fillMaxSize()
+            columns = GridCells.Adaptive(150.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp, 8.dp, 8.dp, 0.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(albums) {
                     item: Album -> AlbumItem(item)

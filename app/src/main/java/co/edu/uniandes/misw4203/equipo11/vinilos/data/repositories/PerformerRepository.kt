@@ -1,6 +1,8 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories
 import android.util.Log
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.VinilosDB
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorFavoritePerformer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import kotlinx.coroutines.flow.Flow
@@ -9,37 +11,77 @@ import kotlinx.coroutines.flow.flow
 
 
 interface IPerformerRepository {
-    fun getMusicians(): Flow<List<Performer>?>
-    fun getBands(): Flow<List<Performer>?>
+    fun getMusicians(): Flow<Result<List<Performer>>>
+    fun getBands(): Flow<Result<List<Performer>>>
     fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>>
-    suspend fun refreshMusicians(): Boolean
-    suspend fun refreshBands(): Boolean
+    fun getMusician(performerId: Int): Flow<Performer?>
+    fun getBand(performerId: Int): Flow<Performer?>
+    fun getBandMembers(performerId: Int): Flow<List<Performer>>
+    fun getAlbums(performerId: Int): Flow<List<Album>>
+    suspend fun addFavoriteMusician(collectorId: Int, performerId: Int)
+    suspend fun addFavoriteBand(collectorId: Int, performerId: Int)
+    suspend fun removeFavoriteMusician(collectorId: Int, performerId: Int)
+    suspend fun removeFavoriteBand(collectorId: Int, performerId: Int)
+    suspend fun refreshMusicians()
+    suspend fun refreshMusician(performerId: Int)
+    suspend fun refreshBands()
+    suspend fun refreshBand(performerId: Int)
 }
 
 class PerformerRepository : IPerformerRepository{
     private val adapter = NetworkServiceAdapter()
     private val db = VinilosDB.getInstance()
 
-    override fun getMusicians(): Flow<List<Performer>?> = flow {
+    override fun getMusicians(): Flow<Result<List<Performer>>> = flow {
+        var isFirst = true
+
         db.performerDao().getMusicians().collect { musicians ->
-            if (musicians.isEmpty()) {
-                if(!refreshMusicians()) {
-                    emit(null)
+            if (!isFirst)
+                emit(Result.success(musicians))
+
+            // Handle first list returned differently
+            //
+            // If the first list is empty, there is no data in the database.
+            // This is mostly likely due to never have loaded data from the API,
+            // therefore call refresh() in this case to load the data from the API.
+            isFirst = true
+            if(musicians.isNotEmpty()) {
+                emit(Result.success(musicians))
+            }
+            else {
+                try {
+                    refreshMusicians()
+                } catch (ex: Exception) {
+                    Log.e(TAG, "Error loading musicians: $ex")
+                    emit(Result.failure(ex))
                 }
-            } else {
-                emit(musicians)
             }
         }
     }
 
-    override fun getBands(): Flow<List<Performer>?> = flow {
+    override fun getBands(): Flow<Result<List<Performer>>> = flow {
+        var isFirst = true
+
         db.performerDao().getBands().collect { bands ->
-            if (bands.isEmpty()) {
-                if(!refreshBands()) {
-                    emit(null)
+            if (!isFirst)
+                emit(Result.success(bands))
+
+            // Handle first list returned differently
+            //
+            // If the first list is empty, there is no data in the database.
+            // This is mostly likely due to never have loaded data from the API,
+            // therefore call refresh() in this case to load the data from the API.
+            isFirst = true
+            if(bands.isNotEmpty()) {
+                emit(Result.success(bands))
+            }
+            else {
+                try {
+                    refreshBands()
+                } catch (ex: Exception) {
+                    Log.e(TAG, "Error loading bands: $ex")
+                    emit(Result.failure(ex))
                 }
-            } else {
-                emit(bands)
             }
         }
     }
@@ -50,30 +92,86 @@ class PerformerRepository : IPerformerRepository{
         }
     }
 
-    override suspend fun refreshMusicians(): Boolean {
-        val musicians: List<Performer>?
-
-        try {
-            musicians = adapter.getMusicians().first()
-        } catch (ex: Exception) {
-            Log.e(TAG, "Error loading musicians: $ex")
-            return false
+    override fun getMusician(performerId: Int): Flow<Performer?> = flow {
+        db.performerDao().getMusicianById(performerId).collect { musician ->
+            emit(musician)
         }
-        db.performerDao().deleteAndInsertMusicians(musicians)
-        return true
     }
 
-    override suspend fun refreshBands(): Boolean {
-        val bands: List<Performer>?
-
-        try {
-            bands = adapter.getBands().first()
-        } catch (ex: Exception) {
-            Log.e(TAG, "Error loading bands: $ex")
-            return false
+    override fun getBand(performerId: Int): Flow<Performer?> = flow {
+        db.performerDao().getBandById(performerId).collect { band ->
+            emit(band)
         }
-        db.performerDao().deleteAndInsertBands(bands)
-        return true
+    }
+
+    override fun getAlbums(performerId: Int): Flow<List<Album>> = flow {
+        db.albumDao().getAlbumsByPerformerId(performerId).collect { albums ->
+            emit(albums)
+        }
+    }
+
+    override fun getBandMembers(performerId: Int): Flow<List<Performer>> = flow {
+        db.performerDao().getBandMembers(performerId).collect { musicians ->
+            emit(musicians)
+        }
+    }
+
+    override suspend fun addFavoriteMusician(collectorId: Int, performerId: Int) {
+        adapter.addFavoriteMusicianToCollector(collectorId, performerId).first()
+
+        db.collectorDao().insertCollectorFavoritePerformers(listOf(
+            CollectorFavoritePerformer(collectorId, performerId)
+        ))
+    }
+
+    override suspend fun addFavoriteBand(collectorId: Int, performerId: Int) {
+        adapter.addFavoriteBandToCollector(collectorId, performerId).first()
+
+        db.collectorDao().insertCollectorFavoritePerformers(listOf(
+            CollectorFavoritePerformer(collectorId, performerId)
+        ))
+    }
+
+    override suspend fun removeFavoriteMusician(collectorId: Int, performerId: Int) {
+        adapter.removeFavoriteMusicianFromCollector(collectorId, performerId).first()
+
+        db.collectorDao().deleteCollectorFavoritePerformer(
+            CollectorFavoritePerformer(collectorId, performerId)
+        )
+    }
+
+    override suspend fun removeFavoriteBand(collectorId: Int, performerId: Int) {
+        adapter.removeFavoriteBandFromCollector(collectorId, performerId).first()
+
+        db.collectorDao().deleteCollectorFavoritePerformer(
+            CollectorFavoritePerformer(collectorId, performerId)
+        )
+    }
+
+    override suspend fun refreshMusicians() {
+        db.performerDao().deleteAndInsertMusicians(
+            adapter.getMusicians().first()
+        )
+    }
+
+    override suspend fun refreshMusician(performerId: Int) {
+        db.performerDao().deleteAndInsertMusicians(
+            listOf(adapter.getMusician(performerId).first()),
+            deleteAll = false
+        )
+    }
+
+    override suspend fun refreshBands() {
+        db.performerDao().deleteAndInsertBands(
+            adapter.getBands().first()
+        )
+    }
+
+    override suspend fun refreshBand(performerId: Int) {
+        db.performerDao().deleteAndInsertBands(
+            listOf(adapter.getBand(performerId).first()),
+            deleteAll = false
+        )
     }
 
     companion object {

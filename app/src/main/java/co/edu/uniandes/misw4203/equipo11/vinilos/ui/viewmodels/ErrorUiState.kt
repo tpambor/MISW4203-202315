@@ -6,5 +6,5 @@ import androidx.compose.runtime.Immutable
 @Immutable
 sealed interface ErrorUiState {
     data class Error(@StringRes val resourceId: Int) : ErrorUiState
-    object NoError : ErrorUiState
+    data object NoError : ErrorUiState
 }

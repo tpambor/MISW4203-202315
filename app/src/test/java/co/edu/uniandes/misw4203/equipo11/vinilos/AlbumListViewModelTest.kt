@@ -24,20 +24,21 @@ import java.time.Instant
 
 class AlbumListViewModelTest {
     class FakeAlbumRepository: IAlbumRepository {
-        private val flow = MutableSharedFlow<List<Album>?>()
-        suspend fun emit(value: List<Album>?) = flow.emit(value)
+        private val flow = MutableSharedFlow<Result<List<Album>>>()
+        suspend fun emit(value: Result<List<Album>>) = flow.emit(value)
 
         var failRefresh = false
         var refreshCalled = false
 
-        override fun getAlbums(): Flow<List<Album>?> {
+        override fun getAlbums(): Flow<Result<List<Album>>> {
             return flow
         }
 
-        override suspend fun refresh(): Boolean {
+        override suspend fun refresh() {
             refreshCalled = true
 
-            return !failRefresh
+            if (failRefresh)
+                throw Exception()
         }
     }
 
@@ -61,6 +62,22 @@ class AlbumListViewModelTest {
     }
 
     @Test
+    fun canCreateWithDispatcher() {
+        val repository = FakeAlbumRepository()
+
+        val viewModel = AlbumListViewModel.Factory.create(
+            AlbumListViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
+                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
+            }
+        )
+
+        assertNotNull(viewModel)
+    }
+
+
+    @Test
     fun listsAlbums() = runTest {
         val repository = FakeAlbumRepository()
 
@@ -68,6 +85,7 @@ class AlbumListViewModelTest {
             AlbumListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
+                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -90,7 +108,7 @@ class AlbumListViewModelTest {
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
         // Repository emits albums
-        repository.emit(data)
+        repository.emit(Result.success(data))
 
         // Then, list of albums is filled with the data
         assertEquals(data, viewModel.albums.first())
@@ -105,6 +123,7 @@ class AlbumListViewModelTest {
             AlbumListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
+                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -112,8 +131,8 @@ class AlbumListViewModelTest {
         assertEquals(emptyList<Album>(), viewModel.albums.first())
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
-        // Repository emits null (unable to fetch data)
-        repository.emit(null)
+        // Repository emits failure
+        repository.emit(Result.failure(Exception()))
 
         // Then, list of albums is filled with the data
         assertEquals(emptyList<Album>(), viewModel.albums.first())
@@ -132,6 +151,7 @@ class AlbumListViewModelTest {
             AlbumListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
+                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -152,6 +172,7 @@ class AlbumListViewModelTest {
             AlbumListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
+                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 

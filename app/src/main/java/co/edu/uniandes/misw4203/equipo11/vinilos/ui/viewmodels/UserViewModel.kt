@@ -10,17 +10,22 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.User
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IUserRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 
-class UserViewModel(val userRepository: IUserRepository) : ViewModel() {
+class UserViewModel(
+    private val userRepository: IUserRepository,
+    private val dispatcher : CoroutineDispatcher
+) : ViewModel() {
     @Immutable
     sealed interface LoginUiState {
-        object NotLoggedIn : LoginUiState
-        object LoggedIn : LoginUiState
+        data object NotLoggedIn : LoginUiState
+        data object LoggedIn : LoginUiState
     }
 
     private val _status = MutableStateFlow<LoginUiState>(LoginUiState.NotLoggedIn)
@@ -34,7 +39,7 @@ class UserViewModel(val userRepository: IUserRepository) : ViewModel() {
         if (getUserStarted.getAndSet(true))
             return // Coroutine to get user was already started, only start once
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             userRepository.getUser().collect { user ->
                 _user.value = user
             }
@@ -50,11 +55,13 @@ class UserViewModel(val userRepository: IUserRepository) : ViewModel() {
 
     companion object {
         val KEY_USER_REPOSITORY = object : CreationExtras.Key<IUserRepository> {}
+        val KEY_DISPATCHER = object : CreationExtras.Key<CoroutineDispatcher> {}
 
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 UserViewModel(
                     userRepository = requireNotNull(this[KEY_USER_REPOSITORY]),
+                    dispatcher = this[KEY_DISPATCHER] ?: Dispatchers.IO
                 )
             }
         }
