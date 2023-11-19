@@ -92,9 +92,7 @@ fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStack
                         if (item.route == route) return@NavigationBarItem
 
                         navController.navigate(item.route) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
-                            }
+                            popUpTo(navController.graph.startDestinationId) {}
                             launchSingleTop = true
                         }
                 }
