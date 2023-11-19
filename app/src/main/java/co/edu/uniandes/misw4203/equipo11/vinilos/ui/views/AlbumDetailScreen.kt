@@ -199,7 +199,11 @@ private fun AlbumDetail(
         }
 
         items(performers) { performer ->
-            PerformerItem(performer, navController)
+            ArtistItem(
+                performer = performer,
+                favButton = {},
+                navController = navController
+            )
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
@@ -247,50 +251,6 @@ private fun AlbumsHeader(title: String, isCollector: Boolean) {
             }
         }
 
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
-@Composable
-private fun PerformerItem(
-    performer: Performer,
-    navController: NavHostController
-) {
-    var coverPreview: Placeholder? = null
-    if (LocalInspectionMode.current) {
-        coverPreview = placeholder(ColorPainter(Color(performer.image.toColorInt())))
-    }
-
-    Card(
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
-        shape = RectangleShape,
-        onClick = {
-            val prefix = if (performer.type == PerformerType.MUSICIAN) "musician" else "band"
-            navController.navigate("artists/$prefix/${performer.id}")
-        }
-    ) {
-        Column {
-            GlideImage(
-                model = performer.image,
-                contentDescription = null,
-                loading = coverPreview,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .fillMaxWidth()
-                    .aspectRatio(1f),
-                contentScale = ContentScale.Crop
-            )
-            Row (modifier = Modifier.padding(4.dp)){
-                Text(
-                    text = performer.name,
-                    modifier = Modifier
-                        .padding(4.dp, 8.dp, 0.dp, 0.dp)
-                        .fillMaxWidth()
-                        .weight(1f),
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
-        }
     }
 }
 

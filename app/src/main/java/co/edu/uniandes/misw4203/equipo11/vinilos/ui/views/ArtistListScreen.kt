@@ -233,11 +233,7 @@ private fun FavoriteButton(
 @Composable
 fun ArtistItem(
     performer: Performer,
-    isCollector: Boolean,
-    isFavorite: Boolean,
-    isUpdating: Boolean,
-    addFavoritePerformer: (Int) -> Unit,
-    removeFavoritePerformer: (Int) -> Unit,
+    favButton: @Composable() () -> Unit,
     navController: NavHostController
 ) {
     var coverPreview: Placeholder? = null
@@ -276,10 +272,7 @@ fun ArtistItem(
                     style = MaterialTheme.typography.titleMedium
                 )
 
-                // Favorite button
-                if (isCollector) {
-                    FavoriteButton(performer.id, isFavorite, isUpdating, addFavoritePerformer, removeFavoritePerformer)
-                }
+                favButton()
             }
         }
     }
@@ -316,7 +309,16 @@ private fun ArtistsList(
                 val isFavorite = favoritePerformers.contains(item.id)
                 val isUpdating = updatingFavoritePerformers.contains(item.id)
 
-                ArtistItem(item, user?.type == UserType.Collector, isFavorite, isUpdating, addFavoritePerformer, removeFavoritePerformer, navController)
+                ArtistItem(
+                    item,
+                    favButton = {
+                        // Favorite button
+                        if (user?.type == UserType.Collector) {
+                            FavoriteButton(item.id, isFavorite, isUpdating, addFavoritePerformer, removeFavoritePerformer)
+                        }
+                    },
+                    navController
+                )
             }
         }
     } else {

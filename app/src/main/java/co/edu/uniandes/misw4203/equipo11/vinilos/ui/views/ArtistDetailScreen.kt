@@ -260,11 +260,7 @@ private fun BandDetail(band: Performer, albums: List<Album>, members: List<Perfo
         items(members) {
                 item: Performer -> ArtistItem(
                     performer = item,
-                    isCollector = false,
-                    isFavorite = false,
-                    isUpdating = false,
-                    addFavoritePerformer = {},
-                    removeFavoritePerformer = {},
+                    favButton = {},
                     navController = navController
                 )
         }
