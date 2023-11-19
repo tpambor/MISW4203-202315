@@ -169,7 +169,7 @@ private fun AlbumDetail(
     navController: NavHostController
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(120.dp),
+        columns = GridCells.Adaptive(150.dp),
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp),

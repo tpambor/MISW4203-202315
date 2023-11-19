@@ -228,7 +228,7 @@ private fun MembersHeader(isCollector: Boolean) {
 @Composable
 private fun MusicianDetail(musician: Performer, albums: List<Album>, navController: NavHostController, isCollector: Boolean) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(120.dp),
+        columns = GridCells.Adaptive(150.dp),
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -248,7 +248,7 @@ private fun MusicianDetail(musician: Performer, albums: List<Album>, navControll
 @Composable
 private fun BandDetail(band: Performer, albums: List<Album>, members: List<Performer>, navController: NavHostController, isCollector: Boolean) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(120.dp),
+        columns = GridCells.Adaptive(150.dp),
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
