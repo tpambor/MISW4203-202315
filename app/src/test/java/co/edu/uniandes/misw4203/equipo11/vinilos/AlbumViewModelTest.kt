@@ -39,6 +39,10 @@ class AlbumViewModelTest {
 
         override suspend fun refresh() { }
 
+        override suspend fun refreshAlbum(albumId: Int) {
+            TODO("Not yet implemented")
+        }
+
         override fun getAlbum(albumId: Int): Flow<Album?> {
             getAlbumCalled = true
 
@@ -55,7 +59,7 @@ class AlbumViewModelTest {
             return flow { emit(fakeAlbum) }
         }
 
-        override fun getPerformanceAlbums(albumId: Int): Flow<List<Performer>> {
+        override fun getPerformers(albumId: Int): Flow<List<Performer>> {
             getPerformersCalled = true
 
             val fakePerformers = listOf(
@@ -79,7 +83,7 @@ class AlbumViewModelTest {
             return flow { emit(fakePerformers) }
         }
 
-        override fun getCommentsAlbums(albumId: Int): Flow<List<Comment>> {
+        override fun getComments(albumId: Int): Flow<List<Comment>> {
             getCommentsCalled = true
             val fakeComments = listOf(
                 Comment(
@@ -98,7 +102,7 @@ class AlbumViewModelTest {
             return flow { emit(fakeComments) }
         }
 
-        override fun getTracksAlbums(albumId: Int): Flow<List<Track>> {
+        override fun getTracks(albumId: Int): Flow<List<Track>> {
             getTracksCalled = true
             val fakeTracks = listOf(
                 Track(

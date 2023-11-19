@@ -2,13 +2,17 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.data.database
 
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorJson
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CommentJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.MusicianJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.PerformerJson
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.TrackJson
 
 fun AlbumJson.toAlbum(): Album {
     return Album(
@@ -62,5 +66,23 @@ fun CollectorJson.toCollector(): Collector {
         name = this.name,
         telephone = this.telephone,
         email = this.email,
+    )
+}
+
+fun TrackJson.toTrack(albumId: Int): Track {
+    return Track(
+        id = this.id,
+        name = this.name,
+        duration = this.duration,
+        albumId = albumId
+    )
+}
+
+fun CommentJson.toComment(albumId: Int): Comment {
+    return Comment(
+        id = this.id,
+        description = this.description,
+        rating = this.rating,
+        albumId = albumId
     )
 }

@@ -15,9 +15,9 @@ interface IAlbumRepository {
     fun getAlbums(): Flow<Result<List<Album>>>
     suspend fun refresh()
     fun getAlbum(albumId: Int): Flow<Album?>
-    fun getPerformanceAlbums(albumId: Int): Flow<List<Performer>>
-    fun getCommentsAlbums(albumId: Int): Flow<List<Comment>>
-    fun getTracksAlbums(albumId: Int): Flow<List<Track>>
+    fun getPerformers(albumId: Int): Flow<List<Performer>>
+    fun getComments(albumId: Int): Flow<List<Comment>>
+    fun getTracks(albumId: Int): Flow<List<Track>>
     suspend fun refreshAlbum(albumId: Int)
 }
 
@@ -58,19 +58,19 @@ class AlbumRepository : IAlbumRepository {
         }
     }
 
-    override fun getPerformanceAlbums(albumId: Int): Flow<List<Performer>> = flow {
+    override fun getPerformers(albumId: Int): Flow<List<Performer>> = flow {
         db.albumDao().getPerformersByAlbumId(albumId).collect { performers ->
             emit(performers)
         }
     }
 
-    override fun getCommentsAlbums(albumId: Int): Flow<List<Comment>> = flow {
+    override fun getComments(albumId: Int): Flow<List<Comment>> = flow {
         db.albumDao().getCommentsByAlbumId(albumId).collect { comments ->
             emit(comments)
         }
     }
 
-    override fun getTracksAlbums(albumId: Int): Flow<List<Track>> = flow {
+    override fun getTracks(albumId: Int): Flow<List<Track>> = flow {
         db.albumDao().getTracksByAlbumId(albumId).collect { tracks ->
             emit(tracks)
         }
@@ -82,9 +82,6 @@ class AlbumRepository : IAlbumRepository {
         )
     }
 
-    companion object {
-        private val TAG = AlbumRepository::class.simpleName!!
-    }
     override suspend fun refreshAlbum(albumId: Int) {
         db.albumDao().deleteAndInsertAlbums(
             listOf(adapter.getAlbum(albumId).first()),
@@ -92,4 +89,7 @@ class AlbumRepository : IAlbumRepository {
         )
     }
 
+    companion object {
+        private val TAG = AlbumRepository::class.simpleName!!
+    }
 }

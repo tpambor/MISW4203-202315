@@ -45,7 +45,6 @@ class AlbumViewModel(
     private val _isRefreshing = MutableStateFlow(true)
     val isRefreshing = _isRefreshing.asStateFlow()
 
-    @Suppress("PropertyName")
     private val _error = MutableStateFlow<ErrorUiState>(ErrorUiState.NoError)
     val error = _error.asStateFlow()
 
@@ -71,7 +70,7 @@ class AlbumViewModel(
             return  // Coroutine to get band was already started, only start once
 
         viewModelScope.launch(dispatcher) {
-            albumRepository.getPerformanceAlbums(albumId)
+            albumRepository.getPerformers(albumId)
                 .collect { performer ->
                     if (performer == null) {
                         _error.value = ErrorUiState.Error(R.string.network_error)
@@ -88,7 +87,7 @@ class AlbumViewModel(
             return  // Coroutine to get band was already started, only start once
 
         viewModelScope.launch(dispatcher) {
-            albumRepository.getTracksAlbums(albumId)
+            albumRepository.getTracks(albumId)
                 .collect { track ->
                     if (track == null) {
                         _error.value = ErrorUiState.Error(R.string.network_error)
@@ -106,7 +105,7 @@ class AlbumViewModel(
             return // Coroutine to get band was already started, only start once
 
         viewModelScope.launch(dispatcher) {
-            albumRepository.getCommentsAlbums(albumId)
+            albumRepository.getComments(albumId)
                 .collect { comment ->
                     if (comment == null) {
                         _error.value = ErrorUiState.Error(R.string.network_error)

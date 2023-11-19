@@ -37,6 +37,7 @@ class NetworkServiceAdapter {
             gson().fromJson(response, AlbumJson::class.java)
         }
     }
+
     fun getMusicians(): Flow<List<MusicianJson>> {
         return HttpRequestQueue.get("$API_BASE_URL/musicians").map { response ->
             gson().fromJson(response, Array<MusicianJson>::class.java).toList()

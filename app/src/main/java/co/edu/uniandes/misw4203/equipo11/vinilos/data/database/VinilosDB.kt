@@ -23,7 +23,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
         Comment::class,
         MusicianBand::class,
         Performer::class,
-        PerformerAlbum ::class,
+        PerformerAlbum::class,
         Track::class
     ],
     version = 8,

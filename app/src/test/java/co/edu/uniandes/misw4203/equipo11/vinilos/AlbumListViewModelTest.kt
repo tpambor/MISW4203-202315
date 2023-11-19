@@ -44,19 +44,23 @@ class AlbumListViewModelTest {
                 throw Exception()
         }
 
+        override suspend fun refreshAlbum(albumId: Int) {
+            TODO("Not yet implemented")
+        }
+
         override fun getAlbum(albumId: Int): Flow<Album?> {
             TODO("Not yet implemented")
         }
 
-        override fun getPerformanceAlbums(albumId: Int): Flow<List<Performer>> {
+        override fun getPerformers(albumId: Int): Flow<List<Performer>> {
             TODO("Not yet implemented")
         }
 
-        override fun getCommentsAlbums(albumId: Int): Flow<List<Comment>> {
+        override fun getComments(albumId: Int): Flow<List<Comment>> {
             TODO("Not yet implemented")
         }
 
-        override fun getTracksAlbums(albumId: Int): Flow<List<Track>> {
+        override fun getTracks(albumId: Int): Flow<List<Track>> {
             TODO("Not yet implemented")
         }
     }

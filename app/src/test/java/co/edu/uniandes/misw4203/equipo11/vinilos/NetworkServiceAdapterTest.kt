@@ -5,8 +5,10 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdap
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorJson
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CommentJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.MusicianJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.PerformerJson
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.TrackJson
 import io.github.serpro69.kfaker.Faker
 import io.mockk.every
 import io.mockk.mockkObject
@@ -101,7 +103,37 @@ class NetworkServiceAdapterTest {
                 releaseDate = Instant.parse("1984-08-01T00:00:00.000Z"),
                 description = "Buscando América es el primer álbum de la banda de Rubén Blades y Seis del Solar lanzado en 1984. La producción, bajo el sello Elektra, fusiona diferentes ritmos musicales tales como la salsa, reggae, rock, y el jazz latino. El disco fue grabado en Eurosound Studios en Nueva York entre mayo y agosto de 1983.",
                 genre = "Salsa",
-                recordLabel = "Elektra"
+                recordLabel = "Elektra",
+                tracks = listOf(
+                    TrackJson(
+                        id = 100,
+                        name = "Decisiones",
+                        duration = "5:05"
+                    ),
+                    TrackJson(
+                        id = 101,
+                        name = "Desapariciones",
+                        duration = "6:29"
+                    )
+                ),
+                performers = listOf(
+                    PerformerJson.Musician(MusicianJson(
+                        id = 100,
+                        name = "Rubén Blades Bellido de Luna",
+                        image = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Ruben_Blades_by_Gage_Skidmore.jpg/800px-Ruben_Blades_by_Gage_Skidmore.jpg",
+                        description = "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.",
+                        birthDate = Instant.parse("1948-07-16T00:00:00.000Z"),
+                        albums = null,
+                        collectors = null
+                    ))
+                ),
+                comments = listOf(
+                    CommentJson(
+                        id = 100,
+                        description = "The most relevant album of Ruben Blades",
+                        rating = 5
+                    )
+                )
             ),
             AlbumJson(
                 id = 101,
@@ -110,7 +142,20 @@ class NetworkServiceAdapterTest {
                 releaseDate = Instant.parse("1984-08-01T00:00:00.000Z"),
                 description = "Recopilación de 27 composiciones del cosmos Blades que los bailadores y melómanos han hecho suyas en estos 40 años de presencia de los ritmos y concordias afrocaribeños en múltiples escenarios internacionales. Grabaciones de Blades para la Fania con las orquestas de Pete Rodríguez, Ray Barreto, Fania All Stars y, sobre todo, los grandes éxitos con la Banda de Willie Colón",
                 genre = "Salsa",
-                recordLabel = "Elektra"
+                recordLabel = "Elektra",
+                tracks = emptyList(),
+                performers = listOf(
+                    PerformerJson.Musician(MusicianJson(
+                        id = 100,
+                        name = "Rubén Blades Bellido de Luna",
+                        image = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Ruben_Blades_by_Gage_Skidmore.jpg/800px-Ruben_Blades_by_Gage_Skidmore.jpg",
+                        description = "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.",
+                        birthDate = Instant.parse("1948-07-16T00:00:00.000Z"),
+                        albums = null,
+                        collectors = null
+                    ))
+                ),
+                comments = emptyList()
             ),
             AlbumJson(
                 id = 102,
@@ -119,13 +164,88 @@ class NetworkServiceAdapterTest {
                 releaseDate = Instant.parse("1975-11-21T00:00:00.000Z"),
                 description = "Es el cuarto álbum de estudio de la banda británica de rock Queen, publicado originalmente en 1975. Coproducido por Roy Thomas Baker y Queen, A Night at the Opera fue, en el tiempo de su lanzamiento, la producción más cara realizada.1\u200B Un éxito comercial, el álbum fue votado por el público y citado por publicaciones musicales como uno de los mejores trabajos de Queen y de la historia del rock.",
                 genre = "Rock",
-                recordLabel = "EMI"
+                recordLabel = "EMI",
+                tracks = emptyList(),
+                performers = listOf(
+                    PerformerJson.Band(BandJson(
+                        id = 101,
+                        name = "Queen",
+                        image = "https://pm1.narvii.com/6724/a8b29909071e9d08517b40c748b6689649372852v2_hq.jpg",
+                        creationDate = Instant.parse("1970-01-01T00:00:00.000Z"),
+                        description = "Queen es una banda británica de rock formada en 1970 en Londres por el cantante Freddie Mercury, el guitarrista Brian May, el baterista Roger Taylor y el bajista John Deacon. Si bien el grupo ha presentado bajas de dos de sus miembros (Mercury, fallecido en 1991, y Deacon, retirado en 1997), los integrantes restantes, May y Taylor, continúan trabajando bajo el nombre Queen, por lo que la banda aún se considera activa.",
+                        albums = null,
+                        musicians = null,
+                        collectors = null
+                    ))
+                ),
+                comments = listOf(
+                    CommentJson(
+                        id = 101,
+                        description = "I love this album of Queen",
+                        rating = 5
+                    )
+                )
             ),
         )
 
         val adapter = NetworkServiceAdapter()
         val albums = adapter.getAlbums().first()
         assertEquals(albumsExpected, albums)
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldReturnAlbum() = runTest {
+        val albumId = 100
+        val albumJSON = javaClass.getResource("/album.json").readText()
+        val mockRequest = MockRequest { url ->
+            assertEquals( NetworkServiceAdapter.API_BASE_URL + "/albums/$albumId", url)
+            albumJSON
+        }
+
+        val albumExpected = AlbumJson(
+            id = 100,
+            name = "Buscando América",
+            cover = "https://i.pinimg.com/564x/aa/5f/ed/aa5fed7fac61cc8f41d1e79db917a7cd.jpg",
+            releaseDate = Instant.parse("1984-08-01T00:00:00.000Z"),
+            description = "Buscando América es el primer álbum de la banda de Rubén Blades y Seis del Solar lanzado en 1984. La producción, bajo el sello Elektra, fusiona diferentes ritmos musicales tales como la salsa, reggae, rock, y el jazz latino. El disco fue grabado en Eurosound Studios en Nueva York entre mayo y agosto de 1983.",
+            genre = "Salsa",
+            recordLabel = "Elektra",
+            tracks = listOf(
+                TrackJson(
+                    id = 100,
+                    name = "Decisiones",
+                    duration = "5:05"
+                ),
+                TrackJson(
+                    id = 101,
+                    name = "Desapariciones",
+                    duration = "6:29"
+                )
+            ),
+            performers = listOf(
+                PerformerJson.Musician(MusicianJson(
+                    id = 100,
+                    name = "Rubén Blades Bellido de Luna",
+                    image = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Ruben_Blades_by_Gage_Skidmore.jpg/800px-Ruben_Blades_by_Gage_Skidmore.jpg",
+                    description = "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.",
+                    birthDate = Instant.parse("1948-07-16T00:00:00.000Z"),
+                    albums = null,
+                    collectors = null
+                ))
+            ),
+            comments = listOf(
+                CommentJson(
+                    id = 100,
+                    description = "The most relevant album of Ruben Blades",
+                    rating = 5
+                )
+            )
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val album = adapter.getAlbum(albumId).first()
+        assertEquals(albumExpected, album)
         assertTrue(mockRequest.called)
     }
 
@@ -152,7 +272,10 @@ class NetworkServiceAdapterTest {
                         releaseDate = Instant.parse("1984-08-01T00:00:00.000Z"),
                         description = "Buscando América es el primer álbum de la banda de Rubén Blades y Seis del Solar lanzado en 1984. La producción, bajo el sello Elektra, fusiona diferentes ritmos musicales tales como la salsa, reggae, rock, y el jazz latino. El disco fue grabado en Eurosound Studios en Nueva York entre mayo y agosto de 1983.",
                         genre = "Salsa",
-                        recordLabel = "Elektra"
+                        recordLabel = "Elektra",
+                        tracks = null,
+                        performers = null,
+                        comments = null
                     ),
                     AlbumJson(
                         id = 101,
@@ -161,7 +284,10 @@ class NetworkServiceAdapterTest {
                         releaseDate = Instant.parse("1984-08-01T00:00:00.000Z"),
                         description = "Recopilación de 27 composiciones del cosmos Blades que los bailadores y melómanos han hecho suyas en estos 40 años de presencia de los ritmos y concordias afrocaribeños en múltiples escenarios internacionales. Grabaciones de Blades para la Fania con las orquestas de Pete Rodríguez, Ray Barreto, Fania All Stars y, sobre todo, los grandes éxitos con la Banda de Willie Colón",
                         genre = "Salsa",
-                        recordLabel = "Elektra"
+                        recordLabel = "Elektra",
+                        tracks = null,
+                        performers = null,
+                        comments = null
                     )
                 ),
                 collectors = listOf(
@@ -212,7 +338,10 @@ class NetworkServiceAdapterTest {
                     releaseDate = Instant.parse("1984-08-01T00:00:00.000Z"),
                     description = "Buscando América es el primer álbum de la banda de Rubén Blades y Seis del Solar lanzado en 1984. La producción, bajo el sello Elektra, fusiona diferentes ritmos musicales tales como la salsa, reggae, rock, y el jazz latino. El disco fue grabado en Eurosound Studios en Nueva York entre mayo y agosto de 1983.",
                     genre = "Salsa",
-                    recordLabel = "Elektra"
+                    recordLabel = "Elektra",
+                    tracks = null,
+                    performers = null,
+                    comments = null
                 ),
                 AlbumJson(
                     id = 101,
@@ -221,7 +350,10 @@ class NetworkServiceAdapterTest {
                     releaseDate = Instant.parse("1984-08-01T00:00:00.000Z"),
                     description = "Recopilación de 27 composiciones del cosmos Blades que los bailadores y melómanos han hecho suyas en estos 40 años de presencia de los ritmos y concordias afrocaribeños en múltiples escenarios internacionales. Grabaciones de Blades para la Fania con las orquestas de Pete Rodríguez, Ray Barreto, Fania All Stars y, sobre todo, los grandes éxitos con la Banda de Willie Colón",
                     genre = "Salsa",
-                    recordLabel = "Elektra"
+                    recordLabel = "Elektra",
+                    tracks = null,
+                    performers = null,
+                    comments = null
                 )
             ),
             collectors = listOf(
@@ -271,7 +403,10 @@ class NetworkServiceAdapterTest {
                         releaseDate = Instant.parse("1975-11-21T00:00:00.000Z"),
                         description = "Es el cuarto álbum de estudio de la banda británica de rock Queen, publicado originalmente en 1975. Coproducido por Roy Thomas Baker y Queen, A Night at the Opera fue, en el tiempo de su lanzamiento, la producción más cara realizada.1​ Un éxito comercial, el álbum fue votado por el público y citado por publicaciones musicales como uno de los mejores trabajos de Queen y de la historia del rock.",
                         genre = "Rock",
-                        recordLabel = "EMI"
+                        recordLabel = "EMI",
+                        tracks = null,
+                        performers = null,
+                        comments = null
                     ),
                     AlbumJson(
                         id = 103,
@@ -280,7 +415,10 @@ class NetworkServiceAdapterTest {
                         releaseDate = Instant.parse("1976-12-10T00:00:00.000Z"),
                         description = "El álbum fue grabado en los Estudios Sarm West, The Manor and Wessex en Inglaterra y con el ingeniero Mike Stone. El título del álbum es una referencia directa al anterior, A Night at the Opera. Ambos álbumes están titulados como películas de los hermanos Marx.",
                         genre = "Rock",
-                        recordLabel = "EMI"
+                        recordLabel = "EMI",
+                        tracks = null,
+                        performers = null,
+                        comments = null
                     )
                 ),
                 musicians = listOf(
@@ -352,7 +490,10 @@ class NetworkServiceAdapterTest {
                     releaseDate = Instant.parse("1975-11-21T00:00:00.000Z"),
                     description = "Es el cuarto álbum de estudio de la banda británica de rock Queen, publicado originalmente en 1975. Coproducido por Roy Thomas Baker y Queen, A Night at the Opera fue, en el tiempo de su lanzamiento, la producción más cara realizada.1​ Un éxito comercial, el álbum fue votado por el público y citado por publicaciones musicales como uno de los mejores trabajos de Queen y de la historia del rock.",
                     genre = "Rock",
-                    recordLabel = "EMI"
+                    recordLabel = "EMI",
+                    tracks = null,
+                    performers = null,
+                    comments = null
                 ),
                 AlbumJson(
                     id = 103,
@@ -361,7 +502,10 @@ class NetworkServiceAdapterTest {
                     releaseDate = Instant.parse("1976-12-10T00:00:00.000Z"),
                     description = "El álbum fue grabado en los Estudios Sarm West, The Manor and Wessex en Inglaterra y con el ingeniero Mike Stone. El título del álbum es una referencia directa al anterior, A Night at the Opera. Ambos álbumes están titulados como películas de los hermanos Marx.",
                     genre = "Rock",
-                    recordLabel = "EMI"
+                    recordLabel = "EMI",
+                    tracks = null,
+                    performers = null,
+                    comments = null
                 )
             ),
             musicians = listOf(
