@@ -8,10 +8,10 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.ArtistList
 import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.Login
 import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.NavBar
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.MainActivity
+import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
 import org.junit.Rule
 import org.junit.Test
-import java.lang.Integer.min
 
 class ArtistListTest {
     @get:Rule
@@ -107,35 +107,33 @@ class ArtistListTest {
         clickAndShowListMusicians(navbar, artistList)
 
         val list = artistList.getArtists()
-        val count = min(list.fetchSemanticsNodes().size, 4)
+        val artist = ArtistItem(list[0])
 
-        for (i in 0..<count) {
-            val artist = ArtistItem(list[i])
+        // And there is a artist that is (not) yet my favorite
+        val isFavorite = artist.isFavorite()
+        assertEquals(!isFavorite, artist.isNotFavorite())
 
-            // And there is a artist that is not yet my favorite
-            if (artist.isFavorite())
-                continue
+        // And I click on the fav button to make it (not) one of my favorite artists
+        artist.clickFavorite()
 
-            // And I click on the fav button to make it one of my favorite artists
-            artist.clickFavorite()
-
-            // Then the fav button is checked and the artist is one of my favorite artists
-            composeTestRule.waitUntil(5000) {
-                artist.isFavorite()
-            }
-
-            // And I click again on the fav button to make it no longer one of my favorite artists
-            artist.clickFavorite()
-
-            // Then the fav button is unchecked and the artist is no longer one of my favorite artists
-            composeTestRule.waitUntil(5000) {
+        // Then the fav button is checked and the artist is one of my favorite artists
+        composeTestRule.waitUntil(5000) {
+            if (isFavorite)
                 artist.isNotFavorite()
-            }
-
-            return
+            else
+                artist.isFavorite()
         }
 
-        assert(false)
+        // And I click again on the fav button to make it (not) one of my favorite artists
+        artist.clickFavorite()
+
+        // Then the fav button is unchecked and the artist is no longer one of my favorite artists
+        composeTestRule.waitUntil(5000) {
+            if (isFavorite)
+                artist.isFavorite()
+            else
+                artist.isNotFavorite()
+        }
     }
 
     @Test
@@ -150,34 +148,32 @@ class ArtistListTest {
         clickAndShowListBands(navbar, artistList)
 
         val list = artistList.getArtists()
-        val count = min(list.fetchSemanticsNodes().size, 4)
+        val artist = ArtistItem(list[0])
 
-        for (i in 0..<count) {
-            val artist = ArtistItem(list[i])
+        // And there is a artist that is (not) yet my favorite
+        val isFavorite = artist.isFavorite()
+        assertEquals(!isFavorite, artist.isNotFavorite())
 
-            // And there is a artist that is not yet my favorite
-            if (artist.isFavorite())
-                continue
+        // And I click on the fav button to make it (not) one of my favorite artists
+        artist.clickFavorite()
 
-            // And I click on the fav button to make it one of my favorite artists
-            artist.clickFavorite()
-
-            // Then the fav button is checked and the artist is one of my favorite artists
-            composeTestRule.waitUntil(5000) {
-                artist.isFavorite()
-            }
-
-            // And I click again on the fav button to make it no longer one of my favorite artists
-            artist.clickFavorite()
-
-            // Then the fav button is unchecked and the artist is no longer one of my favorite artists
-            composeTestRule.waitUntil(5000) {
+        // Then the fav button is checked and the artist is one of my favorite artists
+        composeTestRule.waitUntil(5000) {
+            if (isFavorite)
                 artist.isNotFavorite()
-            }
-
-            return
+            else
+                artist.isFavorite()
         }
 
-        assert(false)
+        // And I click again on the fav button to make it (not) one of my favorite artists
+        artist.clickFavorite()
+
+        // Then the fav button is unchecked and the artist is no longer one of my favorite artists
+        composeTestRule.waitUntil(5000) {
+            if (isFavorite)
+                artist.isFavorite()
+            else
+                artist.isNotFavorite()
+        }
     }
 }
