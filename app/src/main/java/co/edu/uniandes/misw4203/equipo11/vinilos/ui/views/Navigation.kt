@@ -92,11 +92,9 @@ fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStack
                         if (item.route == route) return@NavigationBarItem
 
                         navController.navigate(item.route) {
-                            // Pop up everything as screens linked in navbar are on highest level
-                            popUpTo(0) {
-                                inclusive = true
-                            }
-                    }
+                            popUpTo(navController.graph.startDestinationId) {}
+                            launchSingleTop = true
+                        }
                 }
             )
         }
