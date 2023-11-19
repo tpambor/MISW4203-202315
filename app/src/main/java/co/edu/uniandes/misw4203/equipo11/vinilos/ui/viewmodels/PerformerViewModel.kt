@@ -7,6 +7,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IPerformerRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +17,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class PerformerViewModel(
     protected val performerRepository: IPerformerRepository,
-    protected val performerId: Int
+    protected val performerId: Int,
+    protected val dispatcher : CoroutineDispatcher
 ) : ViewModel() {
     abstract val performerType: PerformerType
 
@@ -38,7 +40,7 @@ abstract class PerformerViewModel(
         if (getAlbumsStarted.getAndSet(true))
             return // Coroutine to get albums was already started, only start once
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             performerRepository.getAlbums(performerId)
                 .collect { albums ->
                     _albums.value = albums
@@ -56,5 +58,6 @@ abstract class PerformerViewModel(
     companion object {
         val KEY_PERFORMER_REPOSITORY = object : CreationExtras.Key<IPerformerRepository> {}
         val KEY_PERFORMER_ID = object : CreationExtras.Key<Int> {}
+        val KEY_DISPATCHER = object : CreationExtras.Key<CoroutineDispatcher> {}
     }
 }

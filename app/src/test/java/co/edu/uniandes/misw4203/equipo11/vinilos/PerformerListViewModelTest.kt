@@ -161,6 +161,23 @@ class PerformerListViewModelTest {
         assertNotNull(viewModel)
     }
 
+    @Test
+    fun canCreateWithDispatcher() {
+        val repository = FakePerformerRepository()
+        val userRepository = FakeUserRepository()
+
+        val viewModel = PerformerListViewModel.Factory.create(
+            PerformerListViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
+            }
+        )
+
+        assertNotNull(viewModel)
+    }
+
     // Tiene en cuenta lo que está pasando dentro del init
     @Test
     fun listsMusicians() = runTest {
@@ -172,6 +189,7 @@ class PerformerListViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -208,6 +226,7 @@ class PerformerListViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -243,6 +262,7 @@ class PerformerListViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -279,6 +299,7 @@ class PerformerListViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -307,6 +328,7 @@ class PerformerListViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -335,6 +357,7 @@ class PerformerListViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, performerRepository)
                 set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -357,6 +380,7 @@ class PerformerListViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, performerRepository)
                 set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -385,6 +409,7 @@ class PerformerListViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, performerRepository)
                 set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -407,6 +432,7 @@ class PerformerListViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -435,6 +461,7 @@ class PerformerListViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -462,6 +489,7 @@ class PerformerListViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -497,6 +525,7 @@ class PerformerListViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -524,6 +553,7 @@ class PerformerListViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -559,6 +589,7 @@ class PerformerListViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -586,6 +617,7 @@ class PerformerListViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -621,6 +653,7 @@ class PerformerListViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -648,6 +681,7 @@ class PerformerListViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
+                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 

@@ -8,6 +8,8 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IPerformerRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,8 +19,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class BandViewModel(
     performerRepository: IPerformerRepository,
-    performerId: Int
-) : PerformerViewModel(performerRepository, performerId) {
+    performerId: Int,
+    dispatcher : CoroutineDispatcher
+) : PerformerViewModel(performerRepository, performerId, dispatcher) {
     override val performerType: PerformerType = PerformerType.BAND
 
     private val _band: MutableStateFlow<Performer?> = MutableStateFlow(null)
@@ -33,7 +36,7 @@ class BandViewModel(
         if (getBandStarted.getAndSet(true))
             return // Coroutine to get band was already started, only start once
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             performerRepository.getBand(performerId)
                 .collect { band ->
                     if (band == null) {
@@ -50,7 +53,7 @@ class BandViewModel(
         if (getMembersStarted.getAndSet(true))
             return // Coroutine to get band members was already started, only start once
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             performerRepository.getBandMembers(performerId)
                 .collect { musicians ->
                     _members.value = musicians
@@ -62,7 +65,7 @@ class BandViewModel(
     override fun onRefresh() {
         _isRefreshing.value = true
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             try {
                 performerRepository.refreshBand(performerId)
             } catch (ex: Exception) {
@@ -78,7 +81,8 @@ class BandViewModel(
             initializer {
                 BandViewModel(
                     performerRepository = requireNotNull(this[KEY_PERFORMER_REPOSITORY]),
-                    performerId = requireNotNull(this[KEY_PERFORMER_ID])
+                    performerId = requireNotNull(this[KEY_PERFORMER_ID]),
+                    dispatcher = this[KEY_DISPATCHER] ?: Dispatchers.IO
                 )
             }
         }

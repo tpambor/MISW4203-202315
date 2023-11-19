@@ -78,7 +78,7 @@ ksp {
 dependencies {
     val coreVersion = "1.12.0"
     val lifecycleVersion = "2.6.2"
-    val activityVersion = "1.8.0"
+    val activityVersion = "1.8.1"
     val navVersion = "2.7.5"
     val testJunitVersion = "1.1.5"
     val composeBomVersion = "2023.10.01"

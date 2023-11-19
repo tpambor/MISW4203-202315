@@ -131,6 +131,24 @@ class MusicianViewModelTest {
     }
 
     @Test
+    fun canCreateWithDispatcher() {
+        val faker = Faker()
+        val performerId = faker.random.nextInt(1, 100)
+        val repository = FakePerformerRepository(performerId)
+
+        val viewModel = MusicianViewModel.Factory.create(
+            MusicianViewModel::class.java,
+            MutableCreationExtras(CreationExtras.Empty).apply {
+                set(PerformerViewModel.KEY_PERFORMER_REPOSITORY, repository)
+                set(PerformerViewModel.KEY_PERFORMER_ID, performerId)
+                set(PerformerViewModel.KEY_DISPATCHER, Dispatchers.Main)
+            }
+        )
+
+        TestCase.assertNotNull(viewModel)
+    }
+
+    @Test
     fun listsAlbums() = runTest {
         val faker = Faker()
         val performerId = faker.random.nextInt(1, 100)
@@ -141,6 +159,7 @@ class MusicianViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerViewModel.KEY_PERFORMER_ID, performerId)
+                set(PerformerViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -179,6 +198,7 @@ class MusicianViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerViewModel.KEY_PERFORMER_ID, performerId)
+                set(PerformerViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -214,6 +234,7 @@ class MusicianViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerViewModel.KEY_PERFORMER_ID, performerId)
+                set(PerformerViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -246,6 +267,7 @@ class MusicianViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerViewModel.KEY_PERFORMER_ID, performerId)
+                set(PerformerViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
@@ -269,6 +291,7 @@ class MusicianViewModelTest {
             MutableCreationExtras(CreationExtras.Empty).apply {
                 set(PerformerViewModel.KEY_PERFORMER_REPOSITORY, repository)
                 set(PerformerViewModel.KEY_PERFORMER_ID, performerId)
+                set(PerformerViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
 
