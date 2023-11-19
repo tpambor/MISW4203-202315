@@ -70,6 +70,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.PerformerListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
+import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
@@ -259,8 +260,10 @@ fun ArtistItem(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .fillMaxWidth()
-                    .aspectRatio(1f),
-                contentScale = ContentScale.Crop
+                    .aspectRatio(1f)
+                    .background(MaterialTheme.colorScheme.outlineVariant),
+                contentScale = ContentScale.Crop,
+                transition = CrossFade
             )
             Row (modifier = Modifier.padding(4.dp)){
                 Text(

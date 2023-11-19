@@ -1,5 +1,6 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,6 +49,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel.Companion.KEY_ALBUM_REPOSITORY
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
+import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
@@ -119,8 +121,10 @@ fun AlbumItem(album: Album, navController: NavHostController) {
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .fillMaxWidth()
-                    .aspectRatio(1f),
-                contentScale = ContentScale.Crop
+                    .aspectRatio(1f)
+                    .background(MaterialTheme.colorScheme.outlineVariant),
+                contentScale = ContentScale.Crop,
+                transition = CrossFade
             )
             Text(
                 text = album.name,
