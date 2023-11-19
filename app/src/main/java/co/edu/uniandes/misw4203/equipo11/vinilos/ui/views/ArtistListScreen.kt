@@ -234,7 +234,7 @@ private fun FavoriteButton(
 @Composable
 fun ArtistItem(
     performer: Performer,
-    favButton: @Composable() () -> Unit,
+    favButton: @Composable () -> Unit,
     navController: NavHostController
 ) {
     var coverPreview: Placeholder? = null
