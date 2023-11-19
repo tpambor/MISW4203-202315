@@ -11,24 +11,24 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.ui.MainActivity
 
 class ArtistDetail (composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity>) : PageObject(composeTestRule) {
 
-    fun getArtistDescription(): SemanticsNodeInteraction {
+    private fun getArtistDescription(): SemanticsNodeInteraction {
         return findExactlyOne(
             hasTestTag("artist-description")
         )
     }
 
-    fun getBirthDateText() : SemanticsNodeInteraction {
+    private fun getBirthDateText() : SemanticsNodeInteraction {
         return findExactlyOne(
             hasTestTag("birthdate-text")
         ).assertIsDisplayed()
     }
-    fun getAlbumsHeader(): SemanticsNodeInteraction {
+    private fun getAlbumsHeader(): SemanticsNodeInteraction {
         return findExactlyOne(
             hasTestTag("albums-header")
         )
     }
 
-    fun getMembersHeader(): SemanticsNodeInteraction {
+    private fun getMembersHeader(): SemanticsNodeInteraction {
         return findExactlyOne(
             hasTestTag("members-header")
         )
