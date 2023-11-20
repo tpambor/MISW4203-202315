@@ -70,6 +70,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.PerformerListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
+import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
@@ -233,11 +234,7 @@ private fun FavoriteButton(
 @Composable
 fun ArtistItem(
     performer: Performer,
-    isCollector: Boolean,
-    isFavorite: Boolean,
-    isUpdating: Boolean,
-    addFavoritePerformer: (Int) -> Unit,
-    removeFavoritePerformer: (Int) -> Unit,
+    favButton: @Composable () -> Unit,
     navController: NavHostController
 ) {
     var coverPreview: Placeholder? = null
@@ -263,8 +260,10 @@ fun ArtistItem(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .fillMaxWidth()
-                    .aspectRatio(1f),
-                contentScale = ContentScale.Crop
+                    .aspectRatio(1f)
+                    .background(MaterialTheme.colorScheme.outlineVariant),
+                contentScale = ContentScale.Crop,
+                transition = CrossFade
             )
             Row (modifier = Modifier.padding(4.dp)){
                 Text(
@@ -276,10 +275,7 @@ fun ArtistItem(
                     style = MaterialTheme.typography.titleMedium
                 )
 
-                // Favorite button
-                if (isCollector) {
-                    FavoriteButton(performer.id, isFavorite, isUpdating, addFavoritePerformer, removeFavoritePerformer)
-                }
+                favButton()
             }
         }
     }
@@ -316,7 +312,16 @@ private fun ArtistsList(
                 val isFavorite = favoritePerformers.contains(item.id)
                 val isUpdating = updatingFavoritePerformers.contains(item.id)
 
-                ArtistItem(item, user?.type == UserType.Collector, isFavorite, isUpdating, addFavoritePerformer, removeFavoritePerformer, navController)
+                ArtistItem(
+                    item,
+                    favButton = {
+                        // Favorite button
+                        if (user?.type == UserType.Collector) {
+                            FavoriteButton(item.id, isFavorite, isUpdating, addFavoritePerformer, removeFavoritePerformer)
+                        }
+                    },
+                    navController
+                )
             }
         }
     } else {
