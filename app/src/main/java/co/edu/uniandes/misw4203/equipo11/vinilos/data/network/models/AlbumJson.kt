@@ -10,4 +10,7 @@ data class AlbumJson(
     val description: String,
     val genre: String,
     val recordLabel: String,
+    val tracks: List<TrackJson>?,
+    val performers: List<PerformerJson>?,
+    val comments: List<CommentJson>?
 )

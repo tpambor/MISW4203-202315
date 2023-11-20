@@ -5,5 +5,5 @@ data class CollectorJson (
     val name: String,
     val telephone: String,
     val email: String,
-    val favoritePerformers: List<PerformerJson>
+    val favoritePerformers: List<PerformerJson>?
 )

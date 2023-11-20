@@ -1,5 +1,7 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -47,14 +49,17 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel.Companion.KEY_ALBUM_REPOSITORY
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
+import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
 import java.time.Instant
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun AlbumListScreen(snackbarHostState: SnackbarHostState) {
+fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
     val viewModel: AlbumListViewModel = viewModel(
         factory = AlbumListViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
@@ -77,7 +82,7 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState) {
     )
 
     Box(Modifier.pullRefresh(pullRefreshState)) {
-        AlbumList(albums)
+        AlbumList(albums, navController)
 
         PullRefreshIndicator(
             refreshing = isRefreshing,
@@ -96,19 +101,17 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun AlbumItem(album: Album) {
+fun AlbumItem(album: Album, navController: NavHostController) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
         coverPreview = placeholder(ColorPainter(Color(album.cover.toColorInt())))
     }
 
     Card(
-        modifier = Modifier
-            .padding(8.dp)
-            .testTag("album-list-item"),
+        modifier = Modifier.testTag("album-list-item"),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
-        onClick = { }
+        onClick = { navController.navigate("albums/${album.id}") }
     ) {
         Column {
             GlideImage(
@@ -118,8 +121,10 @@ private fun AlbumItem(album: Album) {
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .fillMaxWidth()
-                    .aspectRatio(1f),
-                contentScale = ContentScale.Crop
+                    .aspectRatio(1f)
+                    .background(MaterialTheme.colorScheme.outlineVariant),
+                contentScale = ContentScale.Crop,
+                transition = CrossFade
             )
             Text(
                 text = album.name,
@@ -140,14 +145,18 @@ private fun AlbumItem(album: Album) {
 }
 
 @Composable
-private fun AlbumList(albums: List<Album>) {
+fun AlbumList(albums: List<Album>, navController: NavHostController) {
     if(albums.isNotEmpty()){
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(180.dp),
-            modifier = Modifier.fillMaxSize()
+            columns = GridCells.Adaptive(150.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp, 8.dp, 8.dp, 0.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(albums) {
-                    item: Album -> AlbumItem(item)
+                    item: Album -> AlbumItem(item, navController)
             }
         }
     }else{
@@ -158,7 +167,7 @@ private fun AlbumList(albums: List<Album>) {
             Text(text = stringResource(R.string.empty_albums_list))
         }
     }
-    
+
 }
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -166,10 +175,10 @@ private fun AlbumList(albums: List<Album>) {
 private fun AlbumListScreenPreview() {
     @Suppress("SpellCheckingInspection")
     val albums: List<Album> = listOf(
-        Album(1, "Buscando américa","red", Instant.now(), "", "Salsa", ""),
+        Album(1, "Buscando américa","red", Instant.now(), "", "Salsa", "" ),
         Album(2,"Lo mas lejos a tu lado", "green", Instant.now(), "", "Rock", ""),
-        Album(3, "Pa'lla Voy", "yellow", Instant.now(), "", "Salsa", "" ),
-        Album(4, "Recordando el Ayer","blue", Instant.now(), "", "Salsa", "blue"),
+        Album(3, "Pa'lla Voy", "yellow", Instant.now(), "", "Salsa", ""  ),
+        Album(4, "Recordando el Ayer","blue", Instant.now(), "", "Salsa", "blue" ),
         Album(5, "Único", "magenta", Instant.now(), "", "Salsa", ""),
         Album(6, "Vagabundo", "olive", Instant.now(), "", "Salsa", ""),
     )
@@ -180,7 +189,10 @@ private fun AlbumListScreenPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            AlbumList(albums)
+            Column(Modifier.padding(16.dp)) {
+                AlbumList(albums, rememberNavController())
+            }
+
         }
     }
 }

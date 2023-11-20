@@ -32,9 +32,21 @@ class NetworkServiceAdapter {
         }
     }
 
+    fun getAlbum(albumId: Int): Flow<AlbumJson> {
+        return HttpRequestQueue.get("$API_BASE_URL/albums/$albumId").map { response ->
+            gson().fromJson(response, AlbumJson::class.java)
+        }
+    }
+
     fun getMusicians(): Flow<List<MusicianJson>> {
         return HttpRequestQueue.get("$API_BASE_URL/musicians").map { response ->
             gson().fromJson(response, Array<MusicianJson>::class.java).toList()
+        }
+    }
+
+    fun getMusician(musicianId: Int): Flow<MusicianJson> {
+        return HttpRequestQueue.get("$API_BASE_URL/musicians/$musicianId").map { response ->
+            gson().fromJson(response, MusicianJson::class.java)
         }
     }
 
@@ -44,9 +56,35 @@ class NetworkServiceAdapter {
         }
     }
 
+    fun getBand(musicianId: Int): Flow<BandJson> {
+        return HttpRequestQueue.get("$API_BASE_URL/bands/$musicianId").map { response ->
+            gson().fromJson(response, BandJson::class.java)
+        }
+    }
+
     fun getCollectors(): Flow<List<CollectorJson>> {
         return HttpRequestQueue.get("$API_BASE_URL/collectors").map { response ->
             gson().fromJson(response, Array<CollectorJson>::class.java).toList()
         }
+    }
+
+    fun addFavoriteMusicianToCollector(collectorId: Int, musicianId: Int): Flow<MusicianJson> {
+        return HttpRequestQueue.post("$API_BASE_URL/collectors/$collectorId/musicians/$musicianId", "").map { response ->
+            gson().fromJson(response, MusicianJson::class.java)
+        }
+    }
+
+    fun addFavoriteBandToCollector(collectorId: Int, musicianId: Int): Flow<BandJson> {
+        return HttpRequestQueue.post("$API_BASE_URL/collectors/$collectorId/bands/$musicianId", "").map { response ->
+            gson().fromJson(response, BandJson::class.java)
+        }
+    }
+
+    fun removeFavoriteMusicianFromCollector(collectorId: Int, musicianId: Int): Flow<Unit> {
+        return HttpRequestQueue.delete("$API_BASE_URL/collectors/$collectorId/musicians/$musicianId").map {}
+    }
+
+    fun removeFavoriteBandFromCollector(collectorId: Int, bandId: Int): Flow<Unit> {
+        return HttpRequestQueue.delete("$API_BASE_URL/collectors/$collectorId/bands/$bandId").map {}
     }
 }
