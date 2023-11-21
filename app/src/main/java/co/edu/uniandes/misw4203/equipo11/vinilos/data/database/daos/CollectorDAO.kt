@@ -19,9 +19,9 @@ import kotlinx.coroutines.flow.map
 import java.text.Normalizer
 
 @Dao
-interface CollectorDAO {
-    @Query("SELECT * FROM collector")
-    fun getCollectors(): Flow<List<Collector>>
+abstract class CollectorDAO {
+    @Query("SELECT * FROM collector WHERE id = :collectorId")
+    abstract fun getCollectorById(collectorId: Int): Flow<Collector?>
 
     //
     // Query list of collectors together with their favorite performers
@@ -45,12 +45,11 @@ interface CollectorDAO {
     //   - C3, null
 
     // Internal only helper data class
-    data class CollectorWithPerformer(
+    protected data class CollectorWithPerformer(
         @Embedded(prefix = "collector_") val collector: Collector,
         @Embedded(prefix = "performer_") val performer: Performer?
     )
 
-    // Internal use only
     @Transaction
     @Query(
         "SELECT c.id as collector_id, c.name as collector_name, c.telephone as collector_telephone, c.email as collector_email, " +
@@ -58,7 +57,7 @@ interface CollectorDAO {
         "FROM Collector c LEFT JOIN CollectorFavoritePerformer cp ON cp.collectorId = c.id LEFT JOIN " +
         "Performer p ON cp.performerId = p.id"
     )
-    fun getCollectorsWithPerformer(): Flow<List<CollectorWithPerformer>>
+    protected abstract fun getCollectorsWithPerformer(): Flow<List<CollectorWithPerformer>>
 
     //
     // Query list of collectors together with their favorite performers
@@ -74,7 +73,7 @@ interface CollectorDAO {
     //   - C1, [P1, P2]
     //   - C2, [P2]
     //   - C3, []
-    fun getCollectorsWithPerformers(): Flow<List<CollectorWithPerformers>> {
+    open fun getCollectorsWithPerformers(): Flow<List<CollectorWithPerformers>> {
         return getCollectorsWithPerformer().map { collectors ->
             collectors
                 .groupBy({ it.collector }, { it.performer })
@@ -90,35 +89,29 @@ interface CollectorDAO {
         }
     }
 
-    // Internal use only
     @Insert
-    suspend fun insertCollectors(collectors: List<Collector>)
+    protected abstract suspend fun insertCollectors(collectors: List<Collector>)
 
-    // Internal use only
     @Query("DELETE FROM collector")
-    suspend fun deleteCollectors()
+    protected abstract suspend fun deleteCollectors()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCollectorFavoritePerformers(collectorFavoritePerformers: List<CollectorFavoritePerformer>)
+    abstract suspend fun insertCollectorFavoritePerformers(collectorFavoritePerformers: List<CollectorFavoritePerformer>)
 
-    // Internal use only
     @Query("DELETE FROM collectorfavoriteperformer")
-    suspend fun deleteAllCollectorFavoritePerformer()
+    protected abstract suspend fun deleteAllCollectorFavoritePerformer()
 
     @Delete
-    suspend fun deleteCollectorFavoritePerformer(collectorFavoritePerformer: CollectorFavoritePerformer)
+    abstract suspend fun deleteCollectorFavoritePerformer(collectorFavoritePerformer: CollectorFavoritePerformer)
 
-    // Internal use only
-    // This is necessary, so that the list of collector with their favorite performers can
-    // be updated in a transaction guaranteeing the consistency of the database
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPerformers(performers: List<Performer>)
+    protected abstract suspend fun insertPerformers(performers: List<Performer>)
 
     // Refresh the list of collectors and their favorite performers
     // To make sure that the database is consistent it is necessary to update the performers
     // associated with the collectors as well
     @Transaction
-    suspend fun deleteAndInsertCollectors(collectors: List<CollectorJson>) {
+    open suspend fun deleteAndInsertCollectors(collectors: List<CollectorJson>) {
         val performers: MutableList<Performer> = mutableListOf()
         val collectorFavoritePerformers: MutableList<CollectorFavoritePerformer> = mutableListOf()
         val mappedCollectors = collectors.map { collector ->

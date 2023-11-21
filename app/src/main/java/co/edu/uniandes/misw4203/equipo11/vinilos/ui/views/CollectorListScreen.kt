@@ -31,6 +31,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorWithPerformers
@@ -46,7 +48,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
 import java.time.Instant
 
 @Composable
-fun CollectorListScreen(snackbarHostState: SnackbarHostState) {
+fun CollectorListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
     val viewModel: CollectorListViewModel = viewModel(
         factory = CollectorListViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
@@ -80,7 +82,7 @@ fun CollectorListScreen(snackbarHostState: SnackbarHostState) {
     )
 
     Box(Modifier.pullRefresh(pullRefreshState)) {
-        CollectorList(collectors, userId)
+        CollectorList(collectors, navController, userId)
 
         PullRefreshIndicator(
             refreshing = isRefreshing,
@@ -99,12 +101,12 @@ fun CollectorListScreen(snackbarHostState: SnackbarHostState) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CollectorItem(collector: CollectorWithPerformers, testTag: String) {
+private fun CollectorItem(collector: CollectorWithPerformers, navController: NavHostController, testTag: String) {
     ElevatedCard(
         modifier = Modifier
             .padding(8.dp)
             .testTag(testTag),
-        onClick = { }
+        onClick = { navController.navigate("collectors/${collector.collector.id}") }
     ) {
         Column(
             modifier = Modifier.padding(20.dp, 16.dp)
@@ -133,7 +135,7 @@ private fun CollectorItem(collector: CollectorWithPerformers, testTag: String) {
 }
 
 @Composable
-private fun CollectorList(collectors: List<CollectorWithPerformers>, userId: Int?) {
+private fun CollectorList(collectors: List<CollectorWithPerformers>, navController: NavHostController, userId: Int?) {
     if (collectors.isNotEmpty()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(360.dp),
@@ -145,12 +147,12 @@ private fun CollectorList(collectors: List<CollectorWithPerformers>, userId: Int
                 val collector = collectors.firstOrNull { it.collector.id == userId }
                 if (collector != null) {
                     item {
-                        CollectorItem(collector, "collector-list-item-user")
+                        CollectorItem(collector, navController, "collector-list-item-user")
                     }
                 }
             }
             items(collectors.filterNot { it.collector.id == userId }) { item: CollectorWithPerformers ->
-                CollectorItem(item, "collector-list-item")
+                CollectorItem(item, navController, "collector-list-item")
             }
         }
     } else {
@@ -186,7 +188,7 @@ private fun AlbumListScreenPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            CollectorList(collectors, null)
+            CollectorList(collectors, rememberNavController(), null)
         }
     }
 }

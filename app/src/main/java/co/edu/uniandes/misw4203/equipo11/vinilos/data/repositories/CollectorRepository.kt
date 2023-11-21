@@ -2,6 +2,8 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories
 
 import android.util.Log
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.VinilosDB
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorWithPerformers
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import kotlinx.coroutines.flow.Flow
@@ -10,6 +12,7 @@ import kotlinx.coroutines.flow.flow
 
 interface ICollectorRepository {
     fun getCollectorsWithFavoritePerformers(): Flow<Result<List<CollectorWithPerformers>>>
+    fun getCollector(collectorId: Int): Flow<Collector?>
     suspend fun refresh()
 }
 
@@ -41,6 +44,12 @@ class CollectorRepository : ICollectorRepository {
                     emit(Result.failure(ex))
                 }
             }
+        }
+    }
+
+    override fun getCollector(collectorId: Int): Flow<Collector?> = flow {
+        db.collectorDao().getCollectorById(collectorId).collect { collector ->
+            emit(collector)
         }
     }
 
