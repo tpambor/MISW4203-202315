@@ -35,6 +35,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
@@ -81,7 +83,8 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHost
         onRefresh = { viewModel.onRefresh() }
     )
 
-    Box(Modifier.pullRefresh(pullRefreshState)) {
+    Box(Modifier.pullRefresh(pullRefreshState)
+        .semantics { this.contentDescription = "Lista de Álbumes" }) {
         AlbumList(albums, navController)
 
         PullRefreshIndicator(
@@ -116,7 +119,7 @@ fun AlbumItem(album: Album, navController: NavHostController) {
         Column {
             GlideImage(
                 model = album.cover,
-                contentDescription = "Album cover: ${album.name}",
+                contentDescription = "álbum",
                 loading = coverPreview,
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
