@@ -43,6 +43,8 @@ abstract class AlbumDAO {
     @Query("DELETE FROM Album")
     protected abstract suspend fun deleteAlbums()
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun  insertAlbum(album: Album)
     @Query("DELETE FROM Track")
     protected abstract suspend fun deleteTracks()
 

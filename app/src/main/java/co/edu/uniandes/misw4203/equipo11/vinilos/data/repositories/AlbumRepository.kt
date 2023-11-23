@@ -19,6 +19,7 @@ interface IAlbumRepository {
     fun getComments(albumId: Int): Flow<List<Comment>>
     fun getTracks(albumId: Int): Flow<List<Track>>
     suspend fun refreshAlbum(albumId: Int)
+    suspend fun insertAlbum(album: Album)
 }
 
 class AlbumRepository : IAlbumRepository {
@@ -56,6 +57,9 @@ class AlbumRepository : IAlbumRepository {
         db.albumDao().getAlbumById(albumId).collect { album ->
             emit(album)
         }
+    }
+    override suspend fun insertAlbum(album: Album) {
+            db.albumDao().insertAlbum(album)
     }
 
     override fun getPerformers(albumId: Int): Flow<List<Performer>> = flow {
