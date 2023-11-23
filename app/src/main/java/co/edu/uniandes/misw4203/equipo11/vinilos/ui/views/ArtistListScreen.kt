@@ -202,7 +202,7 @@ private fun FavoriteButton(
 ) {
     if(isUpdating) {
         CircularProgressIndicator(modifier = Modifier
-            .size(40.dp)
+            .size(48.dp)
             .padding(2.dp, 2.dp, 3.dp, 2.dp)
         )
     } else {
@@ -218,14 +218,14 @@ private fun FavoriteButton(
                     color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
                     shape = CircleShape,
                 )
-                .size(40.dp)
+                .size(48.dp)
                 .padding(0.dp, 0.dp, 1.dp, 0.dp)
                 .testTag(if (isFavorite) "performer-fav-button-checked" else "performer-fav-button-unchecked")
         ) {
             Icon(
                 imageVector = Icons.Default.FavoriteBorder,
-                contentDescription = stringResource(R.string.artists_add_favorite, performerName),
-                modifier = Modifier.size(20.dp)
+                contentDescription = if (isFavorite) stringResource(R.string.artists_delete_favorite, performerName) else stringResource(R.string.artists_add_favorite, performerName),
+                modifier = Modifier.size(22.dp)
             )
         }
     }
