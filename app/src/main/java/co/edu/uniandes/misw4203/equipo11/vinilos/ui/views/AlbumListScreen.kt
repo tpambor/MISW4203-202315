@@ -116,7 +116,7 @@ fun AlbumItem(album: Album, navController: NavHostController) {
         Column {
             GlideImage(
                 model = album.cover,
-                contentDescription = null,
+                contentDescription = "Album cover: ${album.name}",
                 loading = coverPreview,
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
