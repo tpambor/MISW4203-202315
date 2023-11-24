@@ -5,14 +5,18 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.VinilosDB
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorWithPerformers
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import java.time.Instant
 
 interface ICollectorRepository {
     fun getCollectorsWithFavoritePerformers(): Flow<Result<List<CollectorWithPerformers>>>
     fun getCollector(collectorId: Int): Flow<Collector?>
+    fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>>
     suspend fun refresh()
 }
 
@@ -51,6 +55,29 @@ class CollectorRepository : ICollectorRepository {
         db.collectorDao().getCollectorById(collectorId).collect { collector ->
             emit(collector)
         }
+    }
+
+    override fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>> = flow {
+        val performers = listOf(
+            Performer(
+                id = 1,
+                PerformerType.BAND,
+                name = "Alcolirycoz",
+                "red",
+                "Lorem ipsum",
+                Instant.now()
+            ),
+            Performer(
+                id = 2,
+                PerformerType.MUSICIAN,
+                name = "Rubén Blades",
+                "blue",
+                "Cantante salsa",
+                Instant.now()
+            )
+        )
+
+        emit(performers)
     }
 
     override suspend fun refresh() {

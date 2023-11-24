@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IAlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.ICollectorRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -27,6 +28,10 @@ class CollectorViewModel(
     val collector = _collector.asStateFlow().onSubscription { getCollector() }
     private val getCollectorStarted: AtomicBoolean = AtomicBoolean(false)
 
+    private val _favoritePerformers: MutableStateFlow<List<Performer>> = MutableStateFlow(emptyList())
+    val favoritePerformers = _favoritePerformers.asStateFlow().onSubscription { getFavoritePerformers() }
+    private val getFavoritePerformersStarted: AtomicBoolean = AtomicBoolean(false)
+
     private val _isRefreshing = MutableStateFlow(true)
     val isRefreshing = _isRefreshing.asStateFlow()
 
@@ -45,6 +50,19 @@ class CollectorViewModel(
                     } else {
                         _collector.value = collector
                     }
+                    _isRefreshing.value = false
+                }
+        }
+    }
+
+    private fun getFavoritePerformers() {
+        if (getFavoritePerformersStarted.getAndSet(true))
+            return  // Coroutine to get favorite performers was already started, only start once
+
+        viewModelScope.launch(dispatcher) {
+            collectorRepository.getFavoritePerformers(collectorId)
+                .collect { performers ->
+                    _favoritePerformers.value = performers
                     _isRefreshing.value = false
                 }
         }
