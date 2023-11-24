@@ -4,6 +4,8 @@ import android.util.Log
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.VinilosDB
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbum
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbumStatus
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorWithPerformers
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
@@ -17,6 +19,7 @@ interface ICollectorRepository {
     fun getCollectorsWithFavoritePerformers(): Flow<Result<List<CollectorWithPerformers>>>
     fun getCollector(collectorId: Int): Flow<Collector?>
     fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>>
+    fun getAlbums(collectorId: Int): Flow<List<CollectorAlbum>>
     suspend fun refresh()
 }
 
@@ -78,6 +81,27 @@ class CollectorRepository : ICollectorRepository {
         )
 
         emit(performers)
+    }
+
+    override fun getAlbums(collectorId: Int): Flow<List<CollectorAlbum>> = flow {
+        val albums = listOf(
+            CollectorAlbum(
+                collectorId = 1,
+                album = Album(
+                    id = 1,
+                    name = "Test",
+                    cover = "red",
+                    releaseDate = Instant.now(),
+                    description = "Album con salsa",
+                    genre = "Salsa",
+                    recordLabel = "EMI"
+                ),
+                price = 12000,
+                status = CollectorAlbumStatus.Active
+            )
+        )
+
+        emit(albums)
     }
 
     override suspend fun refresh() {

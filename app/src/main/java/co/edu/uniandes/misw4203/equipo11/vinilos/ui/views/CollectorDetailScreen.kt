@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
@@ -33,7 +35,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
@@ -60,11 +64,15 @@ fun CollectorDetailScreen(collectorId: Int, snackbarHostState: SnackbarHostState
         emptyList()
     )
 
-    collector?.let { CollectorDetail(it, favoritePerformers, navController) }
+    val albums by viewModel.albums.collectAsStateWithLifecycle(
+        emptyList()
+    )
+
+    collector?.let { CollectorDetail(it, favoritePerformers, albums, navController) }
 }
 
 @Composable
-fun CollectorHeader(collector: Collector) {
+private fun CollectorHeader(collector: Collector) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -108,8 +116,32 @@ private fun FavoritePerformersList(performers: List<Performer>, navController: N
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CollectorDetail(collector: Collector, favoritePerformers: List<Performer>, navController: NavHostController) {
+private fun CollectorAlbumItem(album: CollectorAlbum) {
+    Card(onClick = { /*TODO*/ }) {
+        Text(text = album.album.name)
+    }
+}
+
+@Composable
+private fun AlbumList(albums: List<CollectorAlbum>) {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(150.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp, 8.dp, 8.dp, 0.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        items(albums) { item: CollectorAlbum ->
+            CollectorAlbumItem(item)
+        }
+    }
+}
+
+@Composable
+private fun CollectorDetail(collector: Collector, favoritePerformers: List<Performer>, albums: List<CollectorAlbum>, navController: NavHostController) {
     var tabIndex by rememberSaveable { mutableIntStateOf(0) }
 
     val tabs = listOf(
@@ -135,6 +167,7 @@ fun CollectorDetail(collector: Collector, favoritePerformers: List<Performer>, n
 
         when (tabIndex) {
             0 -> FavoritePerformersList(favoritePerformers, navController)
+            1 -> AlbumList(albums)
         }
     }
 }
@@ -169,6 +202,6 @@ private fun CollectorDetailScreenPreview() {
     )
 
     VinilosTheme {
-        CollectorDetail(collector, performers, rememberNavController())
+        CollectorDetail(collector, performers, emptyList(), rememberNavController())
     }
 }

@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IAlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.ICollectorRepository
@@ -31,6 +32,11 @@ class CollectorViewModel(
     private val _favoritePerformers: MutableStateFlow<List<Performer>> = MutableStateFlow(emptyList())
     val favoritePerformers = _favoritePerformers.asStateFlow().onSubscription { getFavoritePerformers() }
     private val getFavoritePerformersStarted: AtomicBoolean = AtomicBoolean(false)
+
+    private val _albums: MutableStateFlow<List<CollectorAlbum>> = MutableStateFlow(emptyList())
+    val albums = _albums.asStateFlow().onSubscription { getAlbums() }
+    private val getAlbumsStarted: AtomicBoolean = AtomicBoolean(false)
+
 
     private val _isRefreshing = MutableStateFlow(true)
     val isRefreshing = _isRefreshing.asStateFlow()
@@ -63,6 +69,19 @@ class CollectorViewModel(
             collectorRepository.getFavoritePerformers(collectorId)
                 .collect { performers ->
                     _favoritePerformers.value = performers
+                    _isRefreshing.value = false
+                }
+        }
+    }
+
+    private fun getAlbums() {
+        if (getAlbumsStarted.getAndSet(true))
+            return  // Coroutine to get albums was already started, only start once
+
+        viewModelScope.launch(dispatcher) {
+            collectorRepository.getAlbums(collectorId)
+                .collect { albums ->
+                    _albums.value = albums
                     _isRefreshing.value = false
                 }
         }
