@@ -1,5 +1,6 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.data.database.daos
 
+
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Embedded
@@ -9,10 +10,12 @@ import androidx.room.Query
 import androidx.room.Transaction
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbumCrossRef
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorFavoritePerformer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorWithPerformers
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toCollector
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toCollectorAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toPerformer
@@ -25,6 +28,13 @@ import java.text.Normalizer
 abstract class CollectorDAO {
     @Query("SELECT * FROM collector WHERE id = :collectorId")
     abstract fun getCollectorById(collectorId: Int): Flow<Collector?>
+    @Query("SELECT p.* FROM CollectorFavoritePerformer cp JOIN Performer p on cp.performerId = p.id WHERE cp.collectorId == :collectorId ORDER BY p.name COLLATE UNICODE")
+    abstract fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>>
+
+    @Query("SELECT ca.collectorId, ca.price, ca.status, a.id as album_id, a.name as album_name, a.cover as album_cover, " +
+            "a.releaseDate as album_releaseDate, a.description as album_description, " +
+            "a.genre as album_genre, a.recordLabel as album_recordLabel FROM CollectorAlbumCrossRef ca JOIN Album a on ca.albumId = a.id WHERE ca.collectorId == :collectorId ORDER BY a.name COLLATE UNICODE")
+    abstract fun getAlbums(collectorId: Int): Flow<List<CollectorAlbum>>
 
     //
     // Query list of collectors together with their favorite performers
@@ -108,6 +118,12 @@ abstract class CollectorDAO {
     abstract suspend fun deleteCollectorFavoritePerformer(collectorFavoritePerformer: CollectorFavoritePerformer)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    protected abstract suspend fun insertAlbums(albums: List<Album>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertCollectorAlbums(collectorAlbums: List<CollectorAlbumCrossRef>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract suspend fun insertPerformers(performers: List<Performer>)
 
     // Refresh the list of collectors and their favorite performers
@@ -128,9 +144,11 @@ abstract class CollectorDAO {
                 )
             }
 
-            val collectorAlbumsList = requireNotNull(collector.collectorAlbums).map { it.toCollectorAlbum(collector.id) }
+            val collectorAlbumsList = requireNotNull(collector.collectorAlbums).map {
+                albums.add(it.album.toAlbum())
+                it.toCollectorAlbum(collector.id)
+            }
             collectorAlbums.addAll(collectorAlbumsList)
-
             collector.toCollector()
         }
 
@@ -139,7 +157,10 @@ abstract class CollectorDAO {
         deleteAllCollectorFavoritePerformer()
         insertCollectorFavoritePerformers(collectorFavoritePerformers)
         insertPerformers(performers)
+        insertAlbums(albums)
+        insertCollectorAlbums(collectorAlbums)
     }
+
 
 
 }

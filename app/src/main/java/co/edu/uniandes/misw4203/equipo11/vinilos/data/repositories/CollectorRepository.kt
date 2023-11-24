@@ -2,18 +2,14 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories
 
 import android.util.Log
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.VinilosDB
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbum
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbumStatus
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorWithPerformers
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import java.time.Instant
 
 interface ICollectorRepository {
     fun getCollectorsWithFavoritePerformers(): Flow<Result<List<CollectorWithPerformers>>>
@@ -61,47 +57,14 @@ class CollectorRepository : ICollectorRepository {
     }
 
     override fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>> = flow {
-        val performers = listOf(
-            Performer(
-                id = 1,
-                PerformerType.BAND,
-                name = "Alcolirycoz",
-                "red",
-                "Lorem ipsum",
-                Instant.now()
-            ),
-            Performer(
-                id = 2,
-                PerformerType.MUSICIAN,
-                name = "Rubén Blades",
-                "blue",
-                "Cantante salsa",
-                Instant.now()
-            )
-        )
-
-        emit(performers)
+        db.collectorDao().getFavoritePerformers(collectorId).collect { performers ->
+            emit(performers)
+        }
     }
-
     override fun getAlbums(collectorId: Int): Flow<List<CollectorAlbum>> = flow {
-        val albums = listOf(
-            CollectorAlbum(
-                collectorId = 1,
-                album = Album(
-                    id = 1,
-                    name = "Test",
-                    cover = "red",
-                    releaseDate = Instant.now(),
-                    description = "Album con salsa",
-                    genre = "Salsa",
-                    recordLabel = "EMI"
-                ),
-                price = 12000,
-                status = CollectorAlbumStatus.Active
-            )
-        )
-
-        emit(albums)
+        db.collectorDao().getAlbums(collectorId).collect { albums ->
+            emit(albums)
+        }
     }
 
     override suspend fun refresh() {
