@@ -7,11 +7,14 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbumCrossRef
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorFavoritePerformer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorWithPerformers
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toCollector
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toCollectorAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toPerformer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorJson
 import kotlinx.coroutines.flow.Flow
@@ -112,6 +115,8 @@ abstract class CollectorDAO {
     // associated with the collectors as well
     @Transaction
     open suspend fun deleteAndInsertCollectors(collectors: List<CollectorJson>) {
+        val albums: MutableList<Album> = mutableListOf()
+        val collectorAlbums: MutableList<CollectorAlbumCrossRef> = mutableListOf()
         val performers: MutableList<Performer> = mutableListOf()
         val collectorFavoritePerformers: MutableList<CollectorFavoritePerformer> = mutableListOf()
         val mappedCollectors = collectors.map { collector ->
@@ -123,6 +128,9 @@ abstract class CollectorDAO {
                 )
             }
 
+            val collectorAlbumsList = requireNotNull(collector.collectorAlbums).map { it.toCollectorAlbum(collector.id) }
+            collectorAlbums.addAll(collectorAlbumsList)
+
             collector.toCollector()
         }
 
@@ -132,4 +140,6 @@ abstract class CollectorDAO {
         insertCollectorFavoritePerformers(collectorFavoritePerformers)
         insertPerformers(performers)
     }
+
+
 }
