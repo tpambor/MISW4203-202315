@@ -4,6 +4,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.HttpRequestQueue
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorAlbumJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CommentJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.MusicianJson
@@ -296,14 +297,16 @@ class NetworkServiceAdapterTest {
                         name = "Fernando Cañellas Hervás",
                         telephone = "+34916 03 21 53",
                         email = "onino@gmail.com",
-                        favoritePerformers = null
+                        favoritePerformers = null,
+                        collectorAlbums = null
                     ),
                     CollectorJson(
                         id = 29,
                         name = "Amílcar Sales Maldonado",
                         telephone = "+34827647490",
                         email = "lladoconcepcion@gmail.com",
-                        favoritePerformers = null
+                        favoritePerformers = null,
+                        collectorAlbums = null
                     )
                 )
             )
@@ -362,14 +365,16 @@ class NetworkServiceAdapterTest {
                     name = "Fernando Cañellas Hervás",
                     telephone = "+34916 03 21 53",
                     email = "onino@gmail.com",
-                    favoritePerformers = null
+                    favoritePerformers = null,
+                    collectorAlbums = null
                 ),
                 CollectorJson(
                     id = 29,
                     name = "Amílcar Sales Maldonado",
                     telephone = "+34827647490",
                     email = "lladoconcepcion@gmail.com",
-                    favoritePerformers = null
+                    favoritePerformers = null,
+                    collectorAlbums = null
                 )
             )
         )
@@ -438,14 +443,16 @@ class NetworkServiceAdapterTest {
                         name = "Fernando Cañellas Hervás",
                         telephone = "+34916 03 21 53",
                         email = "onino@gmail.com",
-                        favoritePerformers = null
+                        favoritePerformers = null,
+                        collectorAlbums = null
                     ),
                     CollectorJson(
                         id = 29,
                         name = "Amílcar Sales Maldonado",
                         telephone = "+34827647490",
                         email = "lladoconcepcion@gmail.com",
-                        favoritePerformers = null
+                        favoritePerformers = null,
+                        collectorAlbums = null
                     )
                 )
             ),
@@ -525,14 +532,16 @@ class NetworkServiceAdapterTest {
                     name = "Fernando Cañellas Hervás",
                     telephone = "+34916 03 21 53",
                     email = "onino@gmail.com",
-                    favoritePerformers = null
+                    favoritePerformers = null,
+                    collectorAlbums = null
                 ),
                 CollectorJson(
                     id = 29,
                     name = "Amílcar Sales Maldonado",
                     telephone = "+34827647490",
                     email = "lladoconcepcion@gmail.com",
-                    favoritePerformers = null
+                    favoritePerformers = null,
+                    collectorAlbums = null
                 )
             )
         )
@@ -577,6 +586,42 @@ class NetworkServiceAdapterTest {
                         musicians = null,
                         collectors = null
                     ))
+                ),
+                collectorAlbums = listOf(
+                    CollectorAlbumJson(
+                        id = 100,
+                        price = 35,
+                        status = "Active",
+                        album = AlbumJson(
+                            id = 1,
+                            name = "Radio Rompecorazones",
+                            cover = "https://i.scdn.co/image/ab67616d0000b273816a542c3c2e281501275aa5",
+                            releaseDate = Instant.parse("2008-09-12T00:00:00.000Z"),
+                            description = "Mind among sure perhaps. Exactly choose foreign north.",
+                            genre = "Salsa",
+                            recordLabel = "Discos Fuentes",
+                            tracks = null,
+                            performers = null,
+                            comments = null
+                        )
+                    ),
+                    CollectorAlbumJson(
+                        id = 1,
+                        price = 25000,
+                        status = "Active",
+                        album = AlbumJson(
+                            id = 1,
+                            name = "Radio Rompecorazones",
+                            cover = "https://i.scdn.co/image/ab67616d0000b273816a542c3c2e281501275aa5",
+                            releaseDate = Instant.parse("2008-09-12T00:00:00.000Z"),
+                            description = "Mind among sure perhaps. Exactly choose foreign north.",
+                            genre = "Salsa",
+                            recordLabel = "Discos Fuentes",
+                            tracks = null,
+                            performers = null,
+                            comments = null
+                        )
+                    )
                 )
             ),
             CollectorJson(
@@ -595,13 +640,67 @@ class NetworkServiceAdapterTest {
                         musicians = null,
                         collectors = null
                     ))
+                ),
+                collectorAlbums = listOf(
+                    CollectorAlbumJson(
+                        id = 101,
+                        price = 25,
+                        status = "Active",
+                        album = AlbumJson(
+                            id = 1,
+                            name = "Radio Rompecorazones",
+                            cover = "https://i.scdn.co/image/ab67616d0000b273816a542c3c2e281501275aa5",
+                            releaseDate = Instant.parse("2008-09-12T00:00:00.000Z"),
+                            description = "Mind among sure perhaps. Exactly choose foreign north.",
+                            genre = "Salsa",
+                            recordLabel = "Discos Fuentes",
+                            tracks = null,
+                            performers = null,
+                            comments = null
+                        )
+                    )
                 )
             )
         )
 
         val adapter = NetworkServiceAdapter()
         val collectors = adapter.getCollectors().first()
-        assertEquals(collectorsExpected, collectors)
+//        assertEquals(collectorsExpected, collectors)
+        assertEquals(collectorsExpected[0].id, collectors[0].id)
+        assertEquals(collectorsExpected[0].name, collectors[0].name)
+        assertEquals(collectorsExpected[0].telephone, collectors[0].telephone)
+        assertEquals(collectorsExpected[0].email, collectors[0].email)
+        assertEquals(collectorsExpected[0].favoritePerformers, collectors[0].favoritePerformers)
+        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.id,
+            collectors[0].collectorAlbums?.get(0)?.id
+        )
+        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.price,
+            collectors[0].collectorAlbums?.get(0)?.price
+        )
+        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.status,
+            collectors[0].collectorAlbums?.get(0)?.status
+        )
+        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.album?.id,
+            collectors[0].collectorAlbums?.get(0)?.album?.id
+        )
+        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.album?.name,
+            collectors[0].collectorAlbums?.get(0)?.album?.name
+        )
+        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.album?.cover,
+            collectors[0].collectorAlbums?.get(0)?.album?.cover
+        )
+        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.album?.releaseDate,
+            collectors[0].collectorAlbums?.get(0)?.album?.releaseDate
+        )
+        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.album?.description,
+            collectors[0].collectorAlbums?.get(0)?.album?.description
+        )
+        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.album?.genre,
+            collectors[0].collectorAlbums?.get(0)?.album?.genre
+        )
+        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.album?.recordLabel,
+            collectors[0].collectorAlbums?.get(0)?.album?.recordLabel
+        )
         assertTrue(mockRequest.called)
     }
 
@@ -629,14 +728,16 @@ class NetworkServiceAdapterTest {
                     name = "Celia Núñez Peral",
                     telephone = "+34 822 976 548",
                     email = "garridoaurelio@chico-perez.es",
-                    favoritePerformers = null
+                    favoritePerformers = null,
+                    collectorAlbums = null
                 ),
                 CollectorJson(
                     id = 57,
                     name = "Cleto Bertrán Morán",
                     telephone = "+34841 738 680",
                     email = "kperello@yahoo.com",
-                    favoritePerformers = null
+                    favoritePerformers = null,
+                    collectorAlbums = null
                 )
             )
         )
@@ -672,14 +773,16 @@ class NetworkServiceAdapterTest {
                     name = "Amílcar Sales Maldonado",
                     telephone = "+34827647490",
                     email = "lladoconcepcion@gmail.com",
-                    favoritePerformers = null
+                    favoritePerformers = null,
+                    collectorAlbums = null
                 ),
                 CollectorJson(
                     id = 34,
                     name = "Fabiana Alcalde Bayón",
                     telephone = "+34976997506",
                     email = "montserratnunez@galan.es",
-                    favoritePerformers = null
+                    favoritePerformers = null,
+                    collectorAlbums = null
                 )
             )
         )

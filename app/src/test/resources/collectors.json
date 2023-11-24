@@ -31,12 +31,30 @@
       {
         "id": 100,
         "price": 35,
-        "status": "Active"
+        "status": "Active",
+        "album": {
+          "id": 1,
+          "name": "Radio Rompecorazones",
+          "cover": "https://i.scdn.co/image/ab67616d0000b273816a542c3c2e281501275aa5",
+          "releaseDate": "2008-09-12T00:00:00.000Z",
+          "description": "Mind among sure perhaps. Exactly choose foreign north.",
+          "genre": "Salsa",
+          "recordLabel": "Discos Fuentes"
+        }
       },
       {
         "id": 1,
         "price": 25000,
-        "status": "Active"
+        "status": "Active",
+        "album": {
+          "id": 1,
+          "name": "Radio Rompecorazones",
+          "cover": "https://i.scdn.co/image/ab67616d0000b273816a542c3c2e281501275aa5",
+          "releaseDate": "2008-09-12T00:00:00.000Z",
+          "description": "Mind among sure perhaps. Exactly choose foreign north.",
+          "genre": "Salsa",
+          "recordLabel": "Discos Fuentes"
+        }
       }
     ]
   },
@@ -65,7 +83,16 @@
       {
         "id": 101,
         "price": 25,
-        "status": "Active"
+        "status": "Active",
+        "album": {
+          "id": 1,
+          "name": "Radio Rompecorazones",
+          "cover": "https://i.scdn.co/image/ab67616d0000b273816a542c3c2e281501275aa5",
+          "releaseDate": "2008-09-12T00:00:00.000Z",
+          "description": "Mind among sure perhaps. Exactly choose foreign north.",
+          "genre": "Salsa",
+          "recordLabel": "Discos Fuentes"
+        }
       }
     ]
   }

@@ -3,6 +3,7 @@ package co.edu.uniandes.misw4203.equipo11.vinilos
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorWithPerformers
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
@@ -35,6 +36,18 @@ class CollectorListViewModelTest {
 
         override fun getCollectorsWithFavoritePerformers(): Flow<Result<List<CollectorWithPerformers>>> {
             return flowCollectorsWithPerformers
+        }
+
+        override fun getCollector(collectorId: Int): Flow<Collector?> {
+            TODO("Not yet implemented")
+        }
+
+        override fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>> {
+            TODO("Not yet implemented")
+        }
+
+        override fun getAlbums(collectorId: Int): Flow<List<CollectorAlbum>> {
+            TODO("Not yet implemented")
         }
 
         override suspend fun refresh() {
