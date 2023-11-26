@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -48,6 +49,7 @@ import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbumStatus
@@ -123,16 +125,19 @@ private fun CollectorHeader(collector: Collector) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
+            modifier = Modifier.semantics { contentDescription = "Nombre: ${collector.name}" },
             text = collector.name,
             fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
             letterSpacing = 0.4.sp,
         )
         Text(
+            modifier = Modifier.semantics { contentDescription = "Correo electrónico: ${collector.email}" },
             text = collector.email,
             fontSize = 14.sp,
         )
         Text(
+            modifier = Modifier.semantics { contentDescription = "Número de teléfono: ${collector.telephone.chunked(1).joinToString(separator = " ")}" },
             text = collector.telephone,
             fontSize = 14.sp,
         )
@@ -150,6 +155,17 @@ private fun FavoritePerformersList(performers: List<Performer>, navController: N
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        if (performers.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(text = stringResource(R.string.empty_artists_list))
+                }
+            }
+        }
+
         items(performers) { item: Performer ->
             ArtistItem(
                 item,
@@ -187,24 +203,27 @@ private fun CollectorAlbumItem(album: CollectorAlbum, navController: NavHostCont
             )
             Badge(
                 modifier = Modifier
-                    .padding(8.dp, 0.dp, 8.dp, 8.dp)
-                    .semantics { this.contentDescription = "Estado" },
+                    .padding(8.dp, 0.dp, 8.dp, 8.dp),
                 containerColor =
                     if (album.status == CollectorAlbumStatus.Active)
                         MaterialTheme.colorScheme.primaryContainer
                     else
                         MaterialTheme.colorScheme.outlineVariant
             ) {
+                val state =
+                    if (album.status == CollectorAlbumStatus.Active)
+                        "Activo"
+                    else
+                        "Inactivo"
                 Text(
-                    text =
-                        if (album.status == CollectorAlbumStatus.Active)
-                            "Activo"
-                        else
-                            "Inactivo"
+                    modifier = Modifier.semantics { this.contentDescription = "Estado: $state" },
+                    text = state
                 )
             }
             Text(
-                modifier = Modifier.padding(8.dp, 0.dp, 8.dp, 8.dp),
+                modifier = Modifier
+                    .padding(8.dp, 0.dp, 8.dp, 8.dp)
+                    .semantics { this.contentDescription = "Precio: ${album.price} Pesos colombianos" },
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 text = "\$ %,d".format(album.price)
@@ -231,6 +250,17 @@ private fun AlbumList(albums: List<CollectorAlbum>, navController: NavHostContro
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        if (albums.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(text = stringResource(R.string.empty_albums_list))
+                }
+            }
+        }
+
         items(albums) { item: CollectorAlbum ->
             CollectorAlbumItem(item, navController)
         }
@@ -256,7 +286,12 @@ private fun CollectorDetail(collector: Collector, favoritePerformers: List<Perfo
         ) {
             tabs.forEachIndexed { index, title ->
                 Tab(
-                    text = { Text(title) },
+                    text = {
+                        Text(
+                            modifier = Modifier.semantics { contentDescription = "${title} del coleccionista" },
+                            text = title
+                        )
+                    },
                     selected = tabIndex == index,
                     onClick = { tabIndex = index  }
                 )

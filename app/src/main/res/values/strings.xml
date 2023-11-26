@@ -16,6 +16,7 @@
     <string name="artists_add_favorite">Agregar a favoritos a %s</string>
     <string name="artists_delete_favorite">Eliminar de favoritos a %s</string>
     <string name="empty_albums_list">No hay álbumes disponibles</string>
+    <string name="empty_artists_list">No hay artistas disponibles</string>
     <string name="empty_musicians_list">No hay músicos disponibles</string>
     <string name="empty_bands_list">No hay bandas disponibles</string>
     <string name="login_visitor">Visitante</string>
