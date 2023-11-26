@@ -65,6 +65,10 @@ class CollectorViewModelTest {
         override suspend fun refresh() {
             TODO("Not yet implemented")
         }
+
+        override suspend fun refreshCollector(collectorId: Int) {
+            TODO("Not yet implemented")
+        }
     }
 
     @Before

@@ -39,15 +39,15 @@ class CollectorListViewModelTest {
         }
 
         override fun getCollector(collectorId: Int): Flow<Collector?> {
-            TODO("Not yet implemented")
+            throw UnsupportedOperationException()
         }
 
         override fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>> {
-            TODO("Not yet implemented")
+            throw UnsupportedOperationException()
         }
 
         override fun getAlbums(collectorId: Int): Flow<List<CollectorAlbum>> {
-            TODO("Not yet implemented")
+            throw UnsupportedOperationException()
         }
 
         override suspend fun refresh() {
@@ -55,6 +55,10 @@ class CollectorListViewModelTest {
 
             if (failRefresh)
                 throw Exception()
+        }
+
+        override suspend fun refreshCollector(collectorId: Int) {
+            throw UnsupportedOperationException()
         }
     }
 
