@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -117,7 +118,8 @@ private fun CollectorHeader(collector: Collector) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(0.dp, 8.dp),
+            .padding(0.dp, 8.dp)
+            .testTag("collector-detail-header"),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -143,7 +145,8 @@ private fun FavoritePerformersList(performers: List<Performer>, navController: N
         columns = GridCells.Adaptive(150.dp),
         modifier = Modifier
             .fillMaxSize()
-            .padding(8.dp, 8.dp, 8.dp, 0.dp),
+            .padding(8.dp, 8.dp, 8.dp, 0.dp)
+            .testTag("collector-detail-artist-list"),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -223,7 +226,8 @@ private fun AlbumList(albums: List<CollectorAlbum>, navController: NavHostContro
         columns = GridCells.Adaptive(150.dp),
         modifier = Modifier
             .fillMaxSize()
-            .padding(8.dp, 8.dp, 8.dp, 0.dp),
+            .padding(8.dp, 8.dp, 8.dp, 0.dp)
+            .testTag("album-list"),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -247,7 +251,8 @@ private fun CollectorDetail(collector: Collector, favoritePerformers: List<Perfo
 
         TabRow(
             selectedTabIndex = tabIndex,
-            containerColor = MaterialTheme.colorScheme.background
+            containerColor = MaterialTheme.colorScheme.background,
+            modifier = Modifier.testTag("collector-detail-tabs")
         ) {
             tabs.forEachIndexed { index, title ->
                 Tab(
