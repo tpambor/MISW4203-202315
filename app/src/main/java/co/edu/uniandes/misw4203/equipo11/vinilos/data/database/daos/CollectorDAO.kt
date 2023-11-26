@@ -1,6 +1,5 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.data.database.daos
 
-
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Embedded
@@ -191,7 +190,4 @@ abstract class CollectorDAO {
         }
         insertCollectorAlbums(collectorAlbums)
     }
-
-
-
 }

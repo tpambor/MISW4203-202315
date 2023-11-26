@@ -71,6 +71,7 @@ fun CollectorJson.toCollector(): Collector {
         email = this.email,
     )
 }
+
 fun CollectorAlbumJson.toCollectorAlbum(collectorId: Int): CollectorAlbumCrossRef {
     return CollectorAlbumCrossRef(
         collectorId = collectorId,
