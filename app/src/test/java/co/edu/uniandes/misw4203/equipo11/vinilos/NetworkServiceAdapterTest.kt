@@ -589,26 +589,26 @@ class NetworkServiceAdapterTest {
                 ),
                 collectorAlbums = listOf(
                     CollectorAlbumJson(
-                        id = 100,
+                        id = 1,
                         price = 35,
                         status = "Active",
-                        album = AlbumJson(
-                            id = 1,
-                            name = "Radio Rompecorazones",
-                            cover = "https://i.scdn.co/image/ab67616d0000b273816a542c3c2e281501275aa5",
-                            releaseDate = Instant.parse("2008-09-12T00:00:00.000Z"),
-                            description = "Mind among sure perhaps. Exactly choose foreign north.",
-                            genre = "Salsa",
-                            recordLabel = "Discos Fuentes",
+                        AlbumJson(
+                            id = 102,
+                            name = "A Night at the Opera",
+                            cover = "https://upload.wikimedia.org/wikipedia/en/4/4d/Queen_A_Night_At_The_Opera.png",
+                            releaseDate = Instant.parse("1975-11-21T00:00:00.000Z"),
+                            description = "Es el cuarto álbum de estudio de la banda británica de rock Queen, publicado originalmente en 1975. Coproducido por Roy Thomas Baker y Queen, A Night at the Opera fue, en el tiempo de su lanzamiento, la producción más cara realizada.1​ Un éxito comercial, el álbum fue votado por el público y citado por publicaciones musicales como uno de los mejores trabajos de Queen y de la historia del rock.",
+                            genre = "Rock",
+                            recordLabel = "EMI",
                             tracks = null,
                             performers = null,
                             comments = null
                         )
                     ),
                     CollectorAlbumJson(
-                        id = 1,
+                        id = 2,
                         price = 25000,
-                        status = "Active",
+                        status = "Inactive",
                         album = AlbumJson(
                             id = 1,
                             name = "Radio Rompecorazones",
@@ -643,7 +643,7 @@ class NetworkServiceAdapterTest {
                 ),
                 collectorAlbums = listOf(
                     CollectorAlbumJson(
-                        id = 101,
+                        id = 3,
                         price = 25,
                         status = "Active",
                         album = AlbumJson(
@@ -665,42 +665,86 @@ class NetworkServiceAdapterTest {
 
         val adapter = NetworkServiceAdapter()
         val collectors = adapter.getCollectors().first()
-//        assertEquals(collectorsExpected, collectors)
-        assertEquals(collectorsExpected[0].id, collectors[0].id)
-        assertEquals(collectorsExpected[0].name, collectors[0].name)
-        assertEquals(collectorsExpected[0].telephone, collectors[0].telephone)
-        assertEquals(collectorsExpected[0].email, collectors[0].email)
-        assertEquals(collectorsExpected[0].favoritePerformers, collectors[0].favoritePerformers)
-        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.id,
-            collectors[0].collectorAlbums?.get(0)?.id
+        assertEquals(collectorsExpected, collectors)
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldReturnCollector() = runTest {
+        val collectorId = 100
+        val collectorJSON = javaClass.getResource("/collector.json").readText()
+        val mockRequest = MockRequest { url ->
+            assertEquals( NetworkServiceAdapter.API_BASE_URL + "/collectors/$collectorId", url)
+            collectorJSON
+        }
+
+        val collectorExpected = CollectorJson(
+            id = 100,
+            name = "Manolo Bellon",
+            telephone = "3502457896",
+            email = "manollo@caracol.com.co",
+            favoritePerformers = listOf(
+                PerformerJson.Musician(MusicianJson(
+                    id = 100,
+                    name = "Rubén Blades Bellido de Luna",
+                    image = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Ruben_Blades_by_Gage_Skidmore.jpg/800px-Ruben_Blades_by_Gage_Skidmore.jpg",
+                    description = "Es un cantante, compositor, músico, actor, abogado, político y activista panameño. Ha desarrollado gran parte de su carrera artística en la ciudad de Nueva York.",
+                    birthDate = Instant.parse("1948-07-16T00:00:00.000Z"),
+                    albums = null,
+                    collectors = null
+                )),
+                PerformerJson.Band(BandJson(
+                    id = 101,
+                    name = "Queen",
+                    image = "https://pm1.narvii.com/6724/a8b29909071e9d08517b40c748b6689649372852v2_hq.jpg",
+                    description = "Queen es una banda británica de rock formada en 1970 en Londres por el cantante Freddie Mercury, el guitarrista Brian May, el baterista Roger Taylor y el bajista John Deacon. Si bien el grupo ha presentado bajas de dos de sus miembros (Mercury, fallecido en 1991, y Deacon, retirado en 1997), los integrantes restantes, May y Taylor, continúan trabajando bajo el nombre Queen, por lo que la banda aún se considera activa.",
+                    creationDate = Instant.parse("1970-01-01T00:00:00.000Z"),
+                    albums = null,
+                    musicians = null,
+                    collectors = null
+                ))
+            ),
+            collectorAlbums = listOf(
+                CollectorAlbumJson(
+                    id = 1,
+                    price = 35,
+                    status = "Active",
+                    AlbumJson(
+                        id = 102,
+                        name = "A Night at the Opera",
+                        cover = "https://upload.wikimedia.org/wikipedia/en/4/4d/Queen_A_Night_At_The_Opera.png",
+                        releaseDate = Instant.parse("1975-11-21T00:00:00.000Z"),
+                        description = "Es el cuarto álbum de estudio de la banda británica de rock Queen, publicado originalmente en 1975. Coproducido por Roy Thomas Baker y Queen, A Night at the Opera fue, en el tiempo de su lanzamiento, la producción más cara realizada.1​ Un éxito comercial, el álbum fue votado por el público y citado por publicaciones musicales como uno de los mejores trabajos de Queen y de la historia del rock.",
+                        genre = "Rock",
+                        recordLabel = "EMI",
+                        tracks = null,
+                        performers = null,
+                        comments = null
+                    )
+                ),
+                CollectorAlbumJson(
+                    id = 2,
+                    price = 25000,
+                    status = "Inactive",
+                    album = AlbumJson(
+                        id = 1,
+                        name = "Radio Rompecorazones",
+                        cover = "https://i.scdn.co/image/ab67616d0000b273816a542c3c2e281501275aa5",
+                        releaseDate = Instant.parse("2008-09-12T00:00:00.000Z"),
+                        description = "Mind among sure perhaps. Exactly choose foreign north.",
+                        genre = "Salsa",
+                        recordLabel = "Discos Fuentes",
+                        tracks = null,
+                        performers = null,
+                        comments = null
+                    )
+                )
+            )
         )
-        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.price,
-            collectors[0].collectorAlbums?.get(0)?.price
-        )
-        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.status,
-            collectors[0].collectorAlbums?.get(0)?.status
-        )
-        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.album?.id,
-            collectors[0].collectorAlbums?.get(0)?.album?.id
-        )
-        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.album?.name,
-            collectors[0].collectorAlbums?.get(0)?.album?.name
-        )
-        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.album?.cover,
-            collectors[0].collectorAlbums?.get(0)?.album?.cover
-        )
-        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.album?.releaseDate,
-            collectors[0].collectorAlbums?.get(0)?.album?.releaseDate
-        )
-        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.album?.description,
-            collectors[0].collectorAlbums?.get(0)?.album?.description
-        )
-        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.album?.genre,
-            collectors[0].collectorAlbums?.get(0)?.album?.genre
-        )
-        assertEquals(collectorsExpected[0].collectorAlbums?.get(0)?.album?.recordLabel,
-            collectors[0].collectorAlbums?.get(0)?.album?.recordLabel
-        )
+
+        val adapter = NetworkServiceAdapter()
+        val collector = adapter.getCollector(100).first()
+        assertEquals(collectorExpected, collector)
         assertTrue(mockRequest.called)
     }
 
