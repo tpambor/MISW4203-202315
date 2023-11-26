@@ -87,6 +87,23 @@ class CollectorViewModel(
         }
     }
 
+    fun onRefresh() {
+        _isRefreshing.value = true
+
+        viewModelScope.launch(dispatcher) {
+            try {
+                collectorRepository.refreshCollector(collectorId)
+            } catch (ex: Exception) {
+                _isRefreshing.value = false
+                _error.value = ErrorUiState.Error(R.string.network_error)
+            }
+        }
+    }
+
+    fun onErrorShown() {
+        _error.value = ErrorUiState.NoError
+    }
+
     companion object {
         val KEY_COLLECTOR_REPOSITORY = object : CreationExtras.Key<ICollectorRepository> {}
         val KEY_COLLECTOR_ID = object : CreationExtras.Key<Int> {}

@@ -17,6 +17,7 @@ interface ICollectorRepository {
     fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>>
     fun getAlbums(collectorId: Int): Flow<List<CollectorAlbum>>
     suspend fun refresh()
+    suspend fun refreshCollector(collectorId: Int)
 }
 
 class CollectorRepository : ICollectorRepository {
@@ -68,6 +69,10 @@ class CollectorRepository : ICollectorRepository {
     }
 
     override suspend fun refresh() {
+        db.collectorDao().deleteAndInsertCollectors(adapter.getCollectors().first())
+    }
+
+    override suspend fun refreshCollector(collectorId: Int) {
         db.collectorDao().deleteAndInsertCollectors(adapter.getCollectors().first())
     }
 
