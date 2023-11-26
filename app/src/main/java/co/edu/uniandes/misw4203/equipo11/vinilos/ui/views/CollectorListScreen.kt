@@ -23,6 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -81,7 +83,11 @@ fun CollectorListScreen(snackbarHostState: SnackbarHostState, navController: Nav
         onRefresh = { viewModel.onRefresh() }
     )
 
-    Box(Modifier.pullRefresh(pullRefreshState)) {
+    Box(
+        modifier = Modifier
+            .pullRefresh(pullRefreshState)
+            .semantics { this.contentDescription = "Lista de coleccionistas" }
+    ) {
         CollectorList(collectors, navController, userId)
 
         PullRefreshIndicator(
@@ -105,7 +111,8 @@ private fun CollectorItem(collector: CollectorWithPerformers, navController: Nav
     ElevatedCard(
         modifier = Modifier
             .padding(8.dp)
-            .testTag(testTag),
+            .testTag(testTag)
+            .semantics { this.contentDescription = "Coleccionista" },
         onClick = { navController.navigate("collectors/${collector.collector.id}") }
     ) {
         Column(
@@ -127,7 +134,7 @@ private fun CollectorItem(collector: CollectorWithPerformers, navController: Nav
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                text = if (collector.performers.isEmpty()) "-" else
+                text = if (collector.performers.isEmpty()) "Sin artistas favoritos" else
                     collector.performers.joinToString { it.name }
             )
         }
