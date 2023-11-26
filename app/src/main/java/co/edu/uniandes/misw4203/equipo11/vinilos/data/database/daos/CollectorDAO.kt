@@ -102,7 +102,7 @@ abstract class CollectorDAO {
         }
     }
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract suspend fun insertCollectors(collectors: List<Collector>)
 
     @Query("DELETE FROM collector")
@@ -117,24 +117,37 @@ abstract class CollectorDAO {
     @Delete
     abstract suspend fun deleteCollectorFavoritePerformer(collectorFavoritePerformer: CollectorFavoritePerformer)
 
+    @Query("DELETE FROM CollectorFavoritePerformer WHERE collectorId = :collectorId")
+    protected abstract suspend fun deleteCollectorFavoritePerformerByCollectorId(collectorId: Int)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract suspend fun insertAlbums(albums: List<Album>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insertCollectorAlbums(collectorAlbums: List<CollectorAlbumCrossRef>)
 
+    @Query("DELETE FROM CollectorAlbumCrossRef")
+    protected abstract suspend fun deleteCollectorAlbums()
+
+    @Query("DELETE FROM CollectorAlbumCrossRef WHERE collectorId = :collectorId")
+    protected abstract suspend fun deleteCollectorAlbumsByCollectorId(collectorId: Int)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract suspend fun insertPerformers(performers: List<Performer>)
 
-    // Refresh the list of collectors and their favorite performers
-    // To make sure that the database is consistent it is necessary to update the performers
+    // Refresh the list of collectors
+    // To make sure that the database is consistent it is necessary to update the favorite artists and albums
     // associated with the collectors as well
+    //
+    // It is necessary to set deleteAll to remove collectors from the local database that are no longer available upstream
     @Transaction
-    open suspend fun deleteAndInsertCollectors(collectors: List<CollectorJson>) {
+    open suspend fun deleteAndInsertCollectors(collectors: List<CollectorJson>, deleteAll: Boolean = true) {
         val albums: MutableList<Album> = mutableListOf()
         val collectorAlbums: MutableList<CollectorAlbumCrossRef> = mutableListOf()
+
         val performers: MutableList<Performer> = mutableListOf()
         val collectorFavoritePerformers: MutableList<CollectorFavoritePerformer> = mutableListOf()
+
         val mappedCollectors = collectors.map { collector ->
             val favoritePerformers: List<Performer> = requireNotNull(collector.favoritePerformers).map { it.toPerformer() }
             performers.addAll(favoritePerformers)
@@ -146,18 +159,36 @@ abstract class CollectorDAO {
 
             val collectorAlbumsList = requireNotNull(collector.collectorAlbums).map {
                 albums.add(it.album.toAlbum())
+
                 it.toCollectorAlbum(collector.id)
             }
             collectorAlbums.addAll(collectorAlbumsList)
+
             collector.toCollector()
         }
 
-        deleteCollectors()
+        if (deleteAll)
+            deleteCollectors()
         insertCollectors(mappedCollectors)
-        deleteAllCollectorFavoritePerformer()
-        insertCollectorFavoritePerformers(collectorFavoritePerformers)
+
         insertPerformers(performers)
+        if (deleteAll)
+            deleteAllCollectorFavoritePerformer()
+        else {
+            mappedCollectors.forEach { collector ->
+                deleteCollectorFavoritePerformerByCollectorId(collector.id)
+            }
+        }
+        insertCollectorFavoritePerformers(collectorFavoritePerformers)
+
         insertAlbums(albums)
+        if (deleteAll)
+            deleteCollectorAlbums()
+        else {
+            mappedCollectors.forEach { collector ->
+                deleteCollectorAlbumsByCollectorId(collector.id)
+            }
+        }
         insertCollectorAlbums(collectorAlbums)
     }
 

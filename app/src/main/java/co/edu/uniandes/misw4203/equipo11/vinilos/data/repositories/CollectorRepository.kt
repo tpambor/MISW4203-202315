@@ -73,7 +73,10 @@ class CollectorRepository : ICollectorRepository {
     }
 
     override suspend fun refreshCollector(collectorId: Int) {
-        db.collectorDao().deleteAndInsertCollectors(adapter.getCollectors().first())
+        db.collectorDao().deleteAndInsertCollectors(
+            listOf(adapter.getCollector(collectorId).first()),
+            deleteAll = false
+        )
     }
 
     companion object {

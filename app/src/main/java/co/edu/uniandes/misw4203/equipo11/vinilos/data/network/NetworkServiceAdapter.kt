@@ -1,5 +1,6 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.data.network
 
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorJson
@@ -65,6 +66,12 @@ class NetworkServiceAdapter {
     fun getCollectors(): Flow<List<CollectorJson>> {
         return HttpRequestQueue.get("$API_BASE_URL/collectors").map { response ->
             gson().fromJson(response, Array<CollectorJson>::class.java).toList()
+        }
+    }
+
+    fun getCollector(collectorId: Int): Flow<CollectorJson> {
+        return HttpRequestQueue.get("$API_BASE_URL/collectors/$collectorId").map { response ->
+            gson().fromJson(response, CollectorJson::class.java)
         }
     }
 
