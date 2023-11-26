@@ -324,13 +324,13 @@ private fun ArtistDescription(performer: Performer){
                 text = stringResource(if (performer.type == PerformerType.MUSICIAN) R.string.musician_birthDate else R.string.band_birthDate),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W300,
-                color = MaterialTheme.colorScheme.outline,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 letterSpacing = 0.25.sp
             )
             Text(
                 text = " " + birthDateFormatted(performer),
                 fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.outline,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 letterSpacing = 0.25.sp
             )
         }
