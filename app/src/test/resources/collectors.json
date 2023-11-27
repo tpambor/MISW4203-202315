@@ -29,14 +29,32 @@
     ],
     "collectorAlbums": [
       {
-        "id": 100,
+        "id": 1,
         "price": 35,
-        "status": "Active"
+        "status": "Active",
+        "album": {
+          "id": 102,
+          "name": "A Night at the Opera",
+          "cover": "https://upload.wikimedia.org/wikipedia/en/4/4d/Queen_A_Night_At_The_Opera.png",
+          "releaseDate": "1975-11-21T00:00:00.000Z",
+          "description": "Es el cuarto álbum de estudio de la banda británica de rock Queen, publicado originalmente en 1975. Coproducido por Roy Thomas Baker y Queen, A Night at the Opera fue, en el tiempo de su lanzamiento, la producción más cara realizada.1\u200B Un éxito comercial, el álbum fue votado por el público y citado por publicaciones musicales como uno de los mejores trabajos de Queen y de la historia del rock.",
+          "genre": "Rock",
+          "recordLabel": "EMI"
+        }
       },
       {
-        "id": 1,
+        "id": 2,
         "price": 25000,
-        "status": "Active"
+        "status": "Inactive",
+        "album": {
+          "id": 1,
+          "name": "Radio Rompecorazones",
+          "cover": "https://i.scdn.co/image/ab67616d0000b273816a542c3c2e281501275aa5",
+          "releaseDate": "2008-09-12T00:00:00.000Z",
+          "description": "Mind among sure perhaps. Exactly choose foreign north.",
+          "genre": "Salsa",
+          "recordLabel": "Discos Fuentes"
+        }
       }
     ]
   },
@@ -63,9 +81,18 @@
     ],
     "collectorAlbums": [
       {
-        "id": 101,
+        "id": 3,
         "price": 25,
-        "status": "Active"
+        "status": "Active",
+        "album": {
+          "id": 1,
+          "name": "Radio Rompecorazones",
+          "cover": "https://i.scdn.co/image/ab67616d0000b273816a542c3c2e281501275aa5",
+          "releaseDate": "2008-09-12T00:00:00.000Z",
+          "description": "Mind among sure perhaps. Exactly choose foreign north.",
+          "genre": "Salsa",
+          "recordLabel": "Discos Fuentes"
+        }
       }
     ]
   }

@@ -50,7 +50,7 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
         composable(route = "login") { LoginScreen(navController) }
         composable(route = "albums") { AlbumListScreen(snackbarHostState, navController) }
         composable(route = "artists") { ArtistListScreen(snackbarHostState, navController) }
-        composable(route = "collectors") { CollectorListScreen(snackbarHostState) }
+        composable(route = "collectors") { CollectorListScreen(snackbarHostState, navController) }
         composable(
             route = "albums/{albumId}",
             arguments = listOf(navArgument("albumId") { type = NavType.IntType })
@@ -68,6 +68,12 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
             arguments = listOf(navArgument("artistId") { type = NavType.IntType })
         ){ backStackEntry ->
             BandDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController)
+        }
+        composable(
+            route = "collectors/{collectorId}",
+            arguments = listOf(navArgument("collectorId") { type = NavType.IntType })
+        ){ backStackEntry ->
+            CollectorDetailScreen(requireNotNull(backStackEntry.arguments).getInt("collectorId"), snackbarHostState, navController)
         }
     }
 }
@@ -109,6 +115,7 @@ fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackSt
         "artists/musician/{artistId}" -> stringResource(R.string.top_nav_artist)
         "artists/band/{artistId}" -> stringResource(R.string.top_nav_artist)
         "albums/{albumId}" -> stringResource(R.string.top_nav_album)
+        "collectors/{collectorId}" -> stringResource(R.string.top_nav_collector)
         else -> ""
     }
 
