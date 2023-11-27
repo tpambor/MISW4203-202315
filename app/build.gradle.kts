@@ -116,6 +116,7 @@ dependencies {
     implementation("com.google.code.gson:gson:$gsonVersion")
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
