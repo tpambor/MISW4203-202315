@@ -35,6 +35,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -296,7 +298,7 @@ private fun ArtistDescription(performer: Performer){
     ) {
         GlideImage(
             model = performer.image,
-            contentDescription = null,
+            contentDescription = "Foto de ${performer.name}",
             loading = coverPreview,
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
@@ -309,7 +311,10 @@ private fun ArtistDescription(performer: Performer){
         Text(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(0.dp, 10.dp),
+                .padding(0.dp, 10.dp)
+                .semantics {
+                           this.contentDescription = "Detalle de ${performer.name}"
+                },
             text = performer.name,
             fontSize = 24.sp,
             fontWeight = FontWeight.W500,
@@ -324,13 +329,13 @@ private fun ArtistDescription(performer: Performer){
                 text = stringResource(if (performer.type == PerformerType.MUSICIAN) R.string.musician_birthDate else R.string.band_birthDate),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.W300,
-                color = MaterialTheme.colorScheme.outline,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 letterSpacing = 0.25.sp
             )
             Text(
                 text = " " + birthDateFormatted(performer),
                 fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.outline,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 letterSpacing = 0.25.sp
             )
         }

@@ -68,6 +68,12 @@ class NetworkServiceAdapter {
         }
     }
 
+    fun getCollector(collectorId: Int): Flow<CollectorJson> {
+        return HttpRequestQueue.get("$API_BASE_URL/collectors/$collectorId").map { response ->
+            gson().fromJson(response, CollectorJson::class.java)
+        }
+    }
+
     fun addFavoriteMusicianToCollector(collectorId: Int, musicianId: Int): Flow<MusicianJson> {
         return HttpRequestQueue.post("$API_BASE_URL/collectors/$collectorId/musicians/$musicianId", "").map { response ->
             gson().fromJson(response, MusicianJson::class.java)

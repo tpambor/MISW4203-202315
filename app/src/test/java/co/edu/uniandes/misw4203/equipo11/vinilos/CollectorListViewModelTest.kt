@@ -3,6 +3,7 @@ package co.edu.uniandes.misw4203.equipo11.vinilos
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorWithPerformers
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
@@ -37,11 +38,27 @@ class CollectorListViewModelTest {
             return flowCollectorsWithPerformers
         }
 
+        override fun getCollector(collectorId: Int): Flow<Collector?> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getAlbums(collectorId: Int): Flow<List<CollectorAlbum>> {
+            throw UnsupportedOperationException()
+        }
+
         override suspend fun refresh() {
             refreshCalled = true
 
             if (failRefresh)
                 throw Exception()
+        }
+
+        override suspend fun refreshCollector(collectorId: Int) {
+            throw UnsupportedOperationException()
         }
     }
 

@@ -2,7 +2,10 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories
 
 import android.util.Log
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.VinilosDB
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorWithPerformers
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -10,7 +13,11 @@ import kotlinx.coroutines.flow.flow
 
 interface ICollectorRepository {
     fun getCollectorsWithFavoritePerformers(): Flow<Result<List<CollectorWithPerformers>>>
+    fun getCollector(collectorId: Int): Flow<Collector?>
+    fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>>
+    fun getAlbums(collectorId: Int): Flow<List<CollectorAlbum>>
     suspend fun refresh()
+    suspend fun refreshCollector(collectorId: Int)
 }
 
 class CollectorRepository : ICollectorRepository {
@@ -44,8 +51,32 @@ class CollectorRepository : ICollectorRepository {
         }
     }
 
+    override fun getCollector(collectorId: Int): Flow<Collector?> = flow {
+        db.collectorDao().getCollectorById(collectorId).collect { collector ->
+            emit(collector)
+        }
+    }
+
+    override fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>> = flow {
+        db.collectorDao().getFavoritePerformers(collectorId).collect { performers ->
+            emit(performers)
+        }
+    }
+    override fun getAlbums(collectorId: Int): Flow<List<CollectorAlbum>> = flow {
+        db.collectorDao().getAlbums(collectorId).collect { albums ->
+            emit(albums)
+        }
+    }
+
     override suspend fun refresh() {
         db.collectorDao().deleteAndInsertCollectors(adapter.getCollectors().first())
+    }
+
+    override suspend fun refreshCollector(collectorId: Int) {
+        db.collectorDao().deleteAndInsertCollectors(
+            listOf(adapter.getCollector(collectorId).first()),
+            deleteAll = false
+        )
     }
 
     companion object {
