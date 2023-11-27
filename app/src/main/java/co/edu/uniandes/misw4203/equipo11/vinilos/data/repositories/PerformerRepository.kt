@@ -5,6 +5,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorFavoritePerformer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJsonRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -110,7 +111,7 @@ class PerformerRepository : IPerformerRepository{
         }
     }
 
-    suspend fun insertAlbum(album:Album) {
+    suspend fun insertAlbum(album: AlbumJsonRequest) {
         var albumInsert = adapter.insertAlbum(album).first()
         db.albumDao().insertAlbum(albumInsert)
     }

@@ -14,3 +14,13 @@ data class AlbumJson(
     val performers: List<PerformerJson>?,
     val comments: List<CommentJson>?
 )
+
+data class AlbumJsonRequest(
+    val name: String,
+    val cover: String,
+    val releaseDate: String,
+    val description: String,
+    val genre: String,
+    val recordLabel: String,
+)
+
