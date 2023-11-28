@@ -69,6 +69,7 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
         ){ backStackEntry ->
             BandDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController)
         }
+        composable(route = "albums/add"){ AlbumCreateScreen(snackbarHostState, navController) }
     }
 }
 
@@ -108,6 +109,7 @@ fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackSt
     val title = when (route) {
         "artists/musician/{artistId}" -> stringResource(R.string.top_nav_artist)
         "artists/band/{artistId}" -> stringResource(R.string.top_nav_artist)
+        "albums/add" -> stringResource(R.string.top_nav_album_crear)
         "albums/{albumId}" -> stringResource(R.string.top_nav_album)
         else -> ""
     }

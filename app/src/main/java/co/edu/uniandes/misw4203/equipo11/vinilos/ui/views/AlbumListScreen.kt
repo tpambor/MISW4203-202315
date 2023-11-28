@@ -11,10 +11,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -89,6 +94,7 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHost
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter)
         )
+
     }
 
     if (error is ErrorUiState.Error) {
@@ -167,7 +173,15 @@ fun AlbumList(albums: List<Album>, navController: NavHostController) {
             Text(text = stringResource(R.string.empty_albums_list))
         }
     }
+}
 
+@Composable
+fun CreateAlbumButton(navController: NavHostController) {
+    FloatingActionButton(
+        onClick = { navController.navigate("albums/add") },
+    ) {
+        Icon(Icons.Filled.Add, stringResource(R.string.album_crear ))
+    }
 }
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -189,7 +203,7 @@ private fun AlbumListScreenPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            Column(Modifier.padding(16.dp)) {
+            Column() {
                 AlbumList(albums, rememberNavController())
             }
 

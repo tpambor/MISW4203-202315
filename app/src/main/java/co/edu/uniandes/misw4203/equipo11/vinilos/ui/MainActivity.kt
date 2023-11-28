@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -19,6 +20,7 @@ import androidx.room.Room
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.VinilosDB
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.PreferenceDataStore
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.views.CreateAlbumButton
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.views.NavBar
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.views.NavContent
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.views.TopNavBar
@@ -62,6 +64,13 @@ class MainActivity : ComponentActivity() {
                         SnackbarHost(
                             hostState = snackbarHostState
                         )
+                    },
+                    floatingActionButtonPosition = FabPosition.End,
+                    floatingActionButton = {
+                        if (currentBackStackEntry?.destination?.route == "albums") {
+                            // Agrega el FloatingActionButton solo en la pantalla /albums
+                            CreateAlbumButton(navController)
+                        }
                     }
                 )
             }

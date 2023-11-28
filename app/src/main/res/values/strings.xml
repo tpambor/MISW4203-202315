@@ -9,6 +9,7 @@
     <string name="nav_login">Salir</string>
     <string name="top_nav_artist">Artista</string>
     <string name="top_nav_album">Álbum</string>
+    <string name="top_nav_album_crear">Agregar álbum</string>
     <string name="members">Integrantes</string>
     <string name="network_error">Error al actualizar los datos</string>
     <string name="artists_tab_musicans">Músicos</string>
@@ -25,6 +26,7 @@
     <string name="album_gender">Género</string>
     <string name="album_discografia">Discografia</string>
     <string name="album_fechaPublicacion">Fecha de publicación</string>
+    <string name="album_crear">Crear un nuevo álbum</string>
     <string name="musician_birthDate">Nacimiento:</string>
     <string name="band_birthDate">Fecha de creación:</string>
 </resources>
