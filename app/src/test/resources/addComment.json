@@ -1,0 +1,20 @@
+{
+  "description": "It is an amazing album",
+  "rating": 4,
+  "collector": {
+    "id": 2,
+    "name": "Fernando Cañellas Hervás",
+    "telephone": "+34916 03 21 53",
+    "email": "onino@gmail.com"
+  },
+  "album": {
+    "id": 1,
+    "name": "Radio Rompecorazones",
+    "cover": "https://i.scdn.co/image/ab67616d0000b273816a542c3c2e281501275aa5",
+    "releaseDate": "2008-09-12T00:00:00.000Z",
+    "description": "Mind among sure perhaps. Exactly choose foreign north.",
+    "genre": "Salsa",
+    "recordLabel": "Discos Fuentes"
+  },
+  "id": 1503
+}

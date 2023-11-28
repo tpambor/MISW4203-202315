@@ -127,7 +127,7 @@ private fun AlbumComment(
     var rating by rememberSaveable { mutableIntStateOf(5) }
     var comment by rememberSaveable { mutableStateOf("") }
     var commentChanged by rememberSaveable { mutableStateOf(false) }
-    var commentError by rememberSaveable { mutableStateOf(validateComment(comment)) }
+    var commentError by rememberSaveable { mutableStateOf(!validateComment(comment)) }
 
     Column(
         modifier = Modifier
@@ -167,7 +167,7 @@ private fun AlbumComment(
             value = comment,
             onValueChange = {
                 comment = it
-                commentError = validateComment(comment)
+                commentError = !validateComment(comment)
                 commentChanged = true
             },
             enabled = formEnabled,

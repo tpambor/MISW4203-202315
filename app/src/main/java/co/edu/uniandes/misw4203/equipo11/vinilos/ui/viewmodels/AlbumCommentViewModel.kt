@@ -34,7 +34,9 @@ class AlbumCommentViewModel(
     val error = _error.asStateFlow()
 
     fun validateComment(comment: String): Boolean {
-        return comment.isEmpty() || (comment.length > COMMENT_MAX_LENGTH)
+        return !(
+            comment.isEmpty() || (comment.length > COMMENT_MAX_LENGTH)
+        )
     }
 
     fun onSave(rating: Int, comment: String) {
