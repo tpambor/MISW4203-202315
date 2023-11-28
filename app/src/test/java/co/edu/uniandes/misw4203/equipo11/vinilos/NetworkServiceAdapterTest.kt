@@ -3,6 +3,7 @@ package co.edu.uniandes.misw4203.equipo11.vinilos
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.HttpRequestQueue
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJson
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJsonRequest
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CommentJson
@@ -719,6 +720,29 @@ class NetworkServiceAdapterTest {
 
         val adapter = NetworkServiceAdapter()
         adapter.removeFavoriteBandFromCollector(collectorId, bandId).first()
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldInsertAlbum() = runTest {
+        val addAlbumJSON = javaClass.getResource("/addAlbum.json").readText()
+        val mockRequest = MockPostRequest { url, content ->
+            assertEquals( "${NetworkServiceAdapter.API_BASE_URL}/albums", url)
+            assertEquals(addAlbumJSON, content)
+            addAlbumJSON
+        }
+
+        val albumJsonRequest = AlbumJsonRequest(
+            name = "Buscando América",
+            cover = "https://i.pinimg.com/564x/aa/5f/ed/aa5fed7fac61cc8f41d1e79db917a7cd.jpg",
+            releaseDate = "1984-08-01T00:00:00-05:00",
+            description = "Buscando América es el primer álbum de la banda de Rubén Blades y Seis del Solar lanzado en 1984. La producción, bajo el sello Elektra, fusiona diferentes ritmos musicales tales como la salsa, reggae, rock, y el jazz latino. El disco fue grabado en Eurosound Studios en Nueva York entre mayo y agosto de 1983.",
+            genre = "Salsa",
+            recordLabel ="Elektra",
+        )
+
+        val adapter = NetworkServiceAdapter()
+        adapter.insertAlbum(albumJsonRequest).first()
         assertTrue(mockRequest.called)
     }
 }
