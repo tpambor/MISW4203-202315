@@ -8,10 +8,10 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJsonRequest
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJsonResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 interface IAlbumRepository {
@@ -73,17 +73,15 @@ class AlbumRepository : IAlbumRepository {
         }
     }
 
-    private fun convertJsonRequestToAlbum(jsonRequest: AlbumJsonRequest): Album {
-        //val releaseDate = jsonRequest.releaseDate.atZone(ZoneId.systemDefault()).toLocalDate()
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")
-        val instant2 = Instant.parse(jsonRequest.releaseDate)
-        val offsetDateTime = OffsetDateTime.parse(jsonRequest.releaseDate, formatter)
+    private fun convertJsonRequestToAlbum(jsonRequest: AlbumJsonResponse): Album {
+        val offsetDateTime = OffsetDateTime.parse(jsonRequest.releaseDate, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+
         val instant = offsetDateTime.toInstant()
         return Album(
-            id = 0,
+            id = jsonRequest.id,
             name = jsonRequest.name,
             cover = jsonRequest.cover,
-            releaseDate = instant2,
+            releaseDate = instant,
             description = jsonRequest.description,
             genre = jsonRequest.genre,
             recordLabel = jsonRequest.recordLabel
