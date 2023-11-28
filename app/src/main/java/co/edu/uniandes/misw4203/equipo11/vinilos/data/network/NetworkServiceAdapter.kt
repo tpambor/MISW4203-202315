@@ -1,6 +1,5 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.data.network
 
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJsonRequest
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
@@ -13,8 +12,6 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody
 import java.time.Instant
 
 class NetworkServiceAdapter {
@@ -41,14 +38,12 @@ class NetworkServiceAdapter {
             gson().fromJson(response, AlbumJson::class.java)
         }
     }
-    fun insertAlbum(album: AlbumJsonRequest): Flow<Album> {
+    fun insertAlbum(album: AlbumJsonRequest): Flow<AlbumJsonRequest> {
         val gson = Gson()
         val albumJson = gson.toJson(album)// Convert Album object to JSON string
-        val requestBody = RequestBody.create("application/json".toMediaTypeOrNull(), albumJson)
-
 
         return HttpRequestQueue.post("$API_BASE_URL/albums", albumJson.toString()).map { response ->
-            gson().fromJson(response, Album::class.java)
+            gson().fromJson(response,  AlbumJsonRequest::class.java)
         }
     }
     fun getMusicians(): Flow<List<MusicianJson>> {

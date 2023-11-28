@@ -11,7 +11,9 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJsonRe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-
+import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 interface IAlbumRepository {
     fun getAlbums(): Flow<Result<List<Album>>>
     suspend fun refresh()
@@ -61,9 +63,34 @@ class AlbumRepository : IAlbumRepository {
     }
     override suspend fun insertAlbum(album: AlbumJsonRequest)
     {
-            val remoteAlbum = adapter.insertAlbum(album).first()
-           db.albumDao().insertAlbum(remoteAlbum)
+        try {
+            val remoteAlbumJson = adapter.insertAlbum(album).first()
+            val remoteAlbum = convertJsonRequestToAlbum(remoteAlbumJson)
+
+             db.albumDao().insertAlbum(remoteAlbum)
+        } catch (e: Exception) {
+            println("Error inserting album: $e")
+        }
     }
+
+    private fun convertJsonRequestToAlbum(jsonRequest: AlbumJsonRequest): Album {
+        //val releaseDate = jsonRequest.releaseDate.atZone(ZoneId.systemDefault()).toLocalDate()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ")
+        val instant2 = Instant.parse(jsonRequest.releaseDate)
+        val offsetDateTime = OffsetDateTime.parse(jsonRequest.releaseDate, formatter)
+        val instant = offsetDateTime.toInstant()
+        return Album(
+            id = 0,
+            name = jsonRequest.name,
+            cover = jsonRequest.cover,
+            releaseDate = instant2,
+            description = jsonRequest.description,
+            genre = jsonRequest.genre,
+            recordLabel = jsonRequest.recordLabel
+        )
+    }
+
+
 
     override fun getPerformers(albumId: Int): Flow<List<Performer>> = flow {
         db.albumDao().getPerformersByAlbumId(albumId).collect { performers ->
