@@ -33,6 +33,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -104,7 +105,8 @@ private fun Rating(rating: Int, formEnabled: Boolean, onClick: (Int) -> Unit) {
         for (i in 1..5) {
             IconButton(
                 enabled = formEnabled,
-                onClick = { onClick(i) }
+                onClick = { onClick(i) },
+                modifier = Modifier.testTag("comment-rating-$i")
             ) {
                 Icon(
                     if (i <= rating) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
@@ -163,7 +165,8 @@ private fun AlbumComment(
         OutlinedTextField(
             modifier = Modifier
                 .padding(8.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .testTag("comment-comment"),
             value = comment,
             onValueChange = {
                 comment = it
@@ -206,7 +209,8 @@ private fun AlbumComment(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                ),
+                modifier = Modifier.testTag("comment-submit")
             ) {
                 if (formEnabled) {
                     Text(
