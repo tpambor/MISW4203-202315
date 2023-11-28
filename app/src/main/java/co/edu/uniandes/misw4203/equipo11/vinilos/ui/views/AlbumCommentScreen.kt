@@ -100,6 +100,23 @@ fun AlbumCommentScreen(snackbarHostState: SnackbarHostState, albumId: Int, navCo
 }
 
 @Composable
+private fun Rating(rating: Int, formEnabled: Boolean, focusManager: FocusManager, onClick: (Int) -> Unit) {
+    Row {
+        for (i in 1..5) {
+            IconButton(
+                enabled = formEnabled,
+                onClick = { onClick(i) }
+            ) {
+                Icon(
+                    if (i <= rating) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
+                    contentDescription = "$i de 5"
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun AlbumComment(
     state: FormUiState,
     focusManager: FocusManager,
@@ -135,22 +152,15 @@ private fun AlbumComment(
                 style = MaterialTheme.typography.titleLarge
             )
 
-            Row {
-                for (i in 1..5) {
-                    IconButton(
-                        enabled = formEnabled,
-                        onClick = {
-                            focusManager.clearFocus()
-                            rating = i
-                        }
-                    ) {
-                        Icon(
-                            if (i <= rating) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
-                            contentDescription = "$i de 5"
-                        )
-                    }
+            Rating(
+                rating = rating,
+                formEnabled = formEnabled,
+                focusManager = focusManager,
+                onClick = {
+                    focusManager.clearFocus()
+                    rating = it
                 }
-            }
+            )
         }
 
         OutlinedTextField(
