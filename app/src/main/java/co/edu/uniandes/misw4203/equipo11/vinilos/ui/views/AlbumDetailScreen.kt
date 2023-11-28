@@ -211,7 +211,12 @@ private fun AlbumDetail(
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
-            AlbumsHeader(stringResource(R.string.nav_tracks), isCollector, "Tracks")
+            AlbumsHeader(
+                stringResource(R.string.nav_tracks),
+                isCollector,
+                "Tracks",
+                onClick = { }
+            )
         }
 
         items(tracks, span = { GridItemSpan(maxLineSpan) }) { track ->
@@ -219,7 +224,12 @@ private fun AlbumDetail(
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
-            AlbumsHeader(stringResource(R.string.nav_comments), isCollector, "Comentarios")
+            AlbumsHeader(
+                stringResource(R.string.nav_comments),
+                isCollector,
+                "Comentarios",
+                onClick = { navController.navigate("albums/${album.id}/comment") }
+            )
         }
 
         items(comments, span = { GridItemSpan(maxLineSpan) }) { comment ->
@@ -230,7 +240,7 @@ private fun AlbumDetail(
 
 
 @Composable
-private fun AlbumsHeader(title: String, isCollector: Boolean, nameComponet:String) {
+private fun AlbumsHeader(title: String, isCollector: Boolean, nameComponet: String, onClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -243,7 +253,7 @@ private fun AlbumsHeader(title: String, isCollector: Boolean, nameComponet:Strin
         )
         if(isCollector){
             Button(
-                onClick = { },
+                onClick = onClick,
                 modifier = Modifier
                     .height(40.dp)
                     .semantics { contentDescription = "Agregar $nameComponet" },
