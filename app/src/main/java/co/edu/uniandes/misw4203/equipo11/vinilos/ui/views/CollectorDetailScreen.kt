@@ -288,7 +288,7 @@ private fun CollectorDetail(collector: Collector, favoritePerformers: List<Perfo
                 Tab(
                     text = {
                         Text(
-                            modifier = Modifier.semantics { contentDescription = "${title} del coleccionista" },
+                            modifier = Modifier.semantics { contentDescription = "$title del coleccionista" },
                             text = title
                         )
                     },

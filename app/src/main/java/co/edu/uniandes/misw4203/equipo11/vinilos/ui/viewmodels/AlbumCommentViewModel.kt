@@ -25,8 +25,6 @@ class AlbumCommentViewModel(
     private val userRepository: IUserRepository,
     val dispatcher : CoroutineDispatcher
 ) : ViewModel() {
-    val commentMaxLength = 2000
-
     val user: CompletableDeferred<User> = CompletableDeferred()
 
     private val _state = MutableStateFlow<FormUiState>(FormUiState.Input)
@@ -36,7 +34,7 @@ class AlbumCommentViewModel(
     val error = _error.asStateFlow()
 
     fun validateComment(comment: String): Boolean {
-        return comment.isEmpty() || (comment.length > commentMaxLength)
+        return comment.isEmpty() || (comment.length > COMMENT_MAX_LENGTH)
     }
 
     fun onSave(rating: Int, comment: String) {
@@ -72,6 +70,8 @@ class AlbumCommentViewModel(
     }
 
     companion object {
+        const val COMMENT_MAX_LENGTH = 2000
+
         val KEY_ALBUM_REPOSITORY = object : CreationExtras.Key<IAlbumRepository> {}
         val KEY_ALBUM_ID = object : CreationExtras.Key<Int> {}
         val KEY_USER_REPOSITORY = object : CreationExtras.Key<IUserRepository> {}

@@ -85,7 +85,6 @@ fun AlbumCommentScreen(snackbarHostState: SnackbarHostState, albumId: Int, navCo
     AlbumComment(
         state = state,
         focusManager = focusManager,
-        commentMaxLength = viewModel.commentMaxLength,
         validateComment = viewModel::validateComment,
         onSave = viewModel::onSave
     )
@@ -100,7 +99,7 @@ fun AlbumCommentScreen(snackbarHostState: SnackbarHostState, albumId: Int, navCo
 }
 
 @Composable
-private fun Rating(rating: Int, formEnabled: Boolean, focusManager: FocusManager, onClick: (Int) -> Unit) {
+private fun Rating(rating: Int, formEnabled: Boolean, onClick: (Int) -> Unit) {
     Row {
         for (i in 1..5) {
             IconButton(
@@ -120,7 +119,6 @@ private fun Rating(rating: Int, formEnabled: Boolean, focusManager: FocusManager
 private fun AlbumComment(
     state: FormUiState,
     focusManager: FocusManager,
-    commentMaxLength: Int,
     validateComment: (String) -> Boolean,
     onSave: (Int, String) -> Unit,
 ) {
@@ -155,7 +153,6 @@ private fun AlbumComment(
             Rating(
                 rating = rating,
                 formEnabled = formEnabled,
-                focusManager = focusManager,
                 onClick = {
                     focusManager.clearFocus()
                     rating = it
@@ -179,10 +176,10 @@ private fun AlbumComment(
             singleLine = true,
             supportingText = {
                 Text(
-                    text = "${comment.length} / $commentMaxLength",
+                    text = "${comment.length} / ${AlbumCommentViewModel.COMMENT_MAX_LENGTH}",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .semantics { contentDescription = "${comment.length} de $commentMaxLength caracteres utilizados" },
+                        .semantics { contentDescription = "${comment.length} de ${AlbumCommentViewModel.COMMENT_MAX_LENGTH} caracteres utilizados" },
                     textAlign = TextAlign.End,
                 )
             },
