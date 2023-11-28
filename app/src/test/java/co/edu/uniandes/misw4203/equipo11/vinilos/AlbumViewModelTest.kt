@@ -88,6 +88,10 @@ class AlbumViewModelTest {
         override suspend fun insertAlbum(album: AlbumJsonRequest) {
             throw UnsupportedOperationException()
         }
+
+        override suspend fun addComment(albumId: Int, collectorId: Int, rating: Int, comment: String) {
+            throw UnsupportedOperationException()
+        }
     }
 
     @Before

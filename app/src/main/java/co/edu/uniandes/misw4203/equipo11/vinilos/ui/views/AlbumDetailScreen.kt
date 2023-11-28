@@ -36,6 +36,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -172,7 +174,8 @@ private fun AlbumDetail(
         columns = GridCells.Adaptive(150.dp),
         modifier = Modifier
             .fillMaxSize()
-            .padding(8.dp),
+            .padding(8.dp)
+            .testTag("album-detail-list"),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -194,6 +197,9 @@ private fun AlbumDetail(
                 text = stringResource(R.string.nav_artists),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.W500,
+                modifier = Modifier.semantics {
+                    contentDescription = "Lista de artistas asociados al álbum "
+                }
             )
         }
 
@@ -206,7 +212,13 @@ private fun AlbumDetail(
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
-            AlbumsHeader(stringResource(R.string.nav_tracks), isCollector)
+            AlbumsHeader(
+                stringResource(R.string.nav_tracks),
+                isCollector,
+                "Tracks",
+                testTag = "add-track",
+                onClick = { }
+            )
         }
 
         items(tracks, span = { GridItemSpan(maxLineSpan) }) { track ->
@@ -214,7 +226,13 @@ private fun AlbumDetail(
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
-            AlbumsHeader(stringResource(R.string.nav_comments), isCollector)
+            AlbumsHeader(
+                stringResource(R.string.nav_comments),
+                isCollector,
+                "Comentarios",
+                testTag = "add-comment",
+                onClick = { navController.navigate("albums/${album.id}/comment") }
+            )
         }
 
         items(comments, span = { GridItemSpan(maxLineSpan) }) { comment ->
@@ -225,7 +243,7 @@ private fun AlbumDetail(
 
 
 @Composable
-private fun AlbumsHeader(title: String, isCollector: Boolean) {
+private fun AlbumsHeader(title: String, isCollector: Boolean, nameComponent: String, testTag: String, onClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -238,9 +256,11 @@ private fun AlbumsHeader(title: String, isCollector: Boolean) {
         )
         if(isCollector){
             Button(
-                onClick = { },
+                onClick = onClick,
                 modifier = Modifier
-                    .height(40.dp),
+                    .height(40.dp)
+                    .semantics { contentDescription = "Agregar $nameComponent" }
+                    .testTag(testTag),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -278,7 +298,9 @@ private fun TrackItem(track: Track) {
 @Composable
 private fun CommentItem(comment: Comment) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth()
+            .semantics { contentDescription = "Rating  ${comment.rating}" }
+            .testTag("album-detail-comment"),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -296,8 +318,11 @@ private fun CommentItem(comment: Comment) {
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(
-                text = "★",
-                style = MaterialTheme.typography.titleLarge
+                text = "★"  ,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.semantics {
+                    contentDescription = "Estrella ${comment.rating} "
+                }
             )
         }
     }
