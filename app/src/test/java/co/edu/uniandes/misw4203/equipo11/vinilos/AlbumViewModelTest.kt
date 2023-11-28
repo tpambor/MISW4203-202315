@@ -83,6 +83,10 @@ class AlbumViewModelTest {
             if (failRefresh)
                 throw Exception()
         }
+
+        override suspend fun addComment(albumId: Int, collectorId: Int, rating: Int, comment: String) {
+            throw UnsupportedOperationException()
+        }
     }
 
     @Before

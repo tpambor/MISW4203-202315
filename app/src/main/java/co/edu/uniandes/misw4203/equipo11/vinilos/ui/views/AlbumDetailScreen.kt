@@ -174,7 +174,8 @@ private fun AlbumDetail(
         columns = GridCells.Adaptive(150.dp),
         modifier = Modifier
             .fillMaxSize()
-            .padding(8.dp),
+            .padding(8.dp)
+            .testTag("album-detail-list"),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -211,7 +212,13 @@ private fun AlbumDetail(
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
-            AlbumsHeader(stringResource(R.string.nav_tracks), isCollector, "Tracks")
+            AlbumsHeader(
+                stringResource(R.string.nav_tracks),
+                isCollector,
+                "Tracks",
+                testTag = "add-track",
+                onClick = { }
+            )
         }
 
         items(tracks, span = { GridItemSpan(maxLineSpan) }) { track ->
@@ -219,7 +226,13 @@ private fun AlbumDetail(
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
-            AlbumsHeader(stringResource(R.string.nav_comments), isCollector, "Comentarios")
+            AlbumsHeader(
+                stringResource(R.string.nav_comments),
+                isCollector,
+                "Comentarios",
+                testTag = "add-comment",
+                onClick = { navController.navigate("albums/${album.id}/comment") }
+            )
         }
 
         items(comments, span = { GridItemSpan(maxLineSpan) }) { comment ->
@@ -230,7 +243,7 @@ private fun AlbumDetail(
 
 
 @Composable
-private fun AlbumsHeader(title: String, isCollector: Boolean, nameComponet:String) {
+private fun AlbumsHeader(title: String, isCollector: Boolean, nameComponent: String, testTag: String, onClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -243,10 +256,11 @@ private fun AlbumsHeader(title: String, isCollector: Boolean, nameComponet:Strin
         )
         if(isCollector){
             Button(
-                onClick = { },
+                onClick = onClick,
                 modifier = Modifier
                     .height(40.dp)
-                    .semantics { contentDescription = "Agregar $nameComponet" },
+                    .semantics { contentDescription = "Agregar $nameComponent" }
+                    .testTag(testTag),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -285,7 +299,8 @@ private fun TrackItem(track: Track) {
 private fun CommentItem(comment: Comment) {
     Row(
         modifier = Modifier.fillMaxWidth()
-            .semantics { contentDescription = "Rating  ${comment.rating}" },
+            .semantics { contentDescription = "Rating  ${comment.rating}" }
+            .testTag("album-detail-comment"),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -26,6 +26,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
+import kotlinx.coroutines.CoroutineScope
 
 sealed class NavBarItem(val route: String, @StringRes val stringId: Int, @DrawableRes val iconId: Int) {
     data object Albums : NavBarItem("albums", R.string.nav_albums, R.drawable.ic_album_24)
@@ -42,7 +43,7 @@ private val navBarItems = listOf(
 )
 
 @Composable
-fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHostState) {
+fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHostState, activityScope: CoroutineScope) {
     NavHost(
         navController = navController,
         startDestination = "login"
@@ -51,6 +52,12 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
         composable(route = "albums") { AlbumListScreen(snackbarHostState, navController) }
         composable(route = "artists") { ArtistListScreen(snackbarHostState, navController) }
         composable(route = "collectors") { CollectorListScreen(snackbarHostState, navController) }
+        composable(
+            route = "albums/{albumId}/comment",
+            arguments = listOf(navArgument("albumId") { type = NavType.IntType })
+        ){ backStackEntry ->
+            AlbumCommentScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("albumId"), navController, activityScope)
+        }
         composable(
             route = "albums/{albumId}",
             arguments = listOf(navArgument("albumId") { type = NavType.IntType })
@@ -114,6 +121,7 @@ fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackSt
     val title = when (route) {
         "artists/musician/{artistId}" -> stringResource(R.string.top_nav_artist)
         "artists/band/{artistId}" -> stringResource(R.string.top_nav_artist)
+        "albums/{albumId}/comment" -> stringResource(R.string.top_nav_comment_album)
         "albums/{albumId}" -> stringResource(R.string.top_nav_album)
         "collectors/{collectorId}" -> stringResource(R.string.top_nav_collector)
         else -> ""

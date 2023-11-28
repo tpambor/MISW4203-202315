@@ -6,6 +6,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toComment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -19,6 +20,7 @@ interface IAlbumRepository {
     fun getComments(albumId: Int): Flow<List<Comment>>
     fun getTracks(albumId: Int): Flow<List<Track>>
     suspend fun refreshAlbum(albumId: Int)
+    suspend fun addComment(albumId: Int, collectorId: Int, rating: Int, comment: String)
 }
 
 class AlbumRepository : IAlbumRepository {
@@ -87,6 +89,11 @@ class AlbumRepository : IAlbumRepository {
             listOf(adapter.getAlbum(albumId).first()),
             deleteAll = false
         )
+    }
+
+    override suspend fun addComment(albumId: Int, collectorId: Int, rating: Int, comment: String) {
+        val newComment = adapter.addCommentToAlbum(albumId, collectorId, rating, comment).first()
+        db.albumDao().insertComments(listOf(newComment.toComment(albumId)))
     }
 
     companion object {

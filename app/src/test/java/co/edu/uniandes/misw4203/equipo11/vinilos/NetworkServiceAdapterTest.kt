@@ -868,4 +868,29 @@ class NetworkServiceAdapterTest {
         adapter.removeFavoriteBandFromCollector(collectorId, bandId).first()
         assertTrue(mockRequest.called)
     }
+
+    @Test
+    fun shouldAddCommentToAlbum() = runTest {
+        val albumId = 1
+        val collectorId = 2
+        val rating = 4
+        val description = "It is an amazing album"
+        val addCommentJSON = javaClass.getResource("/addComment.json").readText()
+        val mockRequest = MockPostRequest { url, content ->
+            assertEquals( "${NetworkServiceAdapter.API_BASE_URL}/albums/$albumId/comments", url)
+            assertEquals("{\"description\":\"$description\",\"rating\":$rating,\"collector\":{\"id\":$collectorId}}", content)
+            addCommentJSON
+        }
+
+        val expectedComment = CommentJson(
+            id = 1503,
+            rating = rating,
+            description = description
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val comment = adapter.addCommentToAlbum(albumId, collectorId, rating, description).first()
+        assertEquals(expectedComment, comment)
+        assertTrue(mockRequest.called)
+    }
 }

@@ -8,6 +8,7 @@
     <string name="nav_login">Salir</string>
     <string name="top_nav_artist">Artista</string>
     <string name="top_nav_album">Álbum</string>
+    <string name="top_nav_comment_album">Agregar comentario</string>
     <string name="top_nav_collector">Coleccionista</string>
     <string name="members">Integrantes</string>
     <string name="network_error">Error al actualizar los datos</string>

@@ -63,6 +63,10 @@ class AlbumListViewModelTest {
         override suspend fun refreshAlbum(albumId: Int) {
             throw UnsupportedOperationException()
         }
+
+        override suspend fun addComment(albumId: Int, collectorId: Int, rating: Int, comment: String) {
+            throw UnsupportedOperationException()
+        }
     }
 
     @Before
