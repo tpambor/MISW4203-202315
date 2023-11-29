@@ -3,6 +3,7 @@ import android.util.Log
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.VinilosDB
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorFavoritePerformer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.MusicianBand
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import kotlinx.coroutines.flow.Flow
@@ -18,6 +19,7 @@ interface IPerformerRepository {
     fun getBand(performerId: Int): Flow<Performer?>
     fun getBandMembers(performerId: Int): Flow<List<Performer>>
     fun getBandMemberCandidates(): Flow<List<Performer>>
+    suspend fun addBandMember(bandId: Int, musicianId: Int)
     fun getAlbums(performerId: Int): Flow<List<Album>>
     suspend fun addFavoriteMusician(collectorId: Int, performerId: Int)
     suspend fun addFavoriteBand(collectorId: Int, performerId: Int)
@@ -121,6 +123,14 @@ class PerformerRepository : IPerformerRepository{
         db.performerDao().getBandMemberCandidates().collect { musicians ->
             emit(musicians)
         }
+    }
+
+    override suspend fun addBandMember(bandId: Int, musicianId: Int) {
+        adapter.addBandMember(bandId, musicianId).first()
+
+        db.performerDao().insertMusicianBands(listOf(
+            MusicianBand(musicianId, bandId)
+        ))
     }
 
     override suspend fun addFavoriteMusician(collectorId: Int, performerId: Int) {

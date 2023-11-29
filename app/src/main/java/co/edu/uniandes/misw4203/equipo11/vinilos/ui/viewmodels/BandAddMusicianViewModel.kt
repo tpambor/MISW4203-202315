@@ -11,7 +11,6 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IPerformerRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -71,7 +70,7 @@ class BandAddMusicianViewModel(
 
         viewModelScope.launch(dispatcher) {
             try {
-                delay(3000)
+                performerRepository.addBandMember(performerId, musicianId)
             } catch (ex: Exception) {
                 _error.value = ErrorUiState.Error(R.string.network_error)
                 _state.value = FormUiState.Input

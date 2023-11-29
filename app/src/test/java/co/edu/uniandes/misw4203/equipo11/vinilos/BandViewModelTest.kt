@@ -68,6 +68,14 @@ class BandViewModelTest {
             return bandMembersFlow
         }
 
+        override fun getBandMemberCandidates(): Flow<List<Performer>> {
+            throw UnsupportedOperationException()
+        }
+
+        override suspend fun addBandMember(bandId: Int, musicianId: Int) {
+            throw UnsupportedOperationException()
+        }
+
         override fun getAlbums(performerId: Int): Flow<List<Album>> {
             assertEquals(expectedPerformerId, performerId)
 

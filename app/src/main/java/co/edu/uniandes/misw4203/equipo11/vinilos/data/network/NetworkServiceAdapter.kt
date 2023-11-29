@@ -64,6 +64,12 @@ class NetworkServiceAdapter {
         }
     }
 
+    fun addBandMember(bandId: Int, musicianId: Int): Flow<MusicianJson> {
+        return HttpRequestQueue.post("$API_BASE_URL/bands/$bandId/musicians/$musicianId", "").map { response ->
+            gson().fromJson(response, MusicianJson::class.java)
+        }
+    }
+
     fun getCollectors(): Flow<List<CollectorJson>> {
         return HttpRequestQueue.get("$API_BASE_URL/collectors").map { response ->
             gson().fromJson(response, Array<CollectorJson>::class.java).toList()
