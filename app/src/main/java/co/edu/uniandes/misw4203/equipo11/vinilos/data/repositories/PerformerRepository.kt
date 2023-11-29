@@ -17,10 +17,12 @@ interface IPerformerRepository {
     fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>>
     fun getMusician(performerId: Int): Flow<Performer?>
     fun getBand(performerId: Int): Flow<Performer?>
+    fun getPerformer(performerId: Int): Flow<Performer?>
     fun getBandMembers(performerId: Int): Flow<List<Performer>>
     fun getBandMemberCandidates(): Flow<List<Performer>>
     suspend fun addBandMember(bandId: Int, musicianId: Int)
     fun getAlbums(performerId: Int): Flow<List<Album>>
+    fun getAlbumCandidates(performerId: Int): Flow<List<Album>>
     suspend fun addFavoriteMusician(collectorId: Int, performerId: Int)
     suspend fun addFavoriteBand(collectorId: Int, performerId: Int)
     suspend fun removeFavoriteMusician(collectorId: Int, performerId: Int)
@@ -107,8 +109,20 @@ class PerformerRepository : IPerformerRepository{
         }
     }
 
+    override fun getPerformer(performerId: Int): Flow<Performer?> = flow {
+        db.performerDao().getPerformerById(performerId).collect { performer ->
+            emit(performer)
+        }
+    }
+
     override fun getAlbums(performerId: Int): Flow<List<Album>> = flow {
         db.albumDao().getAlbumsByPerformerId(performerId).collect { albums ->
+            emit(albums)
+        }
+    }
+
+    override fun getAlbumCandidates(performerId: Int): Flow<List<Album>> = flow {
+        db.albumDao().getAlbumsNotByPerformerId(performerId).collect { albums ->
             emit(albums)
         }
     }

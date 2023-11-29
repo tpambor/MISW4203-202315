@@ -26,6 +26,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import kotlinx.coroutines.CoroutineScope
 
 sealed class NavBarItem(val route: String, @StringRes val stringId: Int, @DrawableRes val iconId: Int) {
@@ -71,10 +72,22 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
             MusicianDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController)
         }
         composable(
+            route = "artists/musician/{artistId}/addAlbum",
+            arguments = listOf(navArgument("artistId") { type = NavType.IntType })
+        ){ backStackEntry ->
+            ArtistAddAlbumScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController, activityScope, PerformerType.MUSICIAN)
+        }
+        composable(
             route = "artists/band/{artistId}/addMusician",
             arguments = listOf(navArgument("artistId") { type = NavType.IntType })
         ){ backStackEntry ->
             BandAddMusicianScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController, activityScope)
+        }
+        composable(
+            route = "artists/band/{artistId}/addAlbum",
+            arguments = listOf(navArgument("artistId") { type = NavType.IntType })
+        ){ backStackEntry ->
+            ArtistAddAlbumScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController, activityScope, PerformerType.BAND)
         }
         composable(
             route = "artists/band/{artistId}",
@@ -126,8 +139,10 @@ fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackSt
 
     val title = when (route) {
         "artists/musician/{artistId}" -> stringResource(R.string.top_nav_artist)
+        "artists/musician/{artistId}/addAlbum" -> stringResource(R.string.top_nav_artist_add_album)
         "artists/band/{artistId}" -> stringResource(R.string.top_nav_artist)
         "artists/band/{artistId}/addMusician" -> stringResource(R.string.top_nav_band_add_musician)
+        "artists/band/{artistId}/addAlbum" -> stringResource(R.string.top_nav_artist_add_album)
         "albums/{albumId}/comment" -> stringResource(R.string.top_nav_comment_album)
         "albums/{albumId}" -> stringResource(R.string.top_nav_album)
         "collectors/{collectorId}" -> stringResource(R.string.top_nav_collector)

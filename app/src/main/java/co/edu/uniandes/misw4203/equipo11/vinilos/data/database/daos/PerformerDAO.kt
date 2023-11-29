@@ -24,6 +24,9 @@ abstract class PerformerDAO {
     @Query("SELECT * FROM performer WHERE type = :performerType ORDER BY name COLLATE UNICODE")
     protected abstract fun getPerformersByType(performerType: PerformerType): Flow<List<Performer>>
 
+    @Query("SELECT * FROM performer WHERE id = :performerId")
+    abstract fun getPerformerById(performerId: Int): Flow<Performer?>
+
     @Query("SELECT * FROM performer WHERE id = :performerId AND type = :performerType")
     protected abstract fun getPerformerByTypeId(performerType: PerformerType, performerId: Int): Flow<Performer?>
 

@@ -166,7 +166,7 @@ private fun PerformerDetailScreen(viewModel: PerformerViewModel, snackbarHostSta
 }
 
 @Composable
-private fun AlbumsHeader(isCollector: Boolean) {
+private fun AlbumsHeader(isCollector: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -181,7 +181,7 @@ private fun AlbumsHeader(isCollector: Boolean) {
         )
         if(isCollector){
             Button(
-                onClick = { },
+                onClick = onClick,
                 modifier = Modifier
                     .height(40.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -239,11 +239,17 @@ private fun MusicianDetail(musician: Performer, albums: List<Album>, navControll
         item(span = { GridItemSpan(maxLineSpan) }) {
             Column {
                 ArtistDescription(musician)
-                AlbumsHeader(isCollector)
+                AlbumsHeader(
+                    isCollector,
+                    onClick = { navController.navigate("artists/musician/${musician.id}/addAlbum") }
+                )
             }
         }
-        items(albums) {
-                item: Album -> AlbumItem(item, navController)
+        items(albums) {item ->
+            AlbumItem(
+                album = item,
+                onClick = { navController.navigate("albums/${item.id}") }
+            )
         }
     }
 }
@@ -277,11 +283,17 @@ private fun BandDetail(band: Performer, albums: List<Album>, members: List<Perfo
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
             Column{
-                AlbumsHeader(isCollector)
+                AlbumsHeader(
+                    isCollector,
+                    onClick = { navController.navigate("artists/band/${band.id}/addAlbum") }
+                )
             }
         }
-        items(albums) {
-                item: Album -> AlbumItem(item, navController)
+        items(albums) { item ->
+            AlbumItem(
+                album = item,
+                onClick = { navController.navigate("albums/${item.id}") }
+            )
         }
     }
 }
