@@ -85,6 +85,10 @@ class MusicianViewModelTest {
             throw UnsupportedOperationException()
         }
 
+        override suspend fun addAlbum(performerId: Int, type: PerformerType, albumId: Int) {
+            throw UnsupportedOperationException()
+        }
+
         override suspend fun addFavoriteMusician(collectorId: Int, performerId: Int) {
             throw UnsupportedOperationException()
         }

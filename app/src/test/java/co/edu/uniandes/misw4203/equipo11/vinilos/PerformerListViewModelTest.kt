@@ -79,6 +79,10 @@ class PerformerListViewModelTest {
             throw UnsupportedOperationException()
         }
 
+        override suspend fun addAlbum(performerId: Int, type: PerformerType, albumId: Int) {
+            throw UnsupportedOperationException()
+        }
+
         var failUpdateFavorite: Boolean = false
         var updateFavoriteMusicianCollectorId: Int? = null
         var updateFavoriteMusicianPerformerId: Int? = null

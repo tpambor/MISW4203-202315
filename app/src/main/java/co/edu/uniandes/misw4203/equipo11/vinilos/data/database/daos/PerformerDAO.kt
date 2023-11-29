@@ -58,7 +58,7 @@ abstract class PerformerDAO {
     protected abstract suspend fun insertAlbums(albums: List<Album>)
 
     @Insert
-    protected abstract suspend fun insertPerformerAlbums(performerAlbum: List<PerformerAlbum>)
+    abstract suspend fun insertPerformerAlbums(performerAlbum: List<PerformerAlbum>)
 
     @Transaction
     @Query("DELETE FROM PerformerAlbum WHERE performerId IN (SELECT id FROM Performer WHERE Performer.type = :performerType)")

@@ -5,6 +5,8 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorFavoritePerformer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.MusicianBand
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerAlbum
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -23,6 +25,7 @@ interface IPerformerRepository {
     suspend fun addBandMember(bandId: Int, musicianId: Int)
     fun getAlbums(performerId: Int): Flow<List<Album>>
     fun getAlbumCandidates(performerId: Int): Flow<List<Album>>
+    suspend fun addAlbum(performerId: Int, type: PerformerType, albumId: Int)
     suspend fun addFavoriteMusician(collectorId: Int, performerId: Int)
     suspend fun addFavoriteBand(collectorId: Int, performerId: Int)
     suspend fun removeFavoriteMusician(collectorId: Int, performerId: Int)
@@ -144,6 +147,17 @@ class PerformerRepository : IPerformerRepository{
 
         db.performerDao().insertMusicianBands(listOf(
             MusicianBand(musicianId, bandId)
+        ))
+    }
+
+    override suspend fun addAlbum(performerId: Int, type: PerformerType, albumId: Int) {
+        when (type) {
+            PerformerType.MUSICIAN -> adapter.addMusicianToAlbum(performerId, albumId).first()
+            PerformerType.BAND -> adapter.addBandToAlbum(performerId, albumId).first()
+        }
+
+        db.performerDao().insertPerformerAlbums(listOf(
+            PerformerAlbum(performerId, albumId)
         ))
     }
 

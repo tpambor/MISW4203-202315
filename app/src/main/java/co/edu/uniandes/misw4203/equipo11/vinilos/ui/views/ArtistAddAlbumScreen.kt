@@ -39,6 +39,7 @@ fun ArtistAddAlbumScreen(snackbarHostState: SnackbarHostState, artistId: Int, na
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
             set(ArtistAddAlbumViewModel.KEY_PERFORMER_REPOSITORY, PerformerRepository())
             set(ArtistAddAlbumViewModel.KEY_PERFORMER_ID, artistId)
+            set(ArtistAddAlbumViewModel.KEY_PERFORMER_TYPE, type)
         }
     )
 

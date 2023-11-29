@@ -9,10 +9,10 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IPerformerRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class ArtistAddAlbumViewModel(
     private val performerRepository: IPerformerRepository,
     private val performerId: Int,
+    private val performerType: PerformerType,
     private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _performer: MutableStateFlow<Performer?> = MutableStateFlow(null)
@@ -67,12 +68,12 @@ class ArtistAddAlbumViewModel(
         }
     }
 
-    fun onSave(musicianId: Int) {
+    fun onSave(albumId: Int) {
         _state.value = FormUiState.Saving
 
         viewModelScope.launch(dispatcher) {
             try {
-                delay(3000)
+                performerRepository.addAlbum(performerId, performerType, albumId)
             } catch (ex: Exception) {
                 _error.value = ErrorUiState.Error(R.string.network_error)
                 _state.value = FormUiState.Input
@@ -90,6 +91,7 @@ class ArtistAddAlbumViewModel(
     companion object {
         val KEY_PERFORMER_REPOSITORY = object : CreationExtras.Key<IPerformerRepository> {}
         val KEY_PERFORMER_ID = object : CreationExtras.Key<Int> {}
+        val KEY_PERFORMER_TYPE = object : CreationExtras.Key<PerformerType> {}
         val KEY_DISPATCHER = object : CreationExtras.Key<CoroutineDispatcher> {}
 
         val Factory: ViewModelProvider.Factory = viewModelFactory {
@@ -97,6 +99,7 @@ class ArtistAddAlbumViewModel(
                 ArtistAddAlbumViewModel(
                     performerRepository = requireNotNull(this[KEY_PERFORMER_REPOSITORY]),
                     performerId = requireNotNull(this[KEY_PERFORMER_ID]),
+                    performerType = requireNotNull(this[KEY_PERFORMER_TYPE]),
                     dispatcher = this[KEY_DISPATCHER] ?: Dispatchers.IO
                 )
             }
