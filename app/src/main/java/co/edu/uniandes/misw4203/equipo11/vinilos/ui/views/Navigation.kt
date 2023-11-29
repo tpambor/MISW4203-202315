@@ -76,7 +76,7 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
         ){ backStackEntry ->
             BandDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController)
         }
-        composable(route = "albums/add"){ AlbumCreateScreen(snackbarHostState, navController) }
+        composable(route = "albums/add"){ AlbumCreateScreen(snackbarHostState, navController, activityScope) }
         composable(
             route = "collectors/{collectorId}",
             arguments = listOf(navArgument("collectorId") { type = NavType.IntType })

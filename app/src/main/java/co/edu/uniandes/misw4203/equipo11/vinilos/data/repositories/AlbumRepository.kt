@@ -71,7 +71,8 @@ class AlbumRepository : IAlbumRepository {
 
              db.albumDao().insertAlbum(remoteAlbum)
         } catch (e: Exception) {
-            println("Error inserting album: $e")
+            println("Error inserting album: ${e.message}")
+            throw e
         }
     }
 

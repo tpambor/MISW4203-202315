@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
@@ -27,6 +29,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
@@ -34,51 +37,69 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJsonRequest
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.AlbumRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumViewModel
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.FormUiState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun AlbumCreateScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
+fun AlbumCreateScreen(snackbarHostState: SnackbarHostState, navController: NavHostController,  activityScope: CoroutineScope) {
 
-//    val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle(
-//        true
-//    )
-//
-//    val error by viewModel.error.collectAsStateWithLifecycle(
-//        ErrorUiState.NoError
-//    )
-
-//    val pullRefreshState = rememberPullRefreshState(
-//        refreshing = isRefreshing,
-//        onRefresh = {}
-//    )
-
-//    Box(Modifier.pullRefresh(pullRefreshState)) {
-        Box( modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())) {
-            AlbumCreateForm()
+    val viewModel: AlbumViewModel = viewModel(
+        factory = AlbumViewModel.Factory,
+        extras = MutableCreationExtras(CreationExtras.Empty).apply {
+            set(AlbumViewModel.KEY_ALBUM_REPOSITORY, AlbumRepository())
         }
+    )
 
-//        PullRefreshIndicator(
-//            refreshing = isRefreshing,
-//            state = pullRefreshState,
-//            modifier = Modifier.align(Alignment.TopCenter)
-//        )
-//    }
+    val formState by viewModel.formState.collectAsStateWithLifecycle(
+        FormUiState.Input
+    )
 
-//    if (error is ErrorUiState.Error) {
-//        val message = stringResource((error as ErrorUiState.Error).resourceId)
-//        LaunchedEffect(error) {
-//            snackbarHostState.showSnackbar(message)
-//            viewModel.onErrorShown()
-//        }
-//    }
+    val insertAlbumResult by viewModel.insertAlbumResult.collectAsStateWithLifecycle()
+
+    if (formState == FormUiState.Saved) {
+        LaunchedEffect(formState) {
+            activityScope.launch {
+                snackbarHostState.showSnackbar("Álbum agregado exitosamente")
+            }
+            navController.navigate("albums")
+        }
+    }
+
+    Box( modifier = Modifier
+        .fillMaxSize()
+        .verticalScroll(rememberScrollState())) {
+        AlbumCreateForm(viewModel, formState)
+    }
+
+    if (insertAlbumResult.isFailure) {
+        val exception = insertAlbumResult.exceptionOrNull()
+        val message = exception?.message ?: "Error desconocido"
+        LaunchedEffect(insertAlbumResult) {
+            snackbarHostState.showSnackbar(message)
+            viewModel.onErrorShown()
+        }
+    }
+
 }
 
 data class FormField(
@@ -90,10 +111,12 @@ data class FormField(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Suppress("ModifierParameter")
-fun AlbumCreateForm() {
+fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
     val genreOptions = listOf("Classical", "Salsa", "Rock", "Folk")
     var genreIndex by remember { mutableIntStateOf(0) }
     var dropdownGenreExpanded by remember { mutableStateOf(false) }
+
+    val formEnabled = formState == FormUiState.Input
 
     val recordLabelOptions = listOf("Sony Music", "EMI", "Discos Fuentes", "Elektra", "Fania Records")
     var recordLabelIndex by remember { mutableIntStateOf(0) }
@@ -105,7 +128,6 @@ fun AlbumCreateForm() {
 
     var showDatePicker by remember { mutableStateOf(false) }
 
-
     var name by remember { mutableStateOf(FormField(value = "", error = false, errorMsg = "")) }
     var cover by remember { mutableStateOf(FormField(value = "", error = false, errorMsg = "")) }
     var genre by remember { mutableStateOf(FormField(value = "", error = false, errorMsg = "")) }
@@ -115,7 +137,7 @@ fun AlbumCreateForm() {
 
     fun validateForm() {
         val errorMessages = mutableListOf<Pair<String, String>>()
-        val imageRegex = "(http(s?):)([/|.|\\w|\\s|-])*\\.(?:jpg|gif|png|jpeg|)"
+        val imageRegex = "(http(s?):)([/|.|\\w|\\s|-])*\\.(?:jpg|JPG|gif|GIF|png|PNG|jpeg|JPEG)"
         val currentDate = Instant.now().toEpochMilli()
 
         if (name.value.isEmpty()) {
@@ -175,6 +197,25 @@ fun AlbumCreateForm() {
                     "description" -> description = description.copy(error = true, errorMsg = errorMsg)
                 }
             }
+        }else {
+            val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+            val date = LocalDate.parse(releaseDate.value, dateFormatter)
+            val outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'00:00:00-05:00")
+
+            val releaseDateISO =  date.format(outputFormatter)
+
+            println("releaseDateISO ${releaseDateISO}")
+
+            val newAlbum = AlbumJsonRequest(
+                name = name.value,
+                cover = cover.value,
+                releaseDate = releaseDateISO,
+                description = description.value,
+                genre = genre.value,
+                recordLabel = recordLabel.value,
+            )
+
+            viewModel.insertAlbum(newAlbum)
         }
     }
 
@@ -195,6 +236,18 @@ fun AlbumCreateForm() {
             supportingText = {
                 if (name.errorMsg.isNotEmpty())
                     Text(text = name.errorMsg, modifier = Modifier.padding(bottom = 8.dp))
+                else {
+                    Text(
+                        text = "${ name.value.length} / ${AlbumViewModel.NAME_MAX_LENGTH}",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics {
+                                contentDescription =
+                                    "${name.value.length} de ${AlbumViewModel.NAME_MAX_LENGTH} caracteres utilizados"
+                            },
+                        textAlign = TextAlign.End,
+                    )
+                }
             }
         )
 
@@ -357,6 +410,18 @@ fun AlbumCreateForm() {
             supportingText = {
                 if (description.errorMsg.isNotEmpty())
                     Text(text = description.errorMsg, modifier = Modifier.padding(bottom = 8.dp))
+                else {
+                    Text(
+                        text = "${ description.value.length} / ${AlbumViewModel.DESCRIPTION_MAX_LENGTH}",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics {
+                                contentDescription =
+                                    "${description.value.length} de ${AlbumViewModel.DESCRIPTION_MAX_LENGTH} caracteres utilizados"
+                            },
+                        textAlign = TextAlign.End,
+                    )
+                }
             }
         )
 
@@ -368,7 +433,21 @@ fun AlbumCreateForm() {
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
         ) {
-            Text("Agregar")
+            if (formEnabled) {
+                Text(
+                    text = "Agregar",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            } else {
+                CircularProgressIndicator(
+                    strokeWidth = 3.dp,
+                    modifier = Modifier.size(
+                        with(LocalDensity.current) {
+                            MaterialTheme.typography.titleMedium.lineHeight.toDp()
+                        }
+                    )
+                )
+            }
         }
 
     }
