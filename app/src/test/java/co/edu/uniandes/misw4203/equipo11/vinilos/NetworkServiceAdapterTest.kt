@@ -893,4 +893,31 @@ class NetworkServiceAdapterTest {
         assertEquals(expectedComment, comment)
         assertTrue(mockRequest.called)
     }
+
+    @Test
+    fun shouldAddBandMember() = runTest {
+        val bandId = 1
+        val musicianId = 1023
+        val addBandMemberJSON = javaClass.getResource("/addBandMember.json").readText()
+        val mockRequest = MockPostRequest { url, content ->
+            assertEquals( "${NetworkServiceAdapter.API_BASE_URL}/bands/$bandId/musicians/$musicianId", url)
+            assertEquals("", content)
+            addBandMemberJSON
+        }
+
+        val expectedPerformer = MusicianJson(
+            id = 1023,
+            name = "Vernis Hernandez",
+            image = "https://i.scdn.co/image/ab6761610000e5eb96652711b492d2f35866b0a4",
+            description = "International gun least war reflect us throughout. Experience guy me public majority travel. Rise everyone campaign ground.",
+            birthDate = Instant.parse("2007-04-15T00:00:00.000Z"),
+            albums = null,
+            collectors = null
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val performer = adapter.addBandMember(bandId, musicianId).first()
+        assertEquals(expectedPerformer, performer)
+        assertTrue(mockRequest.called)
+    }
 }
