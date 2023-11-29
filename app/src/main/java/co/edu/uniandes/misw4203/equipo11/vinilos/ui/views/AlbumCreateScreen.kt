@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -40,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -108,20 +106,100 @@ data class FormField(
     var errorMsg: String = ""
 )
 
+@Composable
+fun BasicInput(
+    field: FormField,
+    counter: Boolean = false,
+    counterMaxLength: Int? = null,
+    onValueChanged: (FormField) -> Unit,
+    formPlaceholder: String,
+    minLines: Int = 1,
+) {
+    OutlinedTextField(
+        value = field.value,
+        onValueChange = { newValue ->
+            onValueChanged(field.copy(value = newValue))
+        },
+        minLines = minLines,
+        label = { Text(formPlaceholder) },
+        modifier = Modifier
+            .fillMaxWidth(),
+        isError = field.error,
+        supportingText = {
+            if (field.errorMsg.isNotEmpty())
+                Text(text = field.errorMsg, modifier = Modifier.padding(bottom = 8.dp))
+            else if(counter) {
+                Text(
+                    text = "${ field.value.length} / $counterMaxLength",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics {
+                            contentDescription =
+                                "${field.value.length} de $counterMaxLength caracteres utilizados"
+                        },
+                    textAlign = TextAlign.End,
+                )
+            }
+        }
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Suppress("ModifierParameter")
+fun Selector(
+    field: FormField,
+    options: List<String>,
+    onValueChanged: (FormField) -> Unit,
+    fieldPlaceholder: String
+) {
+    var dropdownExpanded by remember { mutableStateOf(false) }
+    var fieldIndex by remember { mutableIntStateOf(0) }
+
+    ExposedDropdownMenuBox(
+        expanded = dropdownExpanded,
+        onExpandedChange = {
+            dropdownExpanded = !dropdownExpanded
+        },
+    ) {
+        OutlinedTextField(
+            value = field.value,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(fieldPlaceholder) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownExpanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(),
+            isError = field.error,
+            supportingText = {
+                if (field.errorMsg.isNotEmpty())
+                    Text(text = field.errorMsg, modifier = Modifier.padding(bottom= 8.dp))
+            }
+        )
+        ExposedDropdownMenu(
+            expanded = dropdownExpanded,
+            onDismissRequest = { dropdownExpanded = false },
+        ){
+            options.forEachIndexed { index, option ->
+                DropdownMenuItem(
+                    text = { Text(option) },
+                    onClick = {
+                        fieldIndex = index
+                        dropdownExpanded = false
+                        onValueChanged(field.copy(value = options[index]))
+                    }
+                )
+            }
+        }
+    }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
     val genreOptions = listOf("Classical", "Salsa", "Rock", "Folk")
-    var genreIndex by remember { mutableIntStateOf(0) }
-    var dropdownGenreExpanded by remember { mutableStateOf(false) }
+    val recordLabelOptions = listOf("Sony Music", "EMI", "Discos Fuentes", "Elektra", "Fania Records")
 
     val formEnabled = formState == FormUiState.Input
-
-    val recordLabelOptions = listOf("Sony Music", "EMI", "Discos Fuentes", "Elektra", "Fania Records")
-    var recordLabelIndex by remember { mutableIntStateOf(0) }
-    var recordLabelExpanded by remember { mutableStateOf(false) }
-
     val releaseDateState = rememberDatePickerState(
         initialSelectedDateMillis = Instant.now().toEpochMilli(),
     )
@@ -151,7 +229,7 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
         if (cover.value.isEmpty()) {
             errorMessages.add("cover" to "La URL de la portada es obligatoria")
         }else if (!cover.value.matches(imageRegex.toRegex())) {
-            errorMessages.add("cover" to "La URL de la portada no es válida")
+            errorMessages.add("cover" to "La URL de la portada debe tener el formato adecuado, ej: https://imagen.jpg")
         } else {
             cover = cover.copy(error = false, errorMsg = "")
         }
@@ -224,88 +302,33 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        OutlinedTextField(
-            value = name.value,
-            onValueChange = { newValue ->
-                name = name.copy(value = newValue)
+
+        BasicInput(
+            field = name,
+            counter = true,
+            counterMaxLength = AlbumViewModel.NAME_MAX_LENGTH,
+            onValueChanged = { updatedName ->
+                name = updatedName
             },
-            label = { Text("Nombre") },
-            modifier = Modifier
-                .fillMaxWidth(),
-            isError = name.error,
-            supportingText = {
-                if (name.errorMsg.isNotEmpty())
-                    Text(text = name.errorMsg, modifier = Modifier.padding(bottom = 8.dp))
-                else {
-                    Text(
-                        text = "${ name.value.length} / ${AlbumViewModel.NAME_MAX_LENGTH}",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .semantics {
-                                contentDescription =
-                                    "${name.value.length} de ${AlbumViewModel.NAME_MAX_LENGTH} caracteres utilizados"
-                            },
-                        textAlign = TextAlign.End,
-                    )
-                }
-            }
+            formPlaceholder = "Nombre"
         )
 
-        OutlinedTextField(
-            value = cover.value,
-            onValueChange = { newValue ->
-                cover = cover.copy(value = newValue)
+        BasicInput(
+            field = cover,
+            onValueChanged = { updatedCover ->
+                cover = updatedCover
             },
-            label = { Text("URL de la portada") },
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Uri
-            ),
-            modifier = Modifier
-                .fillMaxWidth(),
-            isError = cover.error,
-            supportingText = {
-                if (cover.errorMsg.isNotEmpty())
-                    Text(text = cover.errorMsg, modifier = Modifier.padding(bottom = 8.dp))
-            }
+            formPlaceholder = "URL de la portada"
         )
 
-        ExposedDropdownMenuBox(
-            expanded = dropdownGenreExpanded,
-            onExpandedChange = {
-                dropdownGenreExpanded = !dropdownGenreExpanded
+        Selector(
+            field = genre,
+            options = genreOptions,
+            onValueChanged = { updatedGenre ->
+                genre = updatedGenre
             },
-        ) {
-            OutlinedTextField(
-                value = genre.value,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Género") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownGenreExpanded) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),
-                isError = genre.error,
-                supportingText = {
-                    if (genre.errorMsg.isNotEmpty())
-                        Text(text = genre.errorMsg, modifier = Modifier.padding(bottom= 8.dp))
-                }
-            )
-            ExposedDropdownMenu(
-                expanded = dropdownGenreExpanded,
-                onDismissRequest = { dropdownGenreExpanded = false },
-            ){
-                genreOptions.forEachIndexed { index, option ->
-                    DropdownMenuItem(
-                        text = { Text(option) },
-                        onClick = {
-                            genreIndex = index
-                            dropdownGenreExpanded = false
-                            genre = genre.copy(value = genreOptions[genreIndex])
-                        }
-                    )
-                }
-            }
-        }
+            fieldPlaceholder = "Género"
+        )
 
         OutlinedTextField(
             value = releaseDate.value,
@@ -358,71 +381,24 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
             Instant.ofEpochMilli(it).atOffset(ZoneOffset.UTC)
         }?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) ?: "")
 
-        ExposedDropdownMenuBox(
-            expanded = recordLabelExpanded,
-            onExpandedChange = {
-                recordLabelExpanded = !recordLabelExpanded
+        Selector(
+            field = recordLabel,
+            options = recordLabelOptions,
+            onValueChanged = { updatedRecordLabel ->
+                recordLabel = updatedRecordLabel
             },
-        ) {
-            OutlinedTextField(
-                value = recordLabel.value,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Disquera") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = recordLabelExpanded) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),
-                isError = recordLabel.error,
-                supportingText = {
-                    if (recordLabel.errorMsg.isNotEmpty())
-                        Text(text = recordLabel.errorMsg, modifier = Modifier.padding(bottom = 8.dp))
-                }
-            )
-            ExposedDropdownMenu(
-                expanded = recordLabelExpanded,
-                onDismissRequest = { recordLabelExpanded = false },
-            ){
-                recordLabelOptions.forEachIndexed { index, option ->
-                    DropdownMenuItem(
-                        text = { Text(option) },
-                        onClick = {
-                            recordLabelIndex = index
-                            recordLabelExpanded = false
-                            recordLabel = recordLabel.copy(value = recordLabelOptions[recordLabelIndex])
-                        }
-                    )
-                }
-            }
-        }
+            fieldPlaceholder = "Disquera"
+        )
 
-
-
-        OutlinedTextField(
-            value = description.value,
-            onValueChange = { newValue ->
-                description = description.copy(value = newValue) },
-            label = { Text("Descripción") },
+        BasicInput(
+            field = description,
+            onValueChanged = { updatedDescription ->
+                description = updatedDescription
+            },
+            formPlaceholder = "Descripción",
             minLines = 3,
-            modifier = Modifier
-                .fillMaxWidth(),
-            isError = description.error,
-            supportingText = {
-                if (description.errorMsg.isNotEmpty())
-                    Text(text = description.errorMsg, modifier = Modifier.padding(bottom = 8.dp))
-                else {
-                    Text(
-                        text = "${ description.value.length} / ${AlbumViewModel.DESCRIPTION_MAX_LENGTH}",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .semantics {
-                                contentDescription =
-                                    "${description.value.length} de ${AlbumViewModel.DESCRIPTION_MAX_LENGTH} caracteres utilizados"
-                            },
-                        textAlign = TextAlign.End,
-                    )
-                }
-            }
+            counter = true,
+            counterMaxLength = AlbumViewModel.DESCRIPTION_MAX_LENGTH
         )
 
         Button(
