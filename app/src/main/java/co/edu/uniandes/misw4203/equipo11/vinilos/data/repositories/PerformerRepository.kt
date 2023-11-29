@@ -113,7 +113,7 @@ class PerformerRepository : IPerformerRepository{
 
     suspend fun insertAlbum(album: AlbumJsonRequest) {
         var albumInsert = adapter.insertAlbum(album).first()
-        db.albumDao().insertAlbum(albumInsert)
+       // db.albumDao().insertAlbum(albumInsert)
     }
 
     override fun getBandMembers(performerId: Int): Flow<List<Performer>> = flow {

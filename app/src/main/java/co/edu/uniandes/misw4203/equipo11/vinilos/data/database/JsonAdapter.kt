@@ -2,12 +2,15 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.data.database
 
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbumCrossRef
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbumStatus
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorAlbumJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CommentJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.MusicianJson
@@ -66,6 +69,15 @@ fun CollectorJson.toCollector(): Collector {
         name = this.name,
         telephone = this.telephone,
         email = this.email,
+    )
+}
+
+fun CollectorAlbumJson.toCollectorAlbum(collectorId: Int): CollectorAlbumCrossRef {
+    return CollectorAlbumCrossRef(
+        collectorId = collectorId,
+        albumId = this.id,
+        price = this.price,
+        status = if (this.status == "Active") CollectorAlbumStatus.Active else CollectorAlbumStatus.Inactive
     )
 }
 

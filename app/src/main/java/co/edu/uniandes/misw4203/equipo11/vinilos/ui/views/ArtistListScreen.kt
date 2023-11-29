@@ -194,6 +194,7 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState, navController: NavHos
 @Composable
 private fun FavoriteButton(
     performerId: Int,
+    performerName: String,
     isFavorite: Boolean,
     isUpdating: Boolean,
     addFavoritePerformer: (Int) -> Unit,
@@ -201,7 +202,7 @@ private fun FavoriteButton(
 ) {
     if(isUpdating) {
         CircularProgressIndicator(modifier = Modifier
-            .size(31.dp)
+            .size(48.dp)
             .padding(2.dp, 2.dp, 3.dp, 2.dp)
         )
     } else {
@@ -217,14 +218,14 @@ private fun FavoriteButton(
                     color = if (isFavorite) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.background,
                     shape = CircleShape,
                 )
-                .size(35.dp)
+                .size(48.dp)
                 .padding(0.dp, 0.dp, 1.dp, 0.dp)
                 .testTag(if (isFavorite) "performer-fav-button-checked" else "performer-fav-button-unchecked")
         ) {
             Icon(
                 imageVector = Icons.Default.FavoriteBorder,
-                contentDescription = stringResource(R.string.artists_add_favorite),
-                modifier = Modifier.size(20.dp)
+                contentDescription = if (isFavorite) stringResource(R.string.artists_delete_favorite, performerName) else stringResource(R.string.artists_add_favorite, performerName),
+                modifier = Modifier.size(22.dp)
             )
         }
     }
@@ -269,7 +270,7 @@ fun ArtistItem(
                 Text(
                     text = performer.name,
                     modifier = Modifier
-                        .padding(4.dp, 8.dp, 0.dp, 0.dp)
+                        .padding(4.dp, 8.dp, 4.dp, 0.dp)
                         .fillMaxWidth()
                         .weight(1f),
                     style = MaterialTheme.typography.titleMedium
@@ -317,7 +318,7 @@ private fun ArtistsList(
                     favButton = {
                         // Favorite button
                         if (user?.type == UserType.Collector) {
-                            FavoriteButton(item.id, isFavorite, isUpdating, addFavoritePerformer, removeFavoritePerformer)
+                            FavoriteButton(item.id, item.name, isFavorite, isUpdating, addFavoritePerformer, removeFavoritePerformer)
                         }
                     },
                     navController

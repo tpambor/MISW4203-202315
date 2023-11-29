@@ -8,6 +8,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.daos.CollectorDAO
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.daos.PerformerDAO
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbumCrossRef
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorFavoritePerformer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.MusicianBand
@@ -19,6 +20,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
     entities = [
         Album::class,
         Collector::class,
+        CollectorAlbumCrossRef::class,
         CollectorFavoritePerformer::class,
         Comment::class,
         MusicianBand::class,
@@ -26,7 +28,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
         PerformerAlbum::class,
         Track::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

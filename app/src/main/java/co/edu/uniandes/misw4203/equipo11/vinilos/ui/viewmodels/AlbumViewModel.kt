@@ -11,10 +11,12 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJsonRequest
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IAlbumRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
@@ -46,6 +48,21 @@ class AlbumViewModel(
 
     private val _error = MutableStateFlow<ErrorUiState>(ErrorUiState.NoError)
     val error = _error.asStateFlow()
+
+    private val _insertAlbumResult = MutableStateFlow<Result<Unit>>(Result.success(Unit))
+    val insertAlbumResult: StateFlow<Result<Unit>> get() = _insertAlbumResult
+
+    fun insertAlbum(album: AlbumJsonRequest) {
+        viewModelScope.launch {
+            try {
+                albumRepository.insertAlbum(album)
+                _insertAlbumResult.value = Result.success(Unit)
+            } catch (ex: Exception) {
+                _insertAlbumResult.value = Result.failure(ex)
+            }
+        }
+    }
+
 
     private fun getAlbum() {
         if (getAlbumStarted.getAndSet(true))
