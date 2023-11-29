@@ -236,7 +236,7 @@ private fun FavoriteButton(
 fun ArtistItem(
     performer: Performer,
     favButton: @Composable () -> Unit,
-    navController: NavHostController
+    onClick: () -> Unit
 ) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
@@ -248,10 +248,7 @@ fun ArtistItem(
             .testTag("performer-list-item"),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
-        onClick = {
-            val prefix = if (performer.type == PerformerType.MUSICIAN) "musician" else "band"
-            navController.navigate("artists/$prefix/${performer.id}")
-        }
+        onClick = onClick
     ) {
         Column {
             GlideImage(
@@ -321,7 +318,10 @@ private fun ArtistsList(
                             FavoriteButton(item.id, item.name, isFavorite, isUpdating, addFavoritePerformer, removeFavoritePerformer)
                         }
                     },
-                    navController
+                    onClick = {
+                        val prefix = if (item.type == PerformerType.MUSICIAN) "musician" else "band"
+                        navController.navigate("artists/$prefix/${item.id}")
+                    }
                 )
             }
         }
