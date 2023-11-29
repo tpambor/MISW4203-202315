@@ -4,7 +4,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.window.DialogWindowProvider
 
 @Composable
@@ -28,6 +30,7 @@ fun ConfirmationDialog(
         },
         confirmButton = {
             TextButton(
+                modifier = Modifier.testTag("confirmation-dialog-confirm"),
                 onClick = { onConfirmation() }
             ) {
                 Text("Confirmar")

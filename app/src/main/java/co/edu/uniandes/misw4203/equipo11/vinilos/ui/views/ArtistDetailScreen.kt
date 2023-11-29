@@ -214,7 +214,8 @@ private fun MembersHeader(isCollector: Boolean, onClick: () -> Unit) {
             Button(
                 onClick = onClick,
                 modifier = Modifier
-                    .height(40.dp),
+                    .height(40.dp)
+                    .testTag("add-member"),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -251,7 +252,7 @@ private fun MusicianDetail(musician: Performer, albums: List<Album>, navControll
 private fun BandDetail(band: Performer, albums: List<Album>, members: List<Performer>, navController: NavHostController, isCollector: Boolean) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(150.dp),
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().testTag("artist-detail-list"),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
