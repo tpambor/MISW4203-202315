@@ -38,6 +38,10 @@ abstract class PerformerDAO {
     @Query("SELECT p.* FROM MusicianBand mb JOIN Performer p ON mb.musicianId = p.id WHERE bandId = :performerId ORDER BY p.name COLLATE UNICODE")
     abstract fun getBandMembers(performerId: Int): Flow<List<Performer>>
 
+    @Transaction
+    @Query("SELECT * FROM Performer WHERE type == :performerType AND id NOT IN (SELECT musicianId FROM MusicianBand) ORDER BY name COLLATE UNICODE")
+    abstract fun getBandMemberCandidates(performerType: PerformerType = PerformerType.MUSICIAN): Flow<List<Performer>>
+
     @Query("SELECT p.* FROM CollectorFavoritePerformer cp JOIN Performer p on cp.performerId = p.id WHERE cp.collectorId = :collectorId ORDER BY p.name COLLATE UNICODE")
     abstract fun getFavoritePerformersByCollectorId(collectorId: Int): Flow<List<Performer>>
 
@@ -80,7 +84,7 @@ abstract class PerformerDAO {
     protected abstract suspend fun deleteMusicianBandsByBandId(bandId: Int)
 
     @Insert
-    protected abstract suspend fun insertMusicianBands(musicianBands: List<MusicianBand>)
+    abstract suspend fun insertMusicianBands(musicianBands: List<MusicianBand>)
 
     // Refresh the list of musicians
     // To make sure that the database is consistent it is necessary to update the collectors and the albums

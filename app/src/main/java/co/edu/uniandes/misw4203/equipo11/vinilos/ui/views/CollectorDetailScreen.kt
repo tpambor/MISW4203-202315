@@ -170,7 +170,10 @@ private fun FavoritePerformersList(performers: List<Performer>, navController: N
             ArtistItem(
                 item,
                 favButton = {},
-                navController
+                onClick = {
+                    val prefix = if (item.type == PerformerType.MUSICIAN) "musician" else "band"
+                    navController.navigate("artists/$prefix/${item.id}")
+                }
             )
         }
     }

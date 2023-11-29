@@ -197,7 +197,7 @@ private fun AlbumsHeader(isCollector: Boolean) {
 }
 
 @Composable
-private fun MembersHeader(isCollector: Boolean) {
+private fun MembersHeader(isCollector: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -212,9 +212,10 @@ private fun MembersHeader(isCollector: Boolean) {
         )
         if (isCollector){
             Button(
-                onClick = { },
+                onClick = onClick,
                 modifier = Modifier
-                    .height(40.dp),
+                    .height(40.dp)
+                    .testTag("add-member"),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -251,21 +252,27 @@ private fun MusicianDetail(musician: Performer, albums: List<Album>, navControll
 private fun BandDetail(band: Performer, albums: List<Album>, members: List<Performer>, navController: NavHostController, isCollector: Boolean) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(150.dp),
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().testTag("artist-detail-list"),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
             Column {
                 ArtistDescription(band)
-                MembersHeader(isCollector)
+                MembersHeader(
+                    isCollector,
+                    onClick = { navController.navigate("artists/band/${band.id}/addMusician") }
+                )
             }
         }
         items(members) {
                 item: Performer -> ArtistItem(
                     performer = item,
                     favButton = {},
-                    navController = navController
+                    onClick = {
+                        val prefix = if (item.type == PerformerType.MUSICIAN) "musician" else "band"
+                        navController.navigate("artists/$prefix/${item.id}")
+                    }
                 )
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
