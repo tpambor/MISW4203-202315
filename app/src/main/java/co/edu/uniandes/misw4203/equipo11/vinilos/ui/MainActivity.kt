@@ -21,9 +21,9 @@ import androidx.room.Room
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.VinilosDB
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.PreferenceDataStore
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
-import co.edu.uniandes.misw4203.equipo11.vinilos.ui.views.CreateAlbumButton
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.views.NavBar
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.views.NavContent
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.views.NavFloatingActionButton
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.views.TopNavBar
 
 class MainActivity : ComponentActivity() {
@@ -69,10 +69,7 @@ class MainActivity : ComponentActivity() {
                     },
                     floatingActionButtonPosition = FabPosition.End,
                     floatingActionButton = {
-                        if (currentBackStackEntry?.destination?.route == "albums") {
-                            // Agrega el FloatingActionButton solo en la pantalla /albums
-                            CreateAlbumButton(navController)
-                        }
+                        NavFloatingActionButton(navController, currentBackStackEntry)
                     }
                 )
             }

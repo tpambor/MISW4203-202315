@@ -135,6 +135,7 @@ fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStack
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackStackEntry?) {
@@ -154,11 +155,11 @@ fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackSt
     }
 
     val visible = !(
-            route == "login" ||
-                    route == "albums" ||
-                    route == "artists" ||
-                    route == "collectors"
-            )
+        route == "login" ||
+        route == "albums" ||
+        route == "artists" ||
+        route == "collectors"
+    )
 
     AnimatedVisibility(visible) {
         TopAppBar(
@@ -175,5 +176,15 @@ fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackSt
             },
             modifier = Modifier.semantics { this.contentDescription = title }
         )
+    }
+}
+
+@Composable
+fun NavFloatingActionButton(navController: NavHostController, currentBackStackEntry: NavBackStackEntry?) {
+    val route = currentBackStackEntry?.destination?.route
+
+    if (route == "albums") {
+        // Agregar el FloatingActionButton para la pantalla AlbumList
+        AlbumListFAB(navController)
     }
 }

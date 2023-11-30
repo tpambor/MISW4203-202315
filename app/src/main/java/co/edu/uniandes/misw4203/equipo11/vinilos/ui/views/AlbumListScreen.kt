@@ -184,7 +184,7 @@ fun AlbumList(albums: List<Album>, navController: NavHostController) {
 }
 
 @Composable
-fun CreateAlbumButton(navController: NavHostController) {
+fun AlbumListFAB(navController: NavHostController) {
     val userViewModel: UserViewModel = viewModel(
         factory = UserViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
@@ -197,7 +197,7 @@ fun CreateAlbumButton(navController: NavHostController) {
 
     val isCollector = user?.type == UserType.Collector
 
-    if(isCollector){
+    if(isCollector) {
         FloatingActionButton(
             onClick = { navController.navigate("albums/add") },
             modifier = Modifier.testTag("add-album-button")
@@ -205,7 +205,6 @@ fun CreateAlbumButton(navController: NavHostController) {
             Icon(Icons.Filled.Add, stringResource(R.string.album_crear ))
         }
     }
-
 }
 
 @Preview(showBackground = true, showSystemUi = true)
