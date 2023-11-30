@@ -25,6 +25,10 @@ abstract class AlbumDAO {
     @Query("SELECT a.* FROM PerformerAlbum pa JOIN Album a on pa.albumId = a.id WHERE pa.performerId == :performerId ORDER BY a.name COLLATE UNICODE")
     abstract fun getAlbumsByPerformerId(performerId: Int): Flow<List<Album>>
 
+    @Transaction
+    @Query("SELECT * FROM Album WHERE id NOT IN (SELECT albumId FROM PerformerAlbum WHERE performerId == :performerId) ORDER BY name COLLATE UNICODE")
+    abstract fun getAlbumsNotByPerformerId(performerId: Int): Flow<List<Album>>
+
     @Query("SELECT * FROM album WHERE id = :albumId")
     abstract fun getAlbumById(albumId: Int): Flow<Album?>
 

@@ -52,6 +52,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.AlbumRepository
@@ -207,7 +208,10 @@ private fun AlbumDetail(
             ArtistItem(
                 performer = performer,
                 favButton = {},
-                navController = navController
+                onClick = {
+                    val prefix = if (performer.type == PerformerType.MUSICIAN) "musician" else "band"
+                    navController.navigate("artists/$prefix/${performer.id}")
+                }
             )
         }
 

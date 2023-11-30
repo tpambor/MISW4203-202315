@@ -48,6 +48,19 @@ class NetworkServiceAdapter {
             gson().fromJson(response,  AlbumJsonResponse::class.java)
         }
     }
+
+    fun addMusicianToAlbum(performerId: Int, albumId: Int): Flow<AlbumJson> {
+        return HttpRequestQueue.post("$API_BASE_URL/albums/$albumId/musicians/$performerId", "").map { response ->
+            gson().fromJson(response, AlbumJson::class.java)
+        }
+    }
+
+    fun addBandToAlbum(performerId: Int, albumId: Int): Flow<AlbumJson> {
+        return HttpRequestQueue.post("$API_BASE_URL/albums/$albumId/bands/$performerId", "").map { response ->
+            gson().fromJson(response, AlbumJson::class.java)
+        }
+    }
+
     fun getMusicians(): Flow<List<MusicianJson>> {
         return HttpRequestQueue.get("$API_BASE_URL/musicians").map { response ->
             gson().fromJson(response, Array<MusicianJson>::class.java).toList()
@@ -69,6 +82,12 @@ class NetworkServiceAdapter {
     fun getBand(musicianId: Int): Flow<BandJson> {
         return HttpRequestQueue.get("$API_BASE_URL/bands/$musicianId").map { response ->
             gson().fromJson(response, BandJson::class.java)
+        }
+    }
+
+    fun addBandMember(bandId: Int, musicianId: Int): Flow<MusicianJson> {
+        return HttpRequestQueue.post("$API_BASE_URL/bands/$bandId/musicians/$musicianId", "").map { response ->
+            gson().fromJson(response, MusicianJson::class.java)
         }
     }
 
