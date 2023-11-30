@@ -10,7 +10,6 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IAlbumRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -41,7 +40,7 @@ class AlbumTrackViewModel(
 
         viewModelScope.launch(dispatcher) {
             try {
-                delay(3000)
+                albumRepository.addTrack(albumId, name, duration)
             } catch (ex: Exception) {
                 _error.value = ErrorUiState.Error(R.string.network_error)
                 _state.value = FormUiState.Input
