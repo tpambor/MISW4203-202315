@@ -62,13 +62,14 @@ class AlbumRepository : IAlbumRepository {
             emit(album)
         }
     }
+
     override suspend fun insertAlbum(album: AlbumRequestJson)
     {
         val newAlbum = adapter.insertAlbum(album).first()
 
-         db.albumDao().insertAlbums(listOf(
-             newAlbum.toAlbum()
-         ))
+        db.albumDao().insertAlbums(listOf(
+            newAlbum.toAlbum()
+        ))
     }
 
     override fun getPerformers(albumId: Int): Flow<List<Performer>> = flow {
