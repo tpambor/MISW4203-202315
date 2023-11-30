@@ -93,6 +93,7 @@ fun AlbumTrackScreen(snackbarHostState: SnackbarHostState, albumId: Int, navCont
     }
 }
 
+@SuppressWarnings("kotlin:S3776") // Exception: A larger than usual number of ifs is necessary for input validation. Exception here as code complexity is only slightly increased by them
 @Composable
 private fun AlbumTrack(
     state: FormUiState,
