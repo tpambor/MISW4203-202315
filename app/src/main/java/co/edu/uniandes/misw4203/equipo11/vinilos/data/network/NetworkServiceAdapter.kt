@@ -41,6 +41,7 @@ class NetworkServiceAdapter {
             gson().fromJson(response, AlbumJson::class.java)
         }
     }
+
     fun insertAlbum(album: AlbumJsonRequest): Flow<AlbumJsonResponse> {
         val gson = Gson()
         val albumJson = gson.toJson(album)
