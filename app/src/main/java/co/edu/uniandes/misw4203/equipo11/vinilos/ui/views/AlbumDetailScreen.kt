@@ -221,7 +221,7 @@ private fun AlbumDetail(
                 isCollector,
                 "Tracks",
                 testTag = "add-track",
-                onClick = { }
+                onClick = { navController.navigate("albums/${album.id}/addTrack") }
             )
         }
 

@@ -8,6 +8,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toComment
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toTrack
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumRequestJson
 import kotlinx.coroutines.flow.Flow
@@ -18,6 +19,7 @@ interface IAlbumRepository {
     fun getAlbums(): Flow<Result<List<Album>>>
     suspend fun refresh()
     fun getAlbum(albumId: Int): Flow<Album?>
+    suspend fun addTrack(albumId: Int, name: String, duration: String)
     fun getPerformers(albumId: Int): Flow<List<Performer>>
     fun getComments(albumId: Int): Flow<List<Comment>>
     fun getTracks(albumId: Int): Flow<List<Track>>
@@ -69,6 +71,13 @@ class AlbumRepository : IAlbumRepository {
 
         db.albumDao().insertAlbums(listOf(
             newAlbum.toAlbum()
+        ))
+    }
+
+    override suspend fun addTrack(albumId: Int, name: String, duration: String) {
+        db.albumDao().insertTracks(listOf(
+            adapter.addTrackToAlbum(albumId, name, duration).first()
+                .toTrack(albumId)
         ))
     }
 

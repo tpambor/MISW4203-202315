@@ -7,6 +7,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorJs
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CommentJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.MusicianJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.PerformerJson
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.TrackJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.typeadapters.InstantAdapter
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.typeadapters.PerformerDeserializer
 import com.google.gson.Gson
@@ -132,6 +133,16 @@ class NetworkServiceAdapter {
 
         return HttpRequestQueue.post("$API_BASE_URL/albums/$albumId/comments", json.toString()).map { response ->
             gson().fromJson(response, CommentJson::class.java)
+        }
+    }
+
+    fun addTrackToAlbum(albumId: Int, name: String, duration: String): Flow<TrackJson> {
+        val json = JsonObject()
+        json.addProperty("name", name)
+        json.addProperty("duration", duration)
+
+        return HttpRequestQueue.post("$API_BASE_URL/albums/$albumId/tracks", json.toString()).map { response ->
+            gson().fromJson(response, TrackJson::class.java)
         }
     }
 }

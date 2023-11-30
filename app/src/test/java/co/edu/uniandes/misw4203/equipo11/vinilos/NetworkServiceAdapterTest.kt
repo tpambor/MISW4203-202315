@@ -1043,4 +1043,28 @@ class NetworkServiceAdapterTest {
         adapter.insertAlbum(albumJsonRequest).first()
         assertTrue(mockRequest.called)
     }
+
+    @Test
+    fun shouldAddTrackToAlbum() = runTest {
+        val albumId = 1
+        val name = "Decisiones"
+        val duration = "5:05"
+        val addTrackJSON = javaClass.getResource("/addTrackToAlbum.json").readText()
+        val mockRequest = MockPostRequest { url, content ->
+            assertEquals( "${NetworkServiceAdapter.API_BASE_URL}/albums/$albumId/tracks", url)
+            assertEquals("{\"name\":\"Decisiones\",\"duration\":\"5:05\"}", content)
+            addTrackJSON
+        }
+
+        val expectedTrack = TrackJson(
+            id = 3277,
+            name = "Decisiones",
+            duration = "5:05"
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val track = adapter.addTrackToAlbum(albumId, name, duration).first()
+        assertEquals(expectedTrack, track)
+        assertTrue(mockRequest.called)
+    }
 }

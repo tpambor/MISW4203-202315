@@ -62,6 +62,12 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
             AlbumCommentScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("albumId"), navController, activityScope)
         }
         composable(
+            route = "albums/{albumId}/addTrack",
+            arguments = listOf(navArgument("albumId") { type = NavType.IntType })
+        ){ backStackEntry ->
+            AlbumTrackScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("albumId"), navController, activityScope)
+        }
+        composable(
             route = "albums/{albumId}",
             arguments = listOf(navArgument("albumId") { type = NavType.IntType })
         ){ backStackEntry ->
@@ -147,6 +153,7 @@ fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackSt
         "artists/band/{artistId}" -> stringResource(R.string.top_nav_artist)
         "artists/band/{artistId}/addMusician" -> stringResource(R.string.top_nav_band_add_musician)
         "artists/band/{artistId}/addAlbum" -> stringResource(R.string.top_nav_artist_add_album)
+        "albums/{albumId}/addTrack" -> stringResource(R.string.top_nav_track_album)
         "albums/{albumId}/comment" -> stringResource(R.string.top_nav_comment_album)
         "albums/add" -> stringResource(R.string.top_nav_album_crear)
         "albums/{albumId}" -> stringResource(R.string.top_nav_album)
