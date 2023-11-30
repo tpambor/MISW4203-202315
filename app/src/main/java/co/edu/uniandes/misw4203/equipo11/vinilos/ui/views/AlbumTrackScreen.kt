@@ -9,13 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.outlined.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
@@ -23,11 +20,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.pointer.pointerInput
@@ -45,21 +40,19 @@ import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.AlbumRepository
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.UserRepository
-import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumCommentViewModel
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumTrackViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.FormUiState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun AlbumCommentScreen(snackbarHostState: SnackbarHostState, albumId: Int, navController: NavHostController, activityScope: CoroutineScope) {
-    val viewModel: AlbumCommentViewModel = viewModel(
-        factory = AlbumCommentViewModel.Factory,
+fun AlbumTrackScreen(snackbarHostState: SnackbarHostState, albumId: Int, navController: NavHostController, activityScope: CoroutineScope) {
+    val viewModel: AlbumTrackViewModel = viewModel(
+        factory = AlbumTrackViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
-            set(AlbumCommentViewModel.KEY_ALBUM_REPOSITORY, AlbumRepository())
-            set(AlbumCommentViewModel.KEY_ALBUM_ID, albumId)
-            set(AlbumCommentViewModel.KEY_USER_REPOSITORY, UserRepository())
+            set(AlbumTrackViewModel.KEY_ALBUM_REPOSITORY, AlbumRepository())
+            set(AlbumTrackViewModel.KEY_ALBUM_ID, albumId)
         }
     )
 
@@ -73,7 +66,7 @@ fun AlbumCommentScreen(snackbarHostState: SnackbarHostState, albumId: Int, navCo
     if (state == FormUiState.Saved) {
         LaunchedEffect(state) {
             activityScope.launch {
-                snackbarHostState.showSnackbar("Comentario agregado exitosamente")
+                snackbarHostState.showSnackbar("Track agregado exitosamente")
             }
             navController.navigate("albums/$albumId") {
                 popUpTo("albums/$albumId")
@@ -83,10 +76,11 @@ fun AlbumCommentScreen(snackbarHostState: SnackbarHostState, albumId: Int, navCo
         }
     }
 
-    AlbumComment(
+    AlbumTrack(
         state = state,
         focusManager = LocalFocusManager.current,
-        validateComment = viewModel::validateComment,
+        validateName = viewModel::validateName,
+        validateDuration = viewModel::validateDuration,
         onSave = viewModel::onSave
     )
 
@@ -100,36 +94,22 @@ fun AlbumCommentScreen(snackbarHostState: SnackbarHostState, albumId: Int, navCo
 }
 
 @Composable
-private fun Rating(rating: Int, formEnabled: Boolean, onClick: (Int) -> Unit) {
-    Row {
-        for (i in 1..5) {
-            IconButton(
-                enabled = formEnabled,
-                onClick = { onClick(i) },
-                modifier = Modifier.testTag("comment-rating-$i")
-            ) {
-                Icon(
-                    if (i <= rating) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
-                    contentDescription = "$i de 5"
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun AlbumComment(
+private fun AlbumTrack(
     state: FormUiState,
     focusManager: FocusManager,
-    validateComment: (String) -> Boolean,
-    onSave: (Int, String) -> Unit,
+    validateName: (String) -> Boolean,
+    validateDuration: (String) -> Boolean,
+    onSave: (String, String) -> Unit,
 ) {
     val formEnabled = state == FormUiState.Input
 
-    var rating by rememberSaveable { mutableIntStateOf(5) }
-    var comment by rememberSaveable { mutableStateOf("") }
-    var commentChanged by rememberSaveable { mutableStateOf(false) }
-    var commentError by rememberSaveable { mutableStateOf(!validateComment(comment)) }
+    var name by rememberSaveable { mutableStateOf("") }
+    var nameChanged by rememberSaveable { mutableStateOf(false) }
+    var nameError by rememberSaveable { mutableStateOf(!validateName(name)) }
+
+    var duration by rememberSaveable { mutableStateOf("") }
+    var durationChanged by rememberSaveable { mutableStateOf(false) }
+    var durationError by rememberSaveable { mutableStateOf(!validateDuration(duration)) }
 
     Column(
         modifier = Modifier
@@ -140,54 +120,66 @@ private fun AlbumComment(
                 })
             }
     ) {
-        Row(
-            Modifier
+        OutlinedTextField(
+            modifier = Modifier
+                .padding(8.dp)
                 .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Rating",
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            Rating(
-                rating = rating,
-                formEnabled = formEnabled,
-                onClick = {
-                    focusManager.clearFocus()
-                    rating = it
-                }
-            )
-        }
+                .testTag("track-name"),
+            value = name,
+            onValueChange = {
+                name = it
+                nameError = !validateName(name)
+                nameChanged = true
+            },
+            enabled = formEnabled,
+            isError = nameError && nameChanged,
+            label = { Text("Nombre") },
+            singleLine = true,
+            supportingText = {
+                Text(
+                    text = "${name.length} / ${AlbumTrackViewModel.TRACK_NAME_MAX_LENGTH}",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics { contentDescription = "${name.length} de ${AlbumTrackViewModel.TRACK_NAME_MAX_LENGTH} caracteres utilizados" },
+                    textAlign = TextAlign.End,
+                )
+            },
+            trailingIcon = {
+                if (nameError && nameChanged)
+                    Icon(
+                        Icons.Filled.Warning,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error
+                    )
+            }
+        )
 
         OutlinedTextField(
             modifier = Modifier
                 .padding(8.dp)
                 .fillMaxWidth()
-                .testTag("comment-comment"),
-            value = comment,
+                .testTag("track-duration"),
+            value = duration,
             onValueChange = {
-                comment = it
-                commentError = !validateComment(comment)
-                commentChanged = true
+                duration = it
+                durationError = !validateDuration(duration)
+                durationChanged = true
             },
             enabled = formEnabled,
-            isError = commentError && commentChanged,
-            label = { Text("Comentario") },
+            isError = durationError && durationChanged,
+            label = { Text("Duración") },
             singleLine = true,
             supportingText = {
                 Text(
-                    text = "${comment.length} / ${AlbumCommentViewModel.COMMENT_MAX_LENGTH}",
+                    text = "mm:ss (mm=minutos, ss=segundos)",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .semantics { contentDescription = "${comment.length} de ${AlbumCommentViewModel.COMMENT_MAX_LENGTH} caracteres utilizados" },
-                    textAlign = TextAlign.End,
+                        .semantics { contentDescription = "Formato: minutos : segundos" },
+                    textAlign = TextAlign.Start,
                 )
             },
             trailingIcon = {
-                if (commentError && commentChanged)
+                if (durationError && durationChanged)
                     Icon(
                         Icons.Filled.Warning,
                         contentDescription = null,
@@ -203,9 +195,9 @@ private fun AlbumComment(
             Button(
                 onClick = {
                     focusManager.clearFocus()
-                    onSave(rating, comment)
+                    onSave(name, duration)
                 },
-                enabled = formEnabled && !commentError,
+                enabled = formEnabled && !nameError && !durationError,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
