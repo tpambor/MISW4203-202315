@@ -42,13 +42,11 @@ abstract class AlbumDAO {
     abstract fun getTracksByAlbumId(albumId: Int): Flow<List<Track>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    protected abstract suspend fun insertAlbums(albums: List<Album>)
+    abstract suspend fun insertAlbums(albums: List<Album>)
 
     @Query("DELETE FROM Album")
     protected abstract suspend fun deleteAlbums()
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun  insertAlbum(album: Album)
     @Query("DELETE FROM Track")
     protected abstract suspend fun deleteTracks()
 

@@ -6,15 +6,14 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toComment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJsonRequest
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJsonResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
+
 interface IAlbumRepository {
     fun getAlbums(): Flow<Result<List<Album>>>
     suspend fun refresh()
@@ -65,33 +64,12 @@ class AlbumRepository : IAlbumRepository {
     }
     override suspend fun insertAlbum(album: AlbumJsonRequest)
     {
-        try {
-            val remoteAlbumJson = adapter.insertAlbum(album).first()
-            val remoteAlbum = convertJsonRequestToAlbum(remoteAlbumJson)
+        val newAlbum = adapter.insertAlbum(album).first()
 
-             db.albumDao().insertAlbum(remoteAlbum)
-        } catch (e: Exception) {
-            println("Error inserting album: ${e.message}")
-            throw e
-        }
+         db.albumDao().insertAlbums(listOf(
+             newAlbum.toAlbum()
+         ))
     }
-
-    private fun convertJsonRequestToAlbum(jsonRequest: AlbumJsonResponse): Album {
-        val offsetDateTime = OffsetDateTime.parse(jsonRequest.releaseDate, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-
-        val instant = offsetDateTime.toInstant()
-        return Album(
-            id = jsonRequest.id,
-            name = jsonRequest.name,
-            cover = jsonRequest.cover,
-            releaseDate = instant,
-            description = jsonRequest.description,
-            genre = jsonRequest.genre,
-            recordLabel = jsonRequest.recordLabel
-        )
-    }
-
-
 
     override fun getPerformers(albumId: Int): Flow<List<Performer>> = flow {
         db.albumDao().getPerformersByAlbumId(albumId).collect { performers ->
