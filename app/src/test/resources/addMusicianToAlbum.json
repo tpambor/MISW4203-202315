@@ -1,0 +1,25 @@
+{
+  "id": 1,
+  "name": "Auténtico",
+  "cover": "https://i.scdn.co/image/ab67616d0000b273eab121becebe801310d6a6fa",
+  "releaseDate": "2007-09-19T00:00:00.000Z",
+  "description": "Could born add page network figure marriage. Why meet whom increase safe.",
+  "genre": "Salsa",
+  "recordLabel": "EMI",
+  "performers": [
+    {
+      "id": 1001,
+      "name": "Grupo Galé",
+      "image": "https://i.scdn.co/image/ab6761610000e5eba2534f43cf396051e3f0d54a",
+      "description": "Bit student ahead east car. Game military commercial young night artist. These within star marriage whose.",
+      "birthDate": "1957-12-26T00:00:00.000Z"
+    },
+    {
+      "id": 1023,
+      "name": "Vernis Hernandez",
+      "image": "https://i.scdn.co/image/ab6761610000e5eb96652711b492d2f35866b0a4",
+      "description": "International gun least war reflect us throughout. Experience guy me public majority travel. Rise everyone campaign ground.",
+      "birthDate": "2007-04-15T00:00:00.000Z"
+    }
+  ]
+}

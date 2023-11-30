@@ -104,7 +104,7 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHost
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-fun AlbumItem(album: Album, navController: NavHostController) {
+fun AlbumItem(album: Album, onClick: () -> Unit) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
         coverPreview = placeholder(ColorPainter(Color(album.cover.toColorInt())))
@@ -114,7 +114,7 @@ fun AlbumItem(album: Album, navController: NavHostController) {
         modifier = Modifier.testTag("album-list-item"),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
-        onClick = { navController.navigate("albums/${album.id}") }
+        onClick = onClick
     ) {
         Column {
             GlideImage(
@@ -158,8 +158,11 @@ fun AlbumList(albums: List<Album>, navController: NavHostController) {
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(albums) {
-                    item: Album -> AlbumItem(item, navController)
+            items(albums) { item ->
+                AlbumItem(
+                    album = item,
+                    onClick = { navController.navigate("albums/${item.id}") }
+                )
             }
         }
     }else{
