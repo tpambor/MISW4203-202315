@@ -36,8 +36,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -47,6 +49,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJsonRequest
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.AlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumViewModel
@@ -86,7 +89,9 @@ fun AlbumCreateScreen(snackbarHostState: SnackbarHostState, navController: NavHo
 
     Box( modifier = Modifier
         .fillMaxSize()
-        .verticalScroll(rememberScrollState())) {
+        .verticalScroll(rememberScrollState())
+        .semantics { this.contentDescription = "Formulario para agregar un álbum" }
+    ) {
         AlbumCreateForm(viewModel, formState)
     }
 
@@ -219,51 +224,54 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
     var recordLabel by remember { mutableStateOf(FormField(value = "", error = false, errorMsg = "")) }
     var description by remember { mutableStateOf(FormField(value = "", error = false, errorMsg = "")) }
 
+    val context = LocalContext.current
+
     fun validateForm() {
         val errorMessages = mutableListOf<Pair<String, String>>()
         val imageRegex = "(http(s?):)([/|.|\\w|\\s|-])*\\.(?:jpg|JPG|gif|GIF|png|PNG|jpeg|JPEG)"
         val currentDate = Instant.now().toEpochMilli()
 
+
         if (name.value.isEmpty()) {
-            errorMessages.add("name" to "El nombre es obligatorio")
+            errorMessages.add("name" to context.getString(R.string.mandatory_field_2, "nombre"))
         }else if (name.value.length > 200) {
-            errorMessages.add("name" to "El nombre debe tener máximo 200 caracteres")
+            errorMessages.add("name" to context.getString(R.string.max_char_field_2, "nombre", "200"))
         } else {
             name = name.copy(error = false, errorMsg = "")
         }
 
         if (cover.value.isEmpty()) {
-            errorMessages.add("cover" to "La URL de la portada es obligatoria")
+            errorMessages.add("cover" to context.getString(R.string.mandatory_field_1, "URL de la portada"))
         }else if (!cover.value.matches(imageRegex.toRegex())) {
-            errorMessages.add("cover" to "La URL de la portada debe tener el formato adecuado, ej: https://imagen.jpg")
+            errorMessages.add("cover" to context.getString(R.string.err_cover_format))
         } else {
             cover = cover.copy(error = false, errorMsg = "")
         }
 
         if (genre.value.isEmpty()) {
-            errorMessages.add("genre" to "El género es obligatorio")
+            errorMessages.add("genre" to context.getString(R.string.mandatory_field_2, "género"))
         }else {
             genre = genre.copy(error = false, errorMsg = "")
         }
 
         if (releaseDate.value.isEmpty()) {
-            errorMessages.add("releaseDate" to "La fecha de estreno es obligatoria")
+            errorMessages.add("releaseDate" to context.getString(R.string.mandatory_field_1, "fecha"))
         }else if (releaseDateState.selectedDateMillis!! > currentDate) {
-            errorMessages.add("releaseDate" to "La fecha de estreno no puede ser en el futuro")
+            errorMessages.add("releaseDate" to context.getString(R.string.err_future_date))
         }else {
             releaseDate = releaseDate.copy(error = false, errorMsg = "")
         }
 
         if (recordLabel.value.isEmpty()) {
-            errorMessages.add("recordLabel" to "La disquera es obligatoria")
+            errorMessages.add("recordLabel" to context.getString(R.string.mandatory_field_1, "disquera"))
         }else {
             recordLabel = recordLabel.copy(error = false, errorMsg = "")
         }
 
         if (description.value.isEmpty()) {
-            errorMessages.add("description" to "La descripción es obligatoria")
+            errorMessages.add("description" to context.getString(R.string.mandatory_field_1, "descripción"))
         }else if (description.value.length > 2000) {
-            errorMessages.add("description" to "La descripción debe tener máximo 2000 caracteres")
+            errorMessages.add("description" to context.getString(R.string.max_char_field_1, "descripción", "2000"))
         } else {
             description = description.copy(error = false, errorMsg = "")
         }
@@ -343,11 +351,13 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
             value = releaseDate.value,
             onValueChange = {},
             enabled = false,
+//            readOnly = true,
             label = { Text("Fecha de estreno") },
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(
-                    onClick = { showDatePicker = true }
+                    onClick = { showDatePicker = true },
+                    onClickLabel = "Abrir calendario y escoger fecha"
                 ),
             leadingIcon = { Icon( Icons.Filled.DateRange, "Agregar fecha de estreno") },
             colors = OutlinedTextFieldDefaults.colors(
@@ -374,7 +384,8 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
                     Button(
                         onClick = {
                             showDatePicker = false
-                        }
+                        },
+                        modifier = Modifier.semantics { this.contentDescription = "Seleccionar fecha" }
                     ) {
                         Text(text = "OK")
                     }
@@ -416,7 +427,8 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
             onClick = { validateForm() },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .testTag("album-submit"),
+                .testTag("album-submit")
+                .semantics { this.contentDescription = "Validar información y agregar álbum" },
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -425,7 +437,7 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
         ) {
             if (formEnabled) {
                 Text(
-                    text = "Agregar",
+                    text = stringResource(id = R.string.add),
                     style = MaterialTheme.typography.titleMedium
                 )
             } else {

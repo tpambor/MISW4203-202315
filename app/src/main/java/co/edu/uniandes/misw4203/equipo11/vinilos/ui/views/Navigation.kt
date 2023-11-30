@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
@@ -103,12 +105,12 @@ fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStack
                 label = { Text(stringResource(item.stringId), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 icon = { Icon(painterResource(item.iconId), contentDescription = null) },
                 onClick = {
-                        if (item.route == route) return@NavigationBarItem
+                    if (item.route == route) return@NavigationBarItem
 
-                        navController.navigate(item.route) {
-                            popUpTo(navController.graph.startDestinationId) {}
-                            launchSingleTop = true
-                        }
+                    navController.navigate(item.route) {
+                        popUpTo(navController.graph.startDestinationId) {}
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -130,11 +132,11 @@ fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackSt
     }
 
     val visible = !(
-        route == "login" ||
-        route == "albums" ||
-        route == "artists" ||
-        route == "collectors"
-    )
+            route == "login" ||
+                    route == "albums" ||
+                    route == "artists" ||
+                    route == "collectors"
+            )
 
     AnimatedVisibility(visible) {
         TopAppBar(
@@ -148,7 +150,8 @@ fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackSt
                         contentDescription = "Back"
                     )
                 }
-            }
+            },
+            modifier = Modifier.semantics { this.contentDescription = title }
         )
     }
 }
