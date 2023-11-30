@@ -42,8 +42,7 @@ class NetworkServiceAdapter {
     }
 
     fun insertAlbum(album: AlbumRequestJson): Flow<AlbumJson> {
-        val gson = Gson()
-        val albumJson = gson.toJson(album)
+        val albumJson = gson().toJson(album)
         return HttpRequestQueue.post("$API_BASE_URL/albums", albumJson.toString()).map { response ->
             gson().fromJson(response, AlbumJson::class.java)
         }
