@@ -52,7 +52,9 @@ import androidx.navigation.NavHostController
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumRequestJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.AlbumRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumCreateViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumViewModel
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.FormUiState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -64,19 +66,19 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun AlbumCreateScreen(snackbarHostState: SnackbarHostState, navController: NavHostController,  activityScope: CoroutineScope) {
-
-    val viewModel: AlbumViewModel = viewModel(
-        factory = AlbumViewModel.Factory,
+    val viewModel: AlbumCreateViewModel = viewModel(
+        factory = AlbumCreateViewModel.Factory,
         extras = MutableCreationExtras(CreationExtras.Empty).apply {
-            set(AlbumViewModel.KEY_ALBUM_REPOSITORY, AlbumRepository())
+            set(AlbumCreateViewModel.KEY_ALBUM_REPOSITORY, AlbumRepository())
         }
     )
 
     val formState by viewModel.formState.collectAsStateWithLifecycle(
         FormUiState.Input
     )
-
-    val insertAlbumResult by viewModel.insertAlbumResult.collectAsStateWithLifecycle()
+    val error by viewModel.error.collectAsStateWithLifecycle(
+        ErrorUiState.NoError
+    )
 
     if (formState == FormUiState.Saved) {
         LaunchedEffect(formState) {
@@ -87,23 +89,24 @@ fun AlbumCreateScreen(snackbarHostState: SnackbarHostState, navController: NavHo
         }
     }
 
-    Box( modifier = Modifier
+    Box(modifier = Modifier
         .fillMaxSize()
         .verticalScroll(rememberScrollState())
         .semantics { this.contentDescription = "Formulario para agregar un álbum" }
     ) {
-        AlbumCreateForm(viewModel, formState)
+        AlbumCreateForm(
+            formState = formState,
+            onSave = viewModel::insertAlbum
+        )
     }
 
-    if (insertAlbumResult.isFailure) {
-        val exception = insertAlbumResult.exceptionOrNull()
-        val message = exception?.message ?: "Error desconocido"
-        LaunchedEffect(insertAlbumResult) {
+    if (error is ErrorUiState.Error) {
+        val message = stringResource((error as ErrorUiState.Error).resourceId)
+        LaunchedEffect(error) {
             snackbarHostState.showSnackbar(message)
             viewModel.onErrorShown()
         }
     }
-
 }
 
 data class FormField(
@@ -204,9 +207,11 @@ fun Selector(
         }
     }
 }
+
+@SuppressWarnings("kotlin:S3776") // Exception: A larger than usual number of ifs is necessary for input validation. Exception here as code complexity is only slightly increased by them
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
+fun AlbumCreateForm(formState: FormUiState, onSave: (AlbumRequestJson) -> Unit) {
     val genreOptions = listOf("Classical", "Salsa", "Rock", "Folk")
     val recordLabelOptions = listOf("Sony Music", "EMI", "Discos Fuentes", "Elektra", "Fania Records")
 
@@ -262,7 +267,6 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
     }
 
     fun validateForm() {
-
         name = validateNonEmptyField(name, "Nombre")
         if (!name.error) name = validateMaxChars(name, "Nombre", 200)
 
@@ -289,22 +293,18 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
         if (!hasError) {
             val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
             val date = LocalDate.parse(releaseDate.value, dateFormatter)
-            val outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'00:00:00-05:00")
-
-            val releaseDateISO =  date.format(outputFormatter)
-
-            println("releaseDateISO ${releaseDateISO}")
+            val outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'00:00:00.000'Z'")
 
             val newAlbum = AlbumRequestJson(
                 name = name.value,
                 cover = cover.value,
-                releaseDate = releaseDateISO,
+                releaseDate = date.format(outputFormatter),
                 description = description.value,
                 genre = genre.value,
                 recordLabel = recordLabel.value,
             )
 
-            viewModel.insertAlbum(newAlbum)
+            onSave(newAlbum)
         }
     }
 
@@ -317,7 +317,7 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
         BasicInput(
             field = name,
             counter = true,
-            counterMaxLength = AlbumViewModel.NAME_MAX_LENGTH,
+            counterMaxLength = AlbumCreateViewModel.NAME_MAX_LENGTH,
             onValueChanged = { updatedName ->
                 name = updatedName
             },
@@ -376,7 +376,7 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
 
         if (showDatePicker) {
             DatePickerDialog(
-                onDismissRequest = { /*TODO*/ },
+                onDismissRequest = { },
                 confirmButton = {
                     Button(
                         onClick = {
@@ -413,10 +413,10 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
             onValueChanged = { updatedDescription ->
                 description = updatedDescription
             },
-            formPlaceholder = "DescAlbumRequestJsonripción",
+            formPlaceholder = "Descripción",
             minLines = 3,
             counter = true,
-            counterMaxLength = AlbumViewModel.DESCRIPTION_MAX_LENGTH,
+            counterMaxLength = AlbumCreateViewModel.DESCRIPTION_MAX_LENGTH,
             testTag = "create-description"
         )
 
@@ -448,6 +448,5 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
                 )
             }
         }
-
     }
 }
