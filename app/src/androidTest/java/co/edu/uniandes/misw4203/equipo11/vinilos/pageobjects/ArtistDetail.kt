@@ -68,4 +68,16 @@ class ArtistDetail (composeTestRule: AndroidComposeTestRule<ActivityScenarioRule
             hasTestTag("add-member")
         )
     }
+
+    fun getAddAlbumButton() : SemanticsNodeInteraction {
+        findExactlyOne(
+            hasTestTag("artist-detail-list")
+        ).performScrollToNode(
+            hasTestTag("add-album")
+        )
+
+        return findExactlyOne(
+            hasTestTag("add-album")
+        )
+    }
 }

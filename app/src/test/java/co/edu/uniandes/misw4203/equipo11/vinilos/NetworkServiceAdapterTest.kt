@@ -920,4 +920,103 @@ class NetworkServiceAdapterTest {
         assertEquals(expectedPerformer, performer)
         assertTrue(mockRequest.called)
     }
+
+    @Test
+    fun shouldAddMusicianToAlbum() = runTest {
+        val albumId = 1
+        val musicianId = 1023
+        val addMusicianToAlbumJSON = javaClass.getResource("/addMusicianToAlbum.json").readText()
+        val mockRequest = MockPostRequest { url, content ->
+            assertEquals("${NetworkServiceAdapter.API_BASE_URL}/albums/$albumId/musicians/$musicianId", url)
+            assertEquals("", content)
+            addMusicianToAlbumJSON
+        }
+
+        val expectedAlbum = AlbumJson(
+            id = 1,
+            name = "Auténtico",
+            cover = "https://i.scdn.co/image/ab67616d0000b273eab121becebe801310d6a6fa",
+            releaseDate = Instant.parse("2007-09-19T00:00:00.000Z"),
+            description = "Could born add page network figure marriage. Why meet whom increase safe.",
+            genre = "Salsa",
+            recordLabel = "EMI",
+            tracks = null,
+            performers = listOf(
+                PerformerJson.Musician(MusicianJson(
+                    id = 1001,
+                    name = "Grupo Galé",
+                    image = "https://i.scdn.co/image/ab6761610000e5eba2534f43cf396051e3f0d54a",
+                    description = "Bit student ahead east car. Game military commercial young night artist. These within star marriage whose.",
+                    birthDate = Instant.parse("1957-12-26T00:00:00.000Z"),
+                    albums = null,
+                    collectors = null
+                )),
+                PerformerJson.Musician(MusicianJson(
+                    id = 1023,
+                    name = "Vernis Hernandez",
+                    image = "https://i.scdn.co/image/ab6761610000e5eb96652711b492d2f35866b0a4",
+                    description = "International gun least war reflect us throughout. Experience guy me public majority travel. Rise everyone campaign ground.",
+                    birthDate = Instant.parse("2007-04-15T00:00:00.000Z"),
+                    albums = null,
+                    collectors = null
+                ))
+            ),
+            comments = null
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val album = adapter.addMusicianToAlbum(musicianId, albumId).first()
+        assertEquals(expectedAlbum, album)
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldAddBandToAlbum() = runTest {
+        val albumId = 1
+        val bandId = 24
+        val addBandToAlbumJSON = javaClass.getResource("/addBandToAlbum.json").readText()
+        val mockRequest = MockPostRequest { url, content ->
+            assertEquals("${NetworkServiceAdapter.API_BASE_URL}/albums/$albumId/bands/$bandId", url)
+            assertEquals("", content)
+            addBandToAlbumJSON
+        }
+
+        val expectedAlbum = AlbumJson(
+            id = 1,
+            name = "Auténtico",
+            cover = "https://i.scdn.co/image/ab67616d0000b273eab121becebe801310d6a6fa",
+            releaseDate = Instant.parse("2007-09-19T00:00:00.000Z"),
+            description = "Could born add page network figure marriage. Why meet whom increase safe.",
+            genre = "Salsa",
+            recordLabel = "EMI",
+            tracks = null,
+            performers = listOf(
+                PerformerJson.Musician(MusicianJson(
+                    id = 1001,
+                    name = "Grupo Galé",
+                    image = "https://i.scdn.co/image/ab6761610000e5eba2534f43cf396051e3f0d54a",
+                    description = "Bit student ahead east car. Game military commercial young night artist. These within star marriage whose.",
+                    birthDate = Instant.parse("1957-12-26T00:00:00.000Z"),
+                    albums = null,
+                    collectors = null
+                )),
+                PerformerJson.Band(BandJson(
+                    id = 24,
+                    name = "Rolando Laserie",
+                    image = "https://i.scdn.co/image/ab67616d0000b273364e15f72b884587b1b1d5f1",
+                    description = "Clear political front left control give hospital. Thought forward fight once. Painting site deep.",
+                    creationDate = Instant.parse("1966-12-23T00:00:00.000Z"),
+                    albums = null,
+                    musicians = null,
+                    collectors = null
+                ))
+            ),
+            comments = null
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val album = adapter.addBandToAlbum(bandId, albumId).first()
+        assertEquals(expectedAlbum, album)
+        assertTrue(mockRequest.called)
+    }
 }

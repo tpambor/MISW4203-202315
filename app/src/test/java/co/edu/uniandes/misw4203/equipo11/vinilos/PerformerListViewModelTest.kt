@@ -55,6 +55,10 @@ class PerformerListViewModelTest {
             throw UnsupportedOperationException()
         }
 
+        override fun getPerformer(performerId: Int): Flow<Performer?> {
+            throw UnsupportedOperationException()
+        }
+
         override fun getBandMembers(performerId: Int): Flow<List<Performer>> {
             throw UnsupportedOperationException()
         }
@@ -68,6 +72,14 @@ class PerformerListViewModelTest {
         }
 
         override fun getAlbums(performerId: Int): Flow<List<Album>> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getAlbumCandidates(performerId: Int): Flow<List<Album>> {
+            throw UnsupportedOperationException()
+        }
+
+        override suspend fun addAlbum(performerId: Int, type: PerformerType, albumId: Int) {
             throw UnsupportedOperationException()
         }
 
