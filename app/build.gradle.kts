@@ -93,6 +93,8 @@ dependencies {
     val volleyVersion = "1.2.1"
     val gsonVersion = "2.10.1"
     val desugarVersion = "2.0.4"
+    val okhttpVersion = "4.9.1"
+
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:$desugarVersion")
 
@@ -116,7 +118,7 @@ dependencies {
     implementation("com.google.code.gson:gson:$gsonVersion")
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
-    implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation("com.squareup.okhttp3:okhttp:$okhttpVersion")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")

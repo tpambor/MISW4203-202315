@@ -34,12 +34,10 @@
     <string name="album_crear">Crear un nuevo álbum</string>
     <string name="musician_birthDate">Nacimiento:</string>
     <string name="band_birthDate">Fecha de creación:</string>
-    <string name="mandatory_field_1">La %s es obligatoria</string>
-    <string name="mandatory_field_2">El %s es obligatorio</string>
-    <string name="max_char_field_2">El %s debe tener máximo %s caracteres</string>
-    <string name="max_char_field_1">La %s debe tener máximo %s caracteres</string>
-    <string name="err_future_date">La fecha de estreno no puede ser en el futuro</string>
-    <string name="err_cover_format">La URL de la portada debe tener el formato adecuado, ej: https://imagen.jpg</string>
+    <string name="mandatory_field">El campo %s es obligatorio</string>
+    <string name="max_char_field">El campo %s debe tener máximo %d caracteres</string>
+    <string name="err_future_date">El campo Fecha de estreno no puede ser en el futuro</string>
+    <string name="err_cover_format">El campo URL de la portada debe tener el formato adecuado, ej: https://imagen.jpg</string>
     <string name="add">Agregar</string>
 
 </resources>

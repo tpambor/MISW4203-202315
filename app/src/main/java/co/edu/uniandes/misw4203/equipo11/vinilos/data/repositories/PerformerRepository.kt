@@ -8,7 +8,6 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJsonRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -129,11 +128,6 @@ class PerformerRepository : IPerformerRepository{
         db.albumDao().getAlbumsNotByPerformerId(performerId).collect { albums ->
             emit(albums)
         }
-    }
-
-    suspend fun insertAlbum(album: AlbumJsonRequest) {
-        var albumInsert = adapter.insertAlbum(album).first()
-       // db.albumDao().insertAlbum(albumInsert)
     }
 
     override fun getBandMembers(performerId: Int): Flow<List<Performer>> = flow {

@@ -226,70 +226,67 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
 
     val context = LocalContext.current
 
-    fun validateForm() {
-        val errorMessages = mutableListOf<Pair<String, String>>()
-        val imageRegex = "(http(s?):)([/|.|\\w|\\s|-])*\\.(?:jpg|JPG|gif|GIF|png|PNG|jpeg|JPEG)"
+    fun validateReleaseDate(field: FormField): FormField {
         val currentDate = Instant.now().toEpochMilli()
-
-
-        if (name.value.isEmpty()) {
-            errorMessages.add("name" to context.getString(R.string.mandatory_field_2, "nombre"))
-        }else if (name.value.length > 200) {
-            errorMessages.add("name" to context.getString(R.string.max_char_field_2, "nombre", "200"))
+        return if (releaseDateState.selectedDateMillis!! > currentDate) {
+            field.copy(error = true, errorMsg = context.getString(R.string.err_future_date))
         } else {
-            name = name.copy(error = false, errorMsg = "")
+            field.copy(error = false, errorMsg = "")
         }
+    }
 
-        if (cover.value.isEmpty()) {
-            errorMessages.add("cover" to context.getString(R.string.mandatory_field_1, "URL de la portada"))
-        }else if (!cover.value.matches(imageRegex.toRegex())) {
-            errorMessages.add("cover" to context.getString(R.string.err_cover_format))
+    fun validateCoverFormat(field: FormField): FormField {
+        val imageRegex = "https?://[\\w/\\-.\\s]*\\.(?:jpg|JPG|gif|GIF|png|PNG|jpeg|JPEG)"
+
+        return if (!field.value.matches(imageRegex.toRegex())) {
+            field.copy(error = true, errorMsg = context.getString(R.string.err_cover_format))
         } else {
-            cover = cover.copy(error = false, errorMsg = "")
+            field.copy(error = false, errorMsg = "")
         }
+    }
 
-        if (genre.value.isEmpty()) {
-            errorMessages.add("genre" to context.getString(R.string.mandatory_field_2, "género"))
-        }else {
-            genre = genre.copy(error = false, errorMsg = "")
-        }
-
-        if (releaseDate.value.isEmpty()) {
-            errorMessages.add("releaseDate" to context.getString(R.string.mandatory_field_1, "fecha"))
-        }else if (releaseDateState.selectedDateMillis!! > currentDate) {
-            errorMessages.add("releaseDate" to context.getString(R.string.err_future_date))
-        }else {
-            releaseDate = releaseDate.copy(error = false, errorMsg = "")
-        }
-
-        if (recordLabel.value.isEmpty()) {
-            errorMessages.add("recordLabel" to context.getString(R.string.mandatory_field_1, "disquera"))
-        }else {
-            recordLabel = recordLabel.copy(error = false, errorMsg = "")
-        }
-
-        if (description.value.isEmpty()) {
-            errorMessages.add("description" to context.getString(R.string.mandatory_field_1, "descripción"))
-        }else if (description.value.length > 2000) {
-            errorMessages.add("description" to context.getString(R.string.max_char_field_1, "descripción", "2000"))
+    fun validateMaxChars(field: FormField, fieldName: String, maxChars: Int): FormField {
+        return if (field.value.length > maxChars) {
+            field.copy(error = true, errorMsg = context.getString(R.string.max_char_field, fieldName, maxChars))
         } else {
-            description = description.copy(error = false, errorMsg = "")
+            field.copy(error = false, errorMsg = "")
         }
+    }
 
-        val hasError = errorMessages.isNotEmpty()
+    fun validateNonEmptyField(field: FormField, fieldName: String): FormField {
+        return if (field.value.isEmpty()) {
+            field.copy(error = true, errorMsg = context.getString(R.string.mandatory_field, fieldName))
+        } else {
+            field.copy(error = false, errorMsg = "")
+        }
+    }
 
-        if (hasError) {
-            errorMessages.forEach { (fieldName, errorMsg) ->
-                when (fieldName) {
-                    "name" -> name = name.copy(error = true, errorMsg = errorMsg)
-                    "cover" -> cover = cover.copy(error = true, errorMsg = errorMsg)
-                    "genre" -> genre = genre.copy(error = true, errorMsg = errorMsg)
-                    "releaseDate" -> releaseDate = releaseDate.copy(error = true, errorMsg = errorMsg)
-                    "recordLabel" -> recordLabel = recordLabel.copy(error = true, errorMsg = errorMsg)
-                    "description" -> description = description.copy(error = true, errorMsg = errorMsg)
-                }
-            }
-        }else {
+    fun validateForm() {
+
+        name = validateNonEmptyField(name, "Nombre")
+        if (!name.error) name = validateMaxChars(name, "Nombre", 200)
+
+        cover = validateNonEmptyField(cover, "URL de la portada")
+        if (!cover.error) cover = validateCoverFormat(cover)
+
+        genre = validateNonEmptyField(genre, "Género")
+
+        releaseDate = validateNonEmptyField(releaseDate, "Fecha de estreno")
+        if (!releaseDate.error) releaseDate = validateReleaseDate(releaseDate)
+
+        recordLabel = validateNonEmptyField(recordLabel, "Disquera")
+
+        description = validateNonEmptyField(description, "Descripción")
+        if (!description.error) description = validateMaxChars(description, "Descripción", 2000)
+
+        val hasError = name.error ||
+                cover.error ||
+                genre.error ||
+                releaseDate.error ||
+                recordLabel.error ||
+                description.error
+
+        if (!hasError) {
             val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
             val date = LocalDate.parse(releaseDate.value, dateFormatter)
             val outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'00:00:00-05:00")
