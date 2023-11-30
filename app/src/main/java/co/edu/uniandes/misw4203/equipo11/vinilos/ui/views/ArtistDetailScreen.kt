@@ -183,7 +183,8 @@ private fun AlbumsHeader(isCollector: Boolean, onClick: () -> Unit) {
             Button(
                 onClick = onClick,
                 modifier = Modifier
-                    .height(40.dp),
+                    .height(40.dp)
+                    .testTag("add-album"),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -232,18 +233,18 @@ private fun MembersHeader(isCollector: Boolean, onClick: () -> Unit) {
 private fun MusicianDetail(musician: Performer, albums: List<Album>, navController: NavHostController, isCollector: Boolean) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(150.dp),
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().testTag("artist-detail-list"),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
-            Column {
-                ArtistDescription(musician)
-                AlbumsHeader(
-                    isCollector,
-                    onClick = { navController.navigate("artists/musician/${musician.id}/addAlbum") }
-                )
-            }
+            ArtistDescription(musician)
+        }
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            AlbumsHeader(
+                isCollector,
+                onClick = { navController.navigate("artists/musician/${musician.id}/addAlbum") }
+            )
         }
         items(albums) {item ->
             AlbumItem(
@@ -282,12 +283,10 @@ private fun BandDetail(band: Performer, albums: List<Album>, members: List<Perfo
                 )
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
-            Column{
-                AlbumsHeader(
-                    isCollector,
-                    onClick = { navController.navigate("artists/band/${band.id}/addAlbum") }
-                )
-            }
+            AlbumsHeader(
+                isCollector,
+                onClick = { navController.navigate("artists/band/${band.id}/addAlbum") }
+            )
         }
         items(albums) { item ->
             AlbumItem(
