@@ -203,7 +203,7 @@ private fun AlbumTrack(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
-                modifier = Modifier.testTag("comment-submit")
+                modifier = Modifier.testTag("track-submit")
             ) {
                 if (formEnabled) {
                     Text(

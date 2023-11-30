@@ -41,7 +41,31 @@ class AlbumDetail (composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<
         )
     }
 
+    fun getAddTrackButton() : SemanticsNodeInteraction {
+        findExactlyOne(
+            hasTestTag("album-detail-list")
+        ).performScrollToNode(
+            hasTestTag("add-track")
+        )
+
+        return findExactlyOne(
+            hasTestTag("add-track")
+        )
+    }
+
     fun getCommentWithText(text: String) : SemanticsNodeInteraction {
+        findExactlyOne(
+            hasTestTag("album-detail-list")
+        ).performScrollToNode(
+            hasText(text)
+        )
+
+        return findExactlyOne(
+            hasText(text)
+        )
+    }
+
+    fun getTrackWithName(text: String) : SemanticsNodeInteraction {
         findExactlyOne(
             hasTestTag("album-detail-list")
         ).performScrollToNode(
