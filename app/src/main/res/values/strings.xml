@@ -35,9 +35,11 @@
     <string name="musician_birthDate">Nacimiento:</string>
     <string name="band_birthDate">Fecha de creación:</string>
     <string name="mandatory_field">El campo %s es obligatorio</string>
-    <string name="max_char_field">El campo %s debe tener máximo %d caracteres</string>
+    <plurals name="max_char_field">
+        <item quantity="one">El campo %s debe tener máximo %d carácter</item>
+        <item quantity="other">El campo %s debe tener máximo %d caracteres</item>
+    </plurals>
     <string name="err_future_date">El campo Fecha de estreno no puede ser en el futuro</string>
     <string name="err_cover_format">El campo URL de la portada debe tener el formato adecuado, ej: https://imagen.jpg</string>
     <string name="add">Agregar</string>
-
 </resources>

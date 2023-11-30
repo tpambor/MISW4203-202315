@@ -247,7 +247,7 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
 
     fun validateMaxChars(field: FormField, fieldName: String, maxChars: Int): FormField {
         return if (field.value.length > maxChars) {
-            field.copy(error = true, errorMsg = context.getString(R.string.max_char_field, fieldName, maxChars))
+            field.copy(error = true, errorMsg = context.resources.getQuantityString(R.plurals.max_char_field, maxChars, fieldName, maxChars))
         } else {
             field.copy(error = false, errorMsg = "")
         }
