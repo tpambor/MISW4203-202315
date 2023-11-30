@@ -53,6 +53,10 @@ class AlbumViewModelTest {
             return albumFlow
         }
 
+        override suspend fun addTrack(albumId: Int, name: String, duration: String) {
+            throw UnsupportedOperationException()
+        }
+
         override fun getPerformers(albumId: Int): Flow<List<Performer>> {
             assertEquals(expectedAlbumId, albumId)
 

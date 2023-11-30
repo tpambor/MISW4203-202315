@@ -54,7 +54,7 @@ abstract class AlbumDAO {
     protected abstract suspend fun deleteTracksByAlbumId(albumId: Int)
 
     @Insert
-    protected abstract suspend fun insertTracks(tracks: List<Track>)
+    abstract suspend fun insertTracks(tracks: List<Track>)
 
     @Query("DELETE FROM Comment")
     protected abstract suspend fun deleteComments()

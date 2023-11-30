@@ -8,6 +8,7 @@
     <string name="nav_login">Salir</string>
     <string name="top_nav_artist">Artista</string>
     <string name="top_nav_album">Álbum</string>
+    <string name="top_nav_track_album">Agregar track</string>
     <string name="top_nav_comment_album">Agregar comentario</string>
     <string name="top_nav_band_add_musician">Seleccionar integrante</string>
     <string name="top_nav_artist_add_album">Seleccionar álbum</string>
