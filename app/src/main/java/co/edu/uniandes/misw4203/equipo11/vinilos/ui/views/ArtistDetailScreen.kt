@@ -209,14 +209,18 @@ private fun MembersHeader(isCollector: Boolean, onClick: () -> Unit) {
         Text(
             text = stringResource(R.string.members),
             fontSize = 20.sp,
-            fontWeight = FontWeight.W500
+            fontWeight = FontWeight.W500,
+            modifier = Modifier.semantics { this.contentDescription = "Integrantes de la banda" }
         )
         if (isCollector){
             Button(
                 onClick = onClick,
                 modifier = Modifier
                     .height(40.dp)
-                    .testTag("add-member"),
+                    .testTag("add-member")
+                    .semantics {
+                        this.contentDescription = "Agregar músico a la banda"
+                    },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
