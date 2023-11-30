@@ -99,7 +99,6 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHost
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter)
         )
-
     }
 
     if (error is ErrorUiState.Error) {
