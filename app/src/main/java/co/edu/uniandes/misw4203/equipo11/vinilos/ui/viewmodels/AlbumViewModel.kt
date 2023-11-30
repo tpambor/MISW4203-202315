@@ -11,7 +11,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJsonRequest
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumRequestJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IAlbumRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -55,7 +55,7 @@ class AlbumViewModel(
     private val _insertAlbumResult = MutableStateFlow<Result<Unit>>(Result.success(Unit))
     val insertAlbumResult: StateFlow<Result<Unit>> get() = _insertAlbumResult
 
-    fun insertAlbum(album: AlbumJsonRequest) {
+    fun insertAlbum(album: AlbumRequestJson) {
         _formState.value = FormUiState.Saving
         viewModelScope.launch {
             try {

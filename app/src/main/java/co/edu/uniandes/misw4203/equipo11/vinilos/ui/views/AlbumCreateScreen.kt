@@ -50,7 +50,7 @@ import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJsonRequest
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumRequestJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.AlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.FormUiState
@@ -295,7 +295,7 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
 
             println("releaseDateISO ${releaseDateISO}")
 
-            val newAlbum = AlbumJsonRequest(
+            val newAlbum = AlbumRequestJson(
                 name = name.value,
                 cover = cover.value,
                 releaseDate = releaseDateISO,
@@ -413,7 +413,7 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
             onValueChanged = { updatedDescription ->
                 description = updatedDescription
             },
-            formPlaceholder = "Descripción",
+            formPlaceholder = "DescAlbumRequestJsonripción",
             minLines = 3,
             counter = true,
             counterMaxLength = AlbumViewModel.DESCRIPTION_MAX_LENGTH,

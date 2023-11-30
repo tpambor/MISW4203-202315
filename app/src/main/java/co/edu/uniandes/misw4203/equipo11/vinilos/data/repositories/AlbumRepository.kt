@@ -9,7 +9,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toAlbum
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.toComment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJsonRequest
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumRequestJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -22,7 +22,7 @@ interface IAlbumRepository {
     fun getComments(albumId: Int): Flow<List<Comment>>
     fun getTracks(albumId: Int): Flow<List<Track>>
     suspend fun refreshAlbum(albumId: Int)
-    suspend fun insertAlbum(album: AlbumJsonRequest)
+    suspend fun insertAlbum(album: AlbumRequestJson)
     suspend fun addComment(albumId: Int, collectorId: Int, rating: Int, comment: String)
 }
 
@@ -62,7 +62,7 @@ class AlbumRepository : IAlbumRepository {
             emit(album)
         }
     }
-    override suspend fun insertAlbum(album: AlbumJsonRequest)
+    override suspend fun insertAlbum(album: AlbumRequestJson)
     {
         val newAlbum = adapter.insertAlbum(album).first()
 

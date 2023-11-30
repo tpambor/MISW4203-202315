@@ -8,7 +8,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.User
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJsonRequest
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumRequestJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IAlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IUserRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumCommentViewModel
@@ -60,7 +60,7 @@ class AlbumCommentViewModelTest {
             throw UnsupportedOperationException()
         }
 
-        override suspend fun insertAlbum(album: AlbumJsonRequest) {
+        override suspend fun insertAlbum(album: AlbumRequestJson) {
             throw UnsupportedOperationException()
         }
 

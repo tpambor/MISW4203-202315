@@ -3,7 +3,7 @@ package co.edu.uniandes.misw4203.equipo11.vinilos
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.HttpRequestQueue
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJson
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJsonRequest
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumRequestJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorAlbumJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorJson
@@ -1030,7 +1030,7 @@ class NetworkServiceAdapterTest {
             addAlbumJSON
         }
 
-        val albumJsonRequest = AlbumJsonRequest(
+        val albumJsonRequest = AlbumRequestJson(
             name = "Buscando América",
             cover = "https://i.pinimg.com/564x/aa/5f/ed/aa5fed7fac61cc8f41d1e79db917a7cd.jpg",
             releaseDate = "1984-08-01T00:00:00-05:00",
