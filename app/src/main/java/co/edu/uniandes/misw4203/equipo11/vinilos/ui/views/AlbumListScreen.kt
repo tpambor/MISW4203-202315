@@ -63,6 +63,9 @@ import com.bumptech.glide.integration.compose.placeholder
 import java.time.Instant
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.UserRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
 
 @Composable
 fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
@@ -179,11 +182,27 @@ fun AlbumList(albums: List<Album>, navController: NavHostController) {
 
 @Composable
 fun CreateAlbumButton(navController: NavHostController) {
-    FloatingActionButton(
-        onClick = { navController.navigate("albums/add") },
-    ) {
-        Icon(Icons.Filled.Add, stringResource(R.string.album_crear ))
+    val userViewModel: UserViewModel = viewModel(
+        factory = UserViewModel.Factory,
+        extras = MutableCreationExtras(CreationExtras.Empty).apply {
+            set(UserViewModel.KEY_USER_REPOSITORY, UserRepository())
+        }
+    )
+    val user by userViewModel.user.collectAsStateWithLifecycle(
+        null
+    )
+
+    val isCollector = user?.type == UserType.Collector
+
+    if(isCollector){
+        FloatingActionButton(
+            onClick = { navController.navigate("albums/add") },
+            modifier = Modifier.testTag("add-album-button")
+        ) {
+            Icon(Icons.Filled.Add, stringResource(R.string.album_crear ))
+        }
     }
+
 }
 
 @Preview(showBackground = true, showSystemUi = true)

@@ -37,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -114,6 +115,7 @@ fun BasicInput(
     onValueChanged: (FormField) -> Unit,
     formPlaceholder: String,
     minLines: Int = 1,
+    testTag: String,
 ) {
     OutlinedTextField(
         value = field.value,
@@ -123,7 +125,8 @@ fun BasicInput(
         minLines = minLines,
         label = { Text(formPlaceholder) },
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .testTag(testTag),
         isError = field.error,
         supportingText = {
             if (field.errorMsg.isNotEmpty())
@@ -150,7 +153,8 @@ fun Selector(
     field: FormField,
     options: List<String>,
     onValueChanged: (FormField) -> Unit,
-    fieldPlaceholder: String
+    fieldPlaceholder: String,
+    testTag: String
 ) {
     var dropdownExpanded by remember { mutableStateOf(false) }
     var fieldIndex by remember { mutableIntStateOf(0) }
@@ -160,6 +164,7 @@ fun Selector(
         onExpandedChange = {
             dropdownExpanded = !dropdownExpanded
         },
+        modifier = Modifier.testTag(testTag)
     ) {
         OutlinedTextField(
             value = field.value,
@@ -187,7 +192,8 @@ fun Selector(
                         fieldIndex = index
                         dropdownExpanded = false
                         onValueChanged(field.copy(value = options[index]))
-                    }
+                    },
+                    modifier = Modifier.testTag("$testTag-$index")
                 )
             }
         }
@@ -310,7 +316,8 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
             onValueChanged = { updatedName ->
                 name = updatedName
             },
-            formPlaceholder = "Nombre"
+            formPlaceholder = "Nombre",
+            testTag = "create-name"
         )
 
         BasicInput(
@@ -318,7 +325,8 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
             onValueChanged = { updatedCover ->
                 cover = updatedCover
             },
-            formPlaceholder = "URL de la portada"
+            formPlaceholder = "URL de la portada",
+            testTag = "create-cover"
         )
 
         Selector(
@@ -327,7 +335,8 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
             onValueChanged = { updatedGenre ->
                 genre = updatedGenre
             },
-            fieldPlaceholder = "Género"
+            fieldPlaceholder = "Género",
+            testTag = "create-genre"
         )
 
         OutlinedTextField(
@@ -387,7 +396,8 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
             onValueChanged = { updatedRecordLabel ->
                 recordLabel = updatedRecordLabel
             },
-            fieldPlaceholder = "Disquera"
+            fieldPlaceholder = "Disquera",
+            testTag = "create-recordLabel"
         )
 
         BasicInput(
@@ -398,16 +408,20 @@ fun AlbumCreateForm(viewModel: AlbumViewModel, formState: FormUiState) {
             formPlaceholder = "Descripción",
             minLines = 3,
             counter = true,
-            counterMaxLength = AlbumViewModel.DESCRIPTION_MAX_LENGTH
+            counterMaxLength = AlbumViewModel.DESCRIPTION_MAX_LENGTH,
+            testTag = "create-description"
         )
 
         Button(
             onClick = { validateForm() },
-            modifier = Modifier.align(Alignment.CenterHorizontally),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .testTag("album-submit"),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
+
         ) {
             if (formEnabled) {
                 Text(
