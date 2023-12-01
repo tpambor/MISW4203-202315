@@ -40,11 +40,11 @@ class BandViewModelTest {
         var failRefresh = false
         var refreshCalled = false
 
-        override fun getMusicians(): Flow<Result<List<Performer>>> {
+        override fun getMusicians(): Flow<List<Performer>> {
             throw UnsupportedOperationException()
         }
 
-        override fun getBands(): Flow<Result<List<Performer>>> {
+        override fun getBands(): Flow<List<Performer>> {
             throw UnsupportedOperationException()
         }
 
@@ -114,12 +114,20 @@ class BandViewModelTest {
             throw UnsupportedOperationException()
         }
 
+        override suspend fun needsRefreshMusicians(): Boolean {
+            return true // No cache for unit tests
+        }
+
         override suspend fun refreshMusician(performerId: Int) {
             throw UnsupportedOperationException()
         }
 
         override suspend fun refreshBands() {
             throw UnsupportedOperationException()
+        }
+
+        override suspend fun needsRefreshBands(): Boolean {
+            return true // No cache for unit tests
         }
 
         override suspend fun refreshBand(performerId: Int) {

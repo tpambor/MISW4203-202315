@@ -1,7 +1,7 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories
-import android.util.Log
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.VinilosDB
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Cache
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorFavoritePerformer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.MusicianBand
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
@@ -11,11 +11,13 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import java.time.Duration
+import java.time.Instant
 
 
 interface IPerformerRepository {
-    fun getMusicians(): Flow<Result<List<Performer>>>
-    fun getBands(): Flow<Result<List<Performer>>>
+    fun getMusicians(): Flow<List<Performer>>
+    fun getBands(): Flow<List<Performer>>
     fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>>
     fun getMusician(performerId: Int): Flow<Performer?>
     fun getBand(performerId: Int): Flow<Performer?>
@@ -31,8 +33,10 @@ interface IPerformerRepository {
     suspend fun removeFavoriteMusician(collectorId: Int, performerId: Int)
     suspend fun removeFavoriteBand(collectorId: Int, performerId: Int)
     suspend fun refreshMusicians()
+    suspend fun needsRefreshMusicians(): Boolean
     suspend fun refreshMusician(performerId: Int)
     suspend fun refreshBands()
+    suspend fun needsRefreshBands(): Boolean
     suspend fun refreshBand(performerId: Int)
 }
 
@@ -40,57 +44,15 @@ class PerformerRepository : IPerformerRepository{
     private val adapter = NetworkServiceAdapter()
     private val db = VinilosDB.getInstance()
 
-    override fun getMusicians(): Flow<Result<List<Performer>>> = flow {
-        var isFirst = true
-
+    override fun getMusicians(): Flow<List<Performer>> = flow {
         db.performerDao().getMusicians().collect { musicians ->
-            if (!isFirst)
-                emit(Result.success(musicians))
-
-            // Handle first list returned differently
-            //
-            // If the first list is empty, there is no data in the database.
-            // This is mostly likely due to never have loaded data from the API,
-            // therefore call refresh() in this case to load the data from the API.
-            isFirst = true
-            if(musicians.isNotEmpty()) {
-                emit(Result.success(musicians))
-            }
-            else {
-                try {
-                    refreshMusicians()
-                } catch (ex: Exception) {
-                    Log.e(TAG, "Error loading musicians: $ex")
-                    emit(Result.failure(ex))
-                }
-            }
+            emit(musicians)
         }
     }
 
-    override fun getBands(): Flow<Result<List<Performer>>> = flow {
-        var isFirst = true
-
+    override fun getBands(): Flow<List<Performer>> = flow {
         db.performerDao().getBands().collect { bands ->
-            if (!isFirst)
-                emit(Result.success(bands))
-
-            // Handle first list returned differently
-            //
-            // If the first list is empty, there is no data in the database.
-            // This is mostly likely due to never have loaded data from the API,
-            // therefore call refresh() in this case to load the data from the API.
-            isFirst = true
-            if(bands.isNotEmpty()) {
-                emit(Result.success(bands))
-            }
-            else {
-                try {
-                    refreshBands()
-                } catch (ex: Exception) {
-                    Log.e(TAG, "Error loading bands: $ex")
-                    emit(Result.failure(ex))
-                }
-            }
+            emit(bands)
         }
     }
 
@@ -197,6 +159,14 @@ class PerformerRepository : IPerformerRepository{
         db.performerDao().deleteAndInsertMusicians(
             adapter.getMusicians().first()
         )
+
+        db.cacheDao().setLastUpdate(Cache("musicians", Instant.now()))
+    }
+
+    override suspend fun needsRefreshMusicians(): Boolean {
+        val lastUpdate = db.cacheDao().getLastUpdate("musicians") ?: return true
+
+        return Duration.between(lastUpdate, Instant.now()) > Duration.ofDays(1)
     }
 
     override suspend fun refreshMusician(performerId: Int) {
@@ -210,6 +180,14 @@ class PerformerRepository : IPerformerRepository{
         db.performerDao().deleteAndInsertBands(
             adapter.getBands().first()
         )
+
+        db.cacheDao().setLastUpdate(Cache("bands", Instant.now()))
+    }
+
+    override suspend fun needsRefreshBands(): Boolean {
+        val lastUpdate = db.cacheDao().getLastUpdate("bands") ?: return true
+
+        return Duration.between(lastUpdate, Instant.now()) > Duration.ofDays(1)
     }
 
     override suspend fun refreshBand(performerId: Int) {
@@ -217,9 +195,5 @@ class PerformerRepository : IPerformerRepository{
             listOf(adapter.getBand(performerId).first()),
             deleteAll = false
         )
-    }
-
-    companion object {
-        private val TAG = PerformerRepository::class.simpleName!!
     }
 }

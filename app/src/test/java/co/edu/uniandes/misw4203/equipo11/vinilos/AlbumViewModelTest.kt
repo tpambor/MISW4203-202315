@@ -45,7 +45,7 @@ class AlbumViewModelTest {
         var failRefresh = false
         var refreshCalled = false
 
-        override fun getAlbums(): Flow<Result<List<Album>>> {
+        override fun getAlbums(): Flow<List<Album>> {
             throw UnsupportedOperationException()
         }
 
@@ -79,6 +79,10 @@ class AlbumViewModelTest {
 
         override suspend fun refresh() {
             throw UnsupportedOperationException()
+        }
+
+        override suspend fun needsRefresh(): Boolean {
+            return true // No cache for unit tests
         }
 
         override suspend fun refreshAlbum(albumId: Int) {
