@@ -43,4 +43,5 @@
     <string name="err_future_date">El campo Fecha de estreno no puede ser en el futuro</string>
     <string name="err_cover_format">El campo URL de la portada debe tener el formato adecuado, ej: https://imagen.jpg</string>
     <string name="add">Agregar</string>
+    <string name="description">Descripción</string>
 </resources>

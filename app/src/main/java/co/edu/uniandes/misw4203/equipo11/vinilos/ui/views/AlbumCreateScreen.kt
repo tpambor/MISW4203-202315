@@ -283,8 +283,8 @@ fun AlbumCreateForm(formState: FormUiState, onSave: (AlbumRequestJson) -> Unit) 
 
         recordLabel = validateNonEmptyField(recordLabel, "Disquera")
 
-        description = validateNonEmptyField(description, "Descripción")
-        if (!description.error) description = validateMaxChars(description, "Descripción", 2000)
+        description = validateNonEmptyField(description, context.getString(R.string.description))
+        if (!description.error) description = validateMaxChars(description, context.getString(R.string.description), 2000)
 
         val hasError = name.error ||
                 cover.error ||
@@ -416,7 +416,7 @@ fun AlbumCreateForm(formState: FormUiState, onSave: (AlbumRequestJson) -> Unit) 
             onValueChanged = { updatedDescription ->
                 description = updatedDescription
             },
-            formPlaceholder = "Descripción",
+            formPlaceholder = stringResource(R.string.description),
             minLines = 3,
             counter = true,
             counterMaxLength = AlbumCreateViewModel.DESCRIPTION_MAX_LENGTH,
