@@ -67,7 +67,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
 import java.time.Instant
-import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -302,7 +302,7 @@ private fun BandDetail(band: Performer, albums: List<Album>, members: List<Perfo
 }
 
 private fun birthDateFormatted(performer: Performer): String {
-    val birthDate = performer.birthDate.atZone(ZoneId.systemDefault()).toLocalDate()
+    val birthDate = performer.birthDate.atOffset(ZoneOffset.UTC).toLocalDate()
     val birthDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     return birthDate.format(birthDateFormat)
 }
