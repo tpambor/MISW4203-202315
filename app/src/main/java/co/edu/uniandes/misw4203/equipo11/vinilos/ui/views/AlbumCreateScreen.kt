@@ -379,7 +379,7 @@ fun AlbumCreateForm(formState: FormUiState, onSave: (AlbumRequestJson) -> Unit) 
 
         if (showDatePicker) {
             DatePickerDialog(
-                onDismissRequest = { },
+                onDismissRequest = { showDatePicker = false },
                 confirmButton = {
                     Button(
                         onClick = {
@@ -391,9 +391,11 @@ fun AlbumCreateForm(formState: FormUiState, onSave: (AlbumRequestJson) -> Unit) 
                     }
                 }
             ) {
-                DatePicker(
-                    state = releaseDateState
-                )
+                Box(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    DatePicker(
+                        state = releaseDateState
+                    )
+                }
             }
         }
 
