@@ -113,8 +113,10 @@ class AlbumRepository : IAlbumRepository {
     }
 
     override suspend fun addComment(albumId: Int, collectorId: Int, rating: Int, comment: String) {
-        val newComment = adapter.addCommentToAlbum(albumId, collectorId, rating, comment).first()
-        db.albumDao().insertComments(listOf(newComment.toComment(albumId)))
+        db.albumDao().insertComments(listOf(
+            adapter.addCommentToAlbum(albumId, collectorId, rating, comment).first()
+                .toComment(albumId)
+        ))
     }
 
     companion object {
