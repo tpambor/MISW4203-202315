@@ -62,7 +62,7 @@ class PerformerListViewModel(
                     _musicians.value = musicians
 
                     if (needsRefresh) {
-                        onRefreshBands()
+                        onRefreshMusicians()
                         needsRefresh = false
                     }
                     else {
