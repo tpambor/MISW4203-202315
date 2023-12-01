@@ -2,16 +2,21 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePicker
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -76,13 +81,15 @@ fun AlbumTrackScreen(snackbarHostState: SnackbarHostState, albumId: Int, navCont
         }
     }
 
-    AlbumTrack(
-        state = state,
-        focusManager = LocalFocusManager.current,
-        validateName = viewModel::validateName,
-        validateDuration = viewModel::validateDuration,
-        onSave = viewModel::onSave
-    )
+    Box(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+        AlbumTrack(
+            state = state,
+            focusManager = LocalFocusManager.current,
+            validateName = viewModel::validateName,
+            validateDuration = viewModel::validateDuration,
+            onSave = viewModel::onSave
+        )
+    }
 
     if (error is ErrorUiState.Error) {
         val message = stringResource((error as ErrorUiState.Error).resourceId)
