@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
@@ -101,6 +103,7 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
         ){ backStackEntry ->
             BandDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController)
         }
+        composable(route = "albums/add"){ AlbumCreateScreen(snackbarHostState, navController, activityScope) }
         composable(
             route = "collectors/{collectorId}",
             arguments = listOf(navArgument("collectorId") { type = NavType.IntType })
@@ -127,17 +130,18 @@ fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStack
                 label = { Text(stringResource(item.stringId), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 icon = { Icon(painterResource(item.iconId), contentDescription = null) },
                 onClick = {
-                        if (item.route == route) return@NavigationBarItem
+                    if (item.route == route) return@NavigationBarItem
 
-                        navController.navigate(item.route) {
-                            popUpTo(navController.graph.startDestinationId) {}
-                            launchSingleTop = true
-                        }
+                    navController.navigate(item.route) {
+                        popUpTo(navController.graph.startDestinationId) {}
+                        launchSingleTop = true
+                    }
                 }
             )
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackStackEntry?) {
@@ -151,6 +155,7 @@ fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackSt
         "artists/band/{artistId}/addAlbum" -> stringResource(R.string.top_nav_artist_add_album)
         "albums/{albumId}/addTrack" -> stringResource(R.string.top_nav_track_album)
         "albums/{albumId}/comment" -> stringResource(R.string.top_nav_comment_album)
+        "albums/add" -> stringResource(R.string.top_nav_album_crear)
         "albums/{albumId}" -> stringResource(R.string.top_nav_album)
         "collectors/{collectorId}" -> stringResource(R.string.top_nav_collector)
         else -> ""
@@ -175,7 +180,18 @@ fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackSt
                         contentDescription = "Back"
                     )
                 }
-            }
+            },
+            modifier = Modifier.semantics { this.contentDescription = title }
         )
+    }
+}
+
+@Composable
+fun NavFloatingActionButton(navController: NavHostController, currentBackStackEntry: NavBackStackEntry?) {
+    val route = currentBackStackEntry?.destination?.route
+
+    if (route == "albums") {
+        // Agregar el FloatingActionButton para la pantalla AlbumList
+        AlbumListFAB(navController)
     }
 }

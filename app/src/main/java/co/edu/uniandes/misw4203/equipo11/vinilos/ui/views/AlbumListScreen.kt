@@ -12,9 +12,13 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -59,6 +63,9 @@ import com.bumptech.glide.integration.compose.placeholder
 import java.time.Instant
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.UserRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
 
 @Composable
 fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
@@ -173,7 +180,30 @@ fun AlbumList(albums: List<Album>, navController: NavHostController) {
             Text(text = stringResource(R.string.empty_albums_list))
         }
     }
+}
 
+@Composable
+fun AlbumListFAB(navController: NavHostController) {
+    val userViewModel: UserViewModel = viewModel(
+        factory = UserViewModel.Factory,
+        extras = MutableCreationExtras(CreationExtras.Empty).apply {
+            set(UserViewModel.KEY_USER_REPOSITORY, UserRepository())
+        }
+    )
+    val user by userViewModel.user.collectAsStateWithLifecycle(
+        null
+    )
+
+    val isCollector = user?.type == UserType.Collector
+
+    if(isCollector) {
+        FloatingActionButton(
+            onClick = { navController.navigate("albums/add") },
+            modifier = Modifier.testTag("add-album-button")
+        ) {
+            Icon(Icons.Filled.Add, stringResource(R.string.album_crear ))
+        }
+    }
 }
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -195,7 +225,7 @@ private fun AlbumListScreenPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            Column(Modifier.padding(16.dp)) {
+            Column {
                 AlbumList(albums, rememberNavController())
             }
 

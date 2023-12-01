@@ -6,6 +6,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumRequestJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IAlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
@@ -65,6 +66,10 @@ class AlbumListViewModelTest {
         }
 
         override suspend fun refreshAlbum(albumId: Int) {
+            throw UnsupportedOperationException()
+        }
+
+        override suspend fun insertAlbum(album: AlbumRequestJson) {
             throw UnsupportedOperationException()
         }
 

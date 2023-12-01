@@ -8,6 +8,7 @@
     <string name="nav_login">Salir</string>
     <string name="top_nav_artist">Artista</string>
     <string name="top_nav_album">Álbum</string>
+    <string name="top_nav_album_crear">Agregar álbum</string>
     <string name="top_nav_track_album">Agregar track</string>
     <string name="top_nav_comment_album">Agregar comentario</string>
     <string name="top_nav_band_add_musician">Seleccionar integrante</string>
@@ -31,6 +32,16 @@
     <string name="album_gender">Género</string>
     <string name="album_discografia">Discografia</string>
     <string name="album_fechaPublicacion">Fecha de publicación</string>
+    <string name="album_crear">Crear un nuevo álbum</string>
     <string name="musician_birthDate">Nacimiento:</string>
     <string name="band_birthDate">Fecha de creación:</string>
+    <string name="mandatory_field">El campo %s es obligatorio</string>
+    <plurals name="max_char_field">
+        <item quantity="one">El campo %s debe tener máximo %d carácter</item>
+        <item quantity="other">El campo %s debe tener máximo %d caracteres</item>
+    </plurals>
+    <string name="err_future_date">El campo Fecha de estreno no puede ser en el futuro</string>
+    <string name="err_cover_format">El campo URL de la portada debe tener el formato adecuado, ej: https://imagen.jpg</string>
+    <string name="add">Agregar</string>
+    <string name="description">Descripción</string>
 </resources>

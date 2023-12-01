@@ -1,6 +1,7 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.data.network
 
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJson
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumRequestJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CommentJson
@@ -37,6 +38,13 @@ class NetworkServiceAdapter {
 
     fun getAlbum(albumId: Int): Flow<AlbumJson> {
         return HttpRequestQueue.get("$API_BASE_URL/albums/$albumId").map { response ->
+            gson().fromJson(response, AlbumJson::class.java)
+        }
+    }
+
+    fun insertAlbum(album: AlbumRequestJson): Flow<AlbumJson> {
+        val albumJson = gson().toJson(album)
+        return HttpRequestQueue.post("$API_BASE_URL/albums", albumJson.toString()).map { response ->
             gson().fromJson(response, AlbumJson::class.java)
         }
     }

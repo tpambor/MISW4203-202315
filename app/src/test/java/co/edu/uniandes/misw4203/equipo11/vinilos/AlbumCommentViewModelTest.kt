@@ -8,6 +8,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.User
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumRequestJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IAlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IUserRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumCommentViewModel
@@ -15,6 +16,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
 import io.github.serpro69.kfaker.Faker
 import junit.framework.TestCase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
@@ -62,6 +64,10 @@ class AlbumCommentViewModelTest {
             throw UnsupportedOperationException()
         }
 
+        override suspend fun insertAlbum(album: AlbumRequestJson) {
+            throw UnsupportedOperationException()
+        }
+
         var addCommentCalled: Boolean = false
         var failAddComment: Boolean = false
         var addCommentAlbumId: Int? = null
@@ -94,6 +100,7 @@ class AlbumCommentViewModelTest {
         override suspend fun login(userType: UserType) { }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())

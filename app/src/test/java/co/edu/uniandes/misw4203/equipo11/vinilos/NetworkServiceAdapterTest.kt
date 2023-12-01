@@ -3,6 +3,7 @@ package co.edu.uniandes.misw4203.equipo11.vinilos
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.HttpRequestQueue
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJson
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumRequestJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorAlbumJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorJson
@@ -1016,6 +1017,43 @@ class NetworkServiceAdapterTest {
 
         val adapter = NetworkServiceAdapter()
         val album = adapter.addBandToAlbum(bandId, albumId).first()
+        assertEquals(expectedAlbum, album)
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldInsertAlbum() = runTest {
+        val albumJsonRequest = AlbumRequestJson(
+            name = "Buscando América",
+            cover = "https://i.pinimg.com/564x/aa/5f/ed/aa5fed7fac61cc8f41d1e79db917a7cd.jpg",
+            releaseDate = "1984-08-01T00:00:00.000Z",
+            description = "Buscando América es el primer álbum de la banda de Rubén Blades y Seis del Solar lanzado en 1984. La producción, bajo el sello Elektra, fusiona diferentes ritmos musicales tales como la salsa, reggae, rock, y el jazz latino. El disco fue grabado en Eurosound Studios en Nueva York entre mayo y agosto de 1983.",
+            genre = "Salsa",
+            recordLabel ="Elektra",
+        )
+
+        val addAlbumJSON = javaClass.getResource("/addAlbum.json").readText()
+        val mockRequest = MockPostRequest { url, content ->
+            assertEquals( "${NetworkServiceAdapter.API_BASE_URL}/albums", url)
+            assertEquals("{\"name\":\"Buscando América\",\"cover\":\"https://i.pinimg.com/564x/aa/5f/ed/aa5fed7fac61cc8f41d1e79db917a7cd.jpg\",\"releaseDate\":\"1984-08-01T00:00:00.000Z\",\"description\":\"Buscando América es el primer álbum de la banda de Rubén Blades y Seis del Solar lanzado en 1984. La producción, bajo el sello Elektra, fusiona diferentes ritmos musicales tales como la salsa, reggae, rock, y el jazz latino. El disco fue grabado en Eurosound Studios en Nueva York entre mayo y agosto de 1983.\",\"genre\":\"Salsa\",\"recordLabel\":\"Elektra\"}", content)
+            addAlbumJSON
+        }
+
+        val expectedAlbum = AlbumJson(
+            id = 614,
+            name = "Buscando América",
+            cover = "https://i.pinimg.com/564x/aa/5f/ed/aa5fed7fac61cc8f41d1e79db917a7cd.jpg",
+            releaseDate = Instant.parse("1984-08-01T00:00:00.000Z"),
+            description = "Buscando América es el primer álbum de la banda de Rubén Blades y Seis del Solar lanzado en 1984. La producción, bajo el sello Elektra, fusiona diferentes ritmos musicales tales como la salsa, reggae, rock, y el jazz latino. El disco fue grabado en Eurosound Studios en Nueva York entre mayo y agosto de 1983.",
+            genre = "Salsa",
+            recordLabel = "Elektra",
+            tracks = null,
+            performers = null,
+            comments = null
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val album = adapter.insertAlbum(albumJsonRequest).first()
         assertEquals(expectedAlbum, album)
         assertTrue(mockRequest.called)
     }
