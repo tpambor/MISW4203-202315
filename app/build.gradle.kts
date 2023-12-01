@@ -82,7 +82,7 @@ dependencies {
     val navVersion = "2.7.5"
     val testJunitVersion = "1.1.5"
     val composeBomVersion = "2023.10.01"
-    val roomVersion = "2.6.0"
+    val roomVersion = "2.6.1"
     val fakerVersion = "1.15.0"
     val mockkVersion = "1.13.8"
     val datastoreVersion = "1.0.0"
