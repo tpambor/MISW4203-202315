@@ -28,13 +28,13 @@ import java.time.Instant
 
 class CollectorListViewModelTest {
     class FakeCollectorRepository : ICollectorRepository {
-        private val flowCollectorsWithPerformers = MutableSharedFlow<Result<List<CollectorWithPerformers>>>()
-        suspend fun emit(value: Result<List<CollectorWithPerformers>>) = flowCollectorsWithPerformers.emit(value)
+        private val flowCollectorsWithPerformers = MutableSharedFlow<List<CollectorWithPerformers>>()
+        suspend fun emit(value: List<CollectorWithPerformers>) = flowCollectorsWithPerformers.emit(value)
 
         var failRefresh = false
         var refreshCalled = false
 
-        override fun getCollectorsWithFavoritePerformers(): Flow<Result<List<CollectorWithPerformers>>> {
+        override fun getCollectorsWithFavoritePerformers(): Flow<List<CollectorWithPerformers>> {
             return flowCollectorsWithPerformers
         }
 
@@ -55,6 +55,10 @@ class CollectorListViewModelTest {
 
             if (failRefresh)
                 throw Exception()
+        }
+
+        override suspend fun needsRefresh(): Boolean {
+            return true // No cache for unit tests
         }
 
         override suspend fun refreshCollector(collectorId: Int) {
@@ -136,39 +140,11 @@ class CollectorListViewModelTest {
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
         // Repository emits Collectors
-        repository.emit(Result.success(data))
+        repository.emit(data)
 
         // Then, list of Collectors is filled with the data
         assertEquals(data, viewModel.collectors.first())
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
-    }
-
-    @Test
-    fun listCollectorError() = runTest {
-        val repository = FakeCollectorRepository()
-
-        val viewModel = CollectorListViewModel.Factory.create(
-            CollectorListViewModel::class.java,
-            MutableCreationExtras(CreationExtras.Empty).apply {
-                set(CollectorListViewModel.KEY_COLLECTOR_REPOSITORY, repository)
-                set(CollectorListViewModel.KEY_DISPATCHER, Dispatchers.Main)
-            }
-        )
-
-        // Initially, there are no Collectors yet
-        assertEquals(emptyList<CollectorWithPerformers>(), viewModel.collectors.first())
-        assertEquals(ErrorUiState.NoError, viewModel.error.first())
-
-        // Repository emits null (unable to fetch data)
-        repository.emit(Result.failure(Exception()))
-
-        // Then, list of Collectors is filled with the data
-        assertEquals(emptyList<CollectorWithPerformers>(), viewModel.collectors.first())
-
-        val error = viewModel.error.value
-        assert(error is ErrorUiState.Error)
-        val errorState: ErrorUiState.Error = error as ErrorUiState.Error
-        assertEquals(R.string.network_error, errorState.resourceId)
     }
 
     @Test

@@ -1,8 +1,8 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories
 
-import android.util.Log
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.VinilosDB
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Cache
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
@@ -14,10 +14,13 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumReques
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import java.time.Duration
+import java.time.Instant
 
 interface IAlbumRepository {
-    fun getAlbums(): Flow<Result<List<Album>>>
+    fun getAlbums(): Flow<List<Album>>
     suspend fun refresh()
+    suspend fun needsRefresh(): Boolean
     fun getAlbum(albumId: Int): Flow<Album?>
     suspend fun addTrack(albumId: Int, name: String, duration: String)
     fun getPerformers(albumId: Int): Flow<List<Performer>>
@@ -32,30 +35,9 @@ class AlbumRepository : IAlbumRepository {
     private val adapter = NetworkServiceAdapter()
     private val db = VinilosDB.getInstance()
 
-    override fun getAlbums(): Flow<Result<List<Album>>> = flow {
-        var isFirst = true
-
+    override fun getAlbums(): Flow<List<Album>> = flow {
         db.albumDao().getAlbums().collect { albums ->
-            if (!isFirst)
-                emit(Result.success(albums))
-
-            // Handle first list returned differently
-            //
-            // If the first list is empty, there is no data in the database.
-            // This is mostly likely due to never have loaded data from the API,
-            // therefore call refresh() in this case to load the data from the API.
-            isFirst = true
-            if(albums.isNotEmpty()) {
-                emit(Result.success(albums))
-            }
-            else {
-                try {
-                    refresh()
-                } catch (ex: Exception) {
-                    Log.e(TAG, "Error loading albums: $ex")
-                    emit(Result.failure(ex))
-                }
-            }
+            emit(albums)
         }
     }
 
@@ -103,6 +85,14 @@ class AlbumRepository : IAlbumRepository {
         db.albumDao().deleteAndInsertAlbums(
             adapter.getAlbums().first()
         )
+
+        db.cacheDao().setLastUpdate(Cache("albums", Instant.now()))
+    }
+
+    override suspend fun needsRefresh(): Boolean {
+        val lastUpdate = db.cacheDao().getLastUpdate("albums") ?: return true
+
+        return Duration.between(lastUpdate, Instant.now()) > Duration.ofDays(1)
     }
 
     override suspend fun refreshAlbum(albumId: Int) {
@@ -117,9 +107,5 @@ class AlbumRepository : IAlbumRepository {
             adapter.addCommentToAlbum(albumId, collectorId, rating, comment).first()
                 .toComment(albumId)
         ))
-    }
-
-    companion object {
-        private val TAG = AlbumRepository::class.simpleName!!
     }
 }

@@ -27,7 +27,7 @@ import java.time.Instant
 
 class AlbumCreateViewModelTest {
     class FakeAlbumRepository: IAlbumRepository {
-        override fun getAlbums(): Flow<Result<List<Album>>> {
+        override fun getAlbums(): Flow<List<Album>> {
             throw UnsupportedOperationException()
         }
 
@@ -53,6 +53,10 @@ class AlbumCreateViewModelTest {
 
         override suspend fun refresh() {
             throw UnsupportedOperationException()
+        }
+
+        override suspend fun needsRefresh(): Boolean {
+            return true // No cache for unit tests
         }
 
         override suspend fun refreshAlbum(albumId: Int) {

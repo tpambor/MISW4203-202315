@@ -4,9 +4,11 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.daos.AlbumDAO
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.daos.CacheDAO
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.daos.CollectorDAO
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.daos.PerformerDAO
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Cache
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Collector
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorAlbumCrossRef
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.CollectorFavoritePerformer
@@ -19,6 +21,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
 @Database(
     entities = [
         Album::class,
+        Cache::class,
         Collector::class,
         CollectorAlbumCrossRef::class,
         CollectorFavoritePerformer::class,
@@ -28,7 +31,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
         PerformerAlbum::class,
         Track::class
     ],
-    version = 9,
+    version = 10,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -36,6 +39,7 @@ abstract class VinilosDB : RoomDatabase() {
     abstract fun albumDao(): AlbumDAO
     abstract fun performerDao(): PerformerDAO
     abstract fun collectorDao(): CollectorDAO
+    abstract fun cacheDao(): CacheDAO
 
     companion object {
         @Volatile

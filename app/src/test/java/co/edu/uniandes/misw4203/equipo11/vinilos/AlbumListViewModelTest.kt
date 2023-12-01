@@ -28,13 +28,13 @@ import java.time.Instant
 
 class AlbumListViewModelTest {
     class FakeAlbumRepository: IAlbumRepository {
-        private val flow = MutableSharedFlow<Result<List<Album>>>()
-        suspend fun emit(value: Result<List<Album>>) = flow.emit(value)
+        private val flow = MutableSharedFlow<List<Album>>()
+        suspend fun emit(value: List<Album>) = flow.emit(value)
 
         var failRefresh = false
         var refreshCalled = false
 
-        override fun getAlbums(): Flow<Result<List<Album>>> {
+        override fun getAlbums(): Flow<List<Album>> {
             return flow
         }
 
@@ -63,6 +63,10 @@ class AlbumListViewModelTest {
 
             if (failRefresh)
                 throw Exception()
+        }
+
+        override suspend fun needsRefresh(): Boolean {
+            return true // No cache for unit tests
         }
 
         override suspend fun refreshAlbum(albumId: Int) {
@@ -144,39 +148,11 @@ class AlbumListViewModelTest {
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
         // Repository emits albums
-        repository.emit(Result.success(data))
+        repository.emit(data)
 
         // Then, list of albums is filled with the data
         assertEquals(data, viewModel.albums.first())
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
-    }
-
-    @Test
-    fun listAlbumError() = runTest {
-        val repository = FakeAlbumRepository()
-
-        val viewModel = AlbumListViewModel.Factory.create(
-            AlbumListViewModel::class.java,
-            MutableCreationExtras(CreationExtras.Empty).apply {
-                set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
-                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
-            }
-        )
-
-        // Initially, there are no albums yet
-        assertEquals(emptyList<Album>(), viewModel.albums.first())
-        assertEquals(ErrorUiState.NoError, viewModel.error.first())
-
-        // Repository emits failure
-        repository.emit(Result.failure(Exception()))
-
-        // Then, list of albums is filled with the data
-        assertEquals(emptyList<Album>(), viewModel.albums.first())
-
-        val error = viewModel.error.value
-        assert(error is ErrorUiState.Error)
-        val errorState: ErrorUiState.Error = error as ErrorUiState.Error
-        assertEquals(R.string.network_error, errorState.resourceId)
     }
 
     @Test
