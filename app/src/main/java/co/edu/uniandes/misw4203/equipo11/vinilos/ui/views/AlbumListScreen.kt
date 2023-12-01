@@ -4,11 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -52,24 +50,24 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.AlbumRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.UserRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel.Companion.KEY_ALBUM_REPOSITORY
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
 import java.time.Instant
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.UserRepository
-import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
 
 @Composable
 fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
