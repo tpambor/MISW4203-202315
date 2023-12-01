@@ -24,12 +24,24 @@ class ArtistDetail (composeTestRule: AndroidComposeTestRule<ActivityScenarioRule
         ).assertIsDisplayed()
     }
     private fun getAlbumsHeader(): SemanticsNodeInteraction {
+        findExactlyOne(
+            hasTestTag("artist-detail-list")
+        ).performScrollToNode(
+            hasTestTag("albums-header")
+        )
+
         return findExactlyOne(
             hasTestTag("albums-header")
         )
     }
 
     private fun getMembersHeader(): SemanticsNodeInteraction {
+        findExactlyOne(
+            hasTestTag("artist-detail-list")
+        ).performScrollToNode(
+            hasTestTag("members-header")
+        )
+
         return findExactlyOne(
             hasTestTag("members-header")
         )

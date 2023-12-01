@@ -42,7 +42,7 @@ class CollectorViewModelTest {
         var failRefresh = false
         var refreshCalled = false
 
-        override fun getCollectorsWithFavoritePerformers(): Flow<Result<List<CollectorWithPerformers>>> {
+        override fun getCollectorsWithFavoritePerformers(): Flow<List<CollectorWithPerformers>> {
             throw UnsupportedOperationException()
         }
 
@@ -66,6 +66,10 @@ class CollectorViewModelTest {
 
         override suspend fun refresh() {
             throw UnsupportedOperationException()
+        }
+
+        override suspend fun needsRefresh(): Boolean {
+            return true // No cache for unit tests
         }
 
         override suspend fun refreshCollector(collectorId: Int) {

@@ -32,7 +32,7 @@ import org.junit.Test
 
 class AlbumCommentViewModelTest {
     class FakeAlbumRepository: IAlbumRepository {
-        override fun getAlbums(): Flow<Result<List<Album>>> {
+        override fun getAlbums(): Flow<List<Album>> {
             throw UnsupportedOperationException()
         }
 
@@ -58,6 +58,10 @@ class AlbumCommentViewModelTest {
 
         override suspend fun refresh() {
             throw UnsupportedOperationException()
+        }
+
+        override suspend fun needsRefresh(): Boolean {
+            return true // No cache for unit tests
         }
 
         override suspend fun refreshAlbum(albumId: Int) {
