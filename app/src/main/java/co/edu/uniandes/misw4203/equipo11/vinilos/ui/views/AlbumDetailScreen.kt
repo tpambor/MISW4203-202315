@@ -65,7 +65,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
-import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -447,7 +447,7 @@ private fun AlbumDescription(album: Album) {
 }
 
 private fun releaseDateFormatted(album: Album): String {
-    val releaseDate = album.releaseDate.atZone(ZoneId.systemDefault()).toLocalDate()
+    val releaseDate = album.releaseDate.atOffset(ZoneOffset.UTC).toLocalDate()
     val releaseDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     return releaseDate.format(releaseDateFormat)
 }
