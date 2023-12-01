@@ -1,10 +1,10 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos
 
-import AlbumCreate
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.performClick
+import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.AlbumCreate
 import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.AlbumList
 import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.Login
 import co.edu.uniandes.misw4203.equipo11.vinilos.pageobjects.NavBar

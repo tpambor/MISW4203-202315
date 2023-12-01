@@ -31,9 +31,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -53,7 +53,6 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumRequestJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.AlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumCreateViewModel
-import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.FormUiState
 import kotlinx.coroutines.CoroutineScope
@@ -85,7 +84,11 @@ fun AlbumCreateScreen(snackbarHostState: SnackbarHostState, navController: NavHo
             activityScope.launch {
                 snackbarHostState.showSnackbar("Álbum agregado exitosamente")
             }
-            navController.navigate("albums")
+            navController.navigate("albums") {
+                popUpTo("albums")
+
+                launchSingleTop = true
+            }
         }
     }
 

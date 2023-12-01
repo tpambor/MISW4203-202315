@@ -225,7 +225,7 @@ private fun AlbumListScreenPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            Column() {
+            Column {
                 AlbumList(albums, rememberNavController())
             }
 
