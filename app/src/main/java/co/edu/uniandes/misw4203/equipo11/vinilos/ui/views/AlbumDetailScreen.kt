@@ -204,6 +204,17 @@ private fun AlbumDetail(
             )
         }
 
+        if (performers.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(text = stringResource(R.string.empty_artists_list))
+                }
+            }
+        }
+
         items(performers) { performer ->
             ArtistItem(
                 performer = performer,
@@ -225,6 +236,17 @@ private fun AlbumDetail(
             )
         }
 
+        if (tracks.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(text = stringResource(R.string.empty_track_list))
+                }
+            }
+        }
+
         items(tracks, span = { GridItemSpan(maxLineSpan) }) { track ->
             TrackItem(track)
         }
@@ -237,6 +259,17 @@ private fun AlbumDetail(
                 testTag = "add-comment",
                 onClick = { navController.navigate("albums/${album.id}/comment") }
             )
+        }
+
+        if (comments.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(text = stringResource(R.string.empty_comment_list))
+                }
+            }
         }
 
         items(comments, span = { GridItemSpan(maxLineSpan) }) { comment ->

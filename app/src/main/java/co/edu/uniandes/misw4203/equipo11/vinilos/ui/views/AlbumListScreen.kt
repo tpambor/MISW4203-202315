@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -48,24 +50,24 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.AlbumRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.UserRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel.Companion.KEY_ALBUM_REPOSITORY
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
 import java.time.Instant
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.UserRepository
-import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
 
 @Composable
 fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
@@ -156,28 +158,30 @@ fun AlbumItem(album: Album, onClick: () -> Unit) {
 
 @Composable
 fun AlbumList(albums: List<Album>, navController: NavHostController) {
-    if(albums.isNotEmpty()){
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(150.dp),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp, 8.dp, 8.dp, 0.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(albums) { item ->
-                AlbumItem(
-                    album = item,
-                    onClick = { navController.navigate("albums/${item.id}") }
-                )
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(150.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp, 8.dp, 8.dp, 0.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        if (albums.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(
+                    contentAlignment = Alignment.BottomCenter,
+                    modifier = Modifier.heightIn(100.dp).fillMaxSize()
+                ) {
+                    Text(text = stringResource(R.string.empty_albums_list))
+                }
             }
         }
-    }else{
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text(text = stringResource(R.string.empty_albums_list))
+
+        items(albums) { item ->
+            AlbumItem(
+                album = item,
+                onClick = { navController.navigate("albums/${item.id}") }
+            )
         }
     }
 }

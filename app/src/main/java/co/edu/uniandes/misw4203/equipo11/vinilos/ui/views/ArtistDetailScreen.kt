@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -233,6 +234,26 @@ private fun MembersHeader(isCollector: Boolean, onClick: () -> Unit) {
     }
 }
 
+private fun AlbumItems(scope: LazyGridScope, albums: List<Album>, navController: NavHostController) {
+    if (albums.isEmpty()) {
+        scope.item(span = { GridItemSpan(maxLineSpan) }) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text(text = stringResource(R.string.empty_albums_list))
+            }
+        }
+    }
+
+    scope.items(albums) { item ->
+        AlbumItem(
+            album = item,
+            onClick = { navController.navigate("albums/${item.id}") }
+        )
+    }
+}
+
 @Composable
 private fun MusicianDetail(musician: Performer, albums: List<Album>, navController: NavHostController, isCollector: Boolean) {
     LazyVerticalGrid(
@@ -250,12 +271,8 @@ private fun MusicianDetail(musician: Performer, albums: List<Album>, navControll
                 onClick = { navController.navigate("artists/musician/${musician.id}/addAlbum") }
             )
         }
-        items(albums) {item ->
-            AlbumItem(
-                album = item,
-                onClick = { navController.navigate("albums/${item.id}") }
-            )
-        }
+
+        AlbumItems(this, albums, navController)
     }
 }
 
@@ -292,12 +309,8 @@ private fun BandDetail(band: Performer, albums: List<Album>, members: List<Perfo
                 onClick = { navController.navigate("artists/band/${band.id}/addAlbum") }
             )
         }
-        items(albums) { item ->
-            AlbumItem(
-                album = item,
-                onClick = { navController.navigate("albums/${item.id}") }
-            )
-        }
+
+        AlbumItems(this, albums, navController)
     }
 }
 

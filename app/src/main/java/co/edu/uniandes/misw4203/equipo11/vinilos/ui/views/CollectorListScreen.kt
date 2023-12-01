@@ -3,8 +3,10 @@ package co.edu.uniandes.misw4203.equipo11.vinilos.ui.views
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.ElevatedCard
@@ -143,31 +145,33 @@ private fun CollectorItem(collector: CollectorWithPerformers, navController: Nav
 
 @Composable
 private fun CollectorList(collectors: List<CollectorWithPerformers>, navController: NavHostController, userId: Int?) {
-    if (collectors.isNotEmpty()) {
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(360.dp),
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxSize()
-        ) {
-            if (userId != null) {
-                val collector = collectors.firstOrNull { it.collector.id == userId }
-                if (collector != null) {
-                    item {
-                        CollectorItem(collector, navController, "collector-list-item-user")
-                    }
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(360.dp),
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxSize()
+    ) {
+        if (collectors.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(
+                    contentAlignment = Alignment.BottomCenter,
+                    modifier = Modifier.heightIn(100.dp).fillMaxSize()
+                ) {
+                    Text(text = stringResource(R.string.empty_collector_list))
                 }
             }
-            items(collectors.filterNot { it.collector.id == userId }) { item: CollectorWithPerformers ->
-                CollectorItem(item, navController, "collector-list-item")
+        }
+
+        if (userId != null) {
+            val collector = collectors.firstOrNull { it.collector.id == userId }
+            if (collector != null) {
+                item {
+                    CollectorItem(collector, navController, "collector-list-item-user")
+                }
             }
         }
-    } else {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text(text = stringResource(R.string.empty_collector_list))
+        items(collectors.filterNot { it.collector.id == userId }) { item: CollectorWithPerformers ->
+            CollectorItem(item, navController, "collector-list-item")
         }
     }
 }

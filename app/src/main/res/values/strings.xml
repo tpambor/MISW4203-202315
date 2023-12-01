@@ -24,6 +24,8 @@
     <string name="empty_artists_list">No hay artistas disponibles</string>
     <string name="empty_musicians_list">No hay músicos disponibles</string>
     <string name="empty_bands_list">No hay bandas disponibles</string>
+    <string name="empty_track_list">No hay tracks disponibles</string>
+    <string name="empty_comment_list">No hay comentarios disponibles</string>
     <string name="login_visitor">Visitante</string>
     <string name="login_collector">Coleccionista</string>
     <string name="login_instruction">¿Cómo quieres ingresar?</string>
