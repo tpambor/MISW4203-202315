@@ -4,11 +4,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -156,28 +160,30 @@ fun AlbumItem(album: Album, onClick: () -> Unit) {
 
 @Composable
 fun AlbumList(albums: List<Album>, navController: NavHostController) {
-    if(albums.isNotEmpty()){
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(150.dp),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp, 8.dp, 8.dp, 0.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(albums) { item ->
-                AlbumItem(
-                    album = item,
-                    onClick = { navController.navigate("albums/${item.id}") }
-                )
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(150.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp, 8.dp, 8.dp, 0.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        if (albums.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(
+                    contentAlignment = Alignment.BottomCenter,
+                    modifier = Modifier.heightIn(100.dp).fillMaxSize()
+                ) {
+                    Text(text = stringResource(R.string.empty_albums_list))
+                }
             }
         }
-    }else{
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text(text = stringResource(R.string.empty_albums_list))
+
+        items(albums) { item ->
+            AlbumItem(
+                album = item,
+                onClick = { navController.navigate("albums/${item.id}") }
+            )
         }
     }
 }

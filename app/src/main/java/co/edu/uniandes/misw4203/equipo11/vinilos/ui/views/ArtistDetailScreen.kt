@@ -250,6 +250,18 @@ private fun MusicianDetail(musician: Performer, albums: List<Album>, navControll
                 onClick = { navController.navigate("artists/musician/${musician.id}/addAlbum") }
             )
         }
+
+        if (albums.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(text = stringResource(R.string.empty_albums_list))
+                }
+            }
+        }
+
         items(albums) {item ->
             AlbumItem(
                 album = item,
@@ -292,6 +304,18 @@ private fun BandDetail(band: Performer, albums: List<Album>, members: List<Perfo
                 onClick = { navController.navigate("artists/band/${band.id}/addAlbum") }
             )
         }
+
+        if (albums.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(text = stringResource(R.string.empty_albums_list))
+                }
+            }
+        }
+
         items(albums) { item ->
             AlbumItem(
                 album = item,
