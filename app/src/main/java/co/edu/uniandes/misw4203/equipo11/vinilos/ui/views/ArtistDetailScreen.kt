@@ -178,14 +178,16 @@ private fun AlbumsHeader(isCollector: Boolean, onClick: () -> Unit) {
         Text(
             text = stringResource(R.string.nav_albums),
             fontSize = 20.sp,
-            fontWeight = FontWeight.W500
+            fontWeight = FontWeight.W500,
+            modifier = Modifier.semantics { this.contentDescription = "Álbumes asociados" }
         )
         if(isCollector){
             Button(
                 onClick = onClick,
                 modifier = Modifier
                     .height(40.dp)
-                    .testTag("add-album"),
+                    .testTag("add-album")
+                    .semantics { this.contentDescription = "Asociar un nuevo álbum" } ,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
