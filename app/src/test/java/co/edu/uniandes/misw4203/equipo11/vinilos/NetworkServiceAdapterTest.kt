@@ -3,6 +3,7 @@ package co.edu.uniandes.misw4203.equipo11.vinilos
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.HttpRequestQueue
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.NetworkServiceAdapter
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJson
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumRequestJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorAlbumJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorJson
@@ -866,6 +867,218 @@ class NetworkServiceAdapterTest {
 
         val adapter = NetworkServiceAdapter()
         adapter.removeFavoriteBandFromCollector(collectorId, bandId).first()
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldAddCommentToAlbum() = runTest {
+        val albumId = 1
+        val collectorId = 2
+        val rating = 4
+        val description = "It is an amazing album"
+        val addCommentJSON = javaClass.getResource("/addComment.json").readText()
+        val mockRequest = MockPostRequest { url, content ->
+            assertEquals( "${NetworkServiceAdapter.API_BASE_URL}/albums/$albumId/comments", url)
+            assertEquals("{\"description\":\"$description\",\"rating\":$rating,\"collector\":{\"id\":$collectorId}}", content)
+            addCommentJSON
+        }
+
+        val expectedComment = CommentJson(
+            id = 1503,
+            rating = rating,
+            description = description
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val comment = adapter.addCommentToAlbum(albumId, collectorId, rating, description).first()
+        assertEquals(expectedComment, comment)
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldAddBandMember() = runTest {
+        val bandId = 1
+        val musicianId = 1023
+        val addBandMemberJSON = javaClass.getResource("/addBandMember.json").readText()
+        val mockRequest = MockPostRequest { url, content ->
+            assertEquals( "${NetworkServiceAdapter.API_BASE_URL}/bands/$bandId/musicians/$musicianId", url)
+            assertEquals("", content)
+            addBandMemberJSON
+        }
+
+        val expectedPerformer = MusicianJson(
+            id = 1023,
+            name = "Vernis Hernandez",
+            image = "https://i.scdn.co/image/ab6761610000e5eb96652711b492d2f35866b0a4",
+            description = "International gun least war reflect us throughout. Experience guy me public majority travel. Rise everyone campaign ground.",
+            birthDate = Instant.parse("2007-04-15T00:00:00.000Z"),
+            albums = null,
+            collectors = null
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val performer = adapter.addBandMember(bandId, musicianId).first()
+        assertEquals(expectedPerformer, performer)
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldAddMusicianToAlbum() = runTest {
+        val albumId = 1
+        val musicianId = 1023
+        val addMusicianToAlbumJSON = javaClass.getResource("/addMusicianToAlbum.json").readText()
+        val mockRequest = MockPostRequest { url, content ->
+            assertEquals("${NetworkServiceAdapter.API_BASE_URL}/albums/$albumId/musicians/$musicianId", url)
+            assertEquals("", content)
+            addMusicianToAlbumJSON
+        }
+
+        val expectedAlbum = AlbumJson(
+            id = 1,
+            name = "Auténtico",
+            cover = "https://i.scdn.co/image/ab67616d0000b273eab121becebe801310d6a6fa",
+            releaseDate = Instant.parse("2007-09-19T00:00:00.000Z"),
+            description = "Could born add page network figure marriage. Why meet whom increase safe.",
+            genre = "Salsa",
+            recordLabel = "EMI",
+            tracks = null,
+            performers = listOf(
+                PerformerJson.Musician(MusicianJson(
+                    id = 1001,
+                    name = "Grupo Galé",
+                    image = "https://i.scdn.co/image/ab6761610000e5eba2534f43cf396051e3f0d54a",
+                    description = "Bit student ahead east car. Game military commercial young night artist. These within star marriage whose.",
+                    birthDate = Instant.parse("1957-12-26T00:00:00.000Z"),
+                    albums = null,
+                    collectors = null
+                )),
+                PerformerJson.Musician(MusicianJson(
+                    id = 1023,
+                    name = "Vernis Hernandez",
+                    image = "https://i.scdn.co/image/ab6761610000e5eb96652711b492d2f35866b0a4",
+                    description = "International gun least war reflect us throughout. Experience guy me public majority travel. Rise everyone campaign ground.",
+                    birthDate = Instant.parse("2007-04-15T00:00:00.000Z"),
+                    albums = null,
+                    collectors = null
+                ))
+            ),
+            comments = null
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val album = adapter.addMusicianToAlbum(musicianId, albumId).first()
+        assertEquals(expectedAlbum, album)
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldAddBandToAlbum() = runTest {
+        val albumId = 1
+        val bandId = 24
+        val addBandToAlbumJSON = javaClass.getResource("/addBandToAlbum.json").readText()
+        val mockRequest = MockPostRequest { url, content ->
+            assertEquals("${NetworkServiceAdapter.API_BASE_URL}/albums/$albumId/bands/$bandId", url)
+            assertEquals("", content)
+            addBandToAlbumJSON
+        }
+
+        val expectedAlbum = AlbumJson(
+            id = 1,
+            name = "Auténtico",
+            cover = "https://i.scdn.co/image/ab67616d0000b273eab121becebe801310d6a6fa",
+            releaseDate = Instant.parse("2007-09-19T00:00:00.000Z"),
+            description = "Could born add page network figure marriage. Why meet whom increase safe.",
+            genre = "Salsa",
+            recordLabel = "EMI",
+            tracks = null,
+            performers = listOf(
+                PerformerJson.Musician(MusicianJson(
+                    id = 1001,
+                    name = "Grupo Galé",
+                    image = "https://i.scdn.co/image/ab6761610000e5eba2534f43cf396051e3f0d54a",
+                    description = "Bit student ahead east car. Game military commercial young night artist. These within star marriage whose.",
+                    birthDate = Instant.parse("1957-12-26T00:00:00.000Z"),
+                    albums = null,
+                    collectors = null
+                )),
+                PerformerJson.Band(BandJson(
+                    id = 24,
+                    name = "Rolando Laserie",
+                    image = "https://i.scdn.co/image/ab67616d0000b273364e15f72b884587b1b1d5f1",
+                    description = "Clear political front left control give hospital. Thought forward fight once. Painting site deep.",
+                    creationDate = Instant.parse("1966-12-23T00:00:00.000Z"),
+                    albums = null,
+                    musicians = null,
+                    collectors = null
+                ))
+            ),
+            comments = null
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val album = adapter.addBandToAlbum(bandId, albumId).first()
+        assertEquals(expectedAlbum, album)
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldInsertAlbum() = runTest {
+        val albumJsonRequest = AlbumRequestJson(
+            name = "Buscando América",
+            cover = "https://i.pinimg.com/564x/aa/5f/ed/aa5fed7fac61cc8f41d1e79db917a7cd.jpg",
+            releaseDate = "1984-08-01T00:00:00.000Z",
+            description = "Buscando América es el primer álbum de la banda de Rubén Blades y Seis del Solar lanzado en 1984. La producción, bajo el sello Elektra, fusiona diferentes ritmos musicales tales como la salsa, reggae, rock, y el jazz latino. El disco fue grabado en Eurosound Studios en Nueva York entre mayo y agosto de 1983.",
+            genre = "Salsa",
+            recordLabel ="Elektra",
+        )
+
+        val addAlbumJSON = javaClass.getResource("/addAlbum.json").readText()
+        val mockRequest = MockPostRequest { url, content ->
+            assertEquals( "${NetworkServiceAdapter.API_BASE_URL}/albums", url)
+            assertEquals("{\"name\":\"Buscando América\",\"cover\":\"https://i.pinimg.com/564x/aa/5f/ed/aa5fed7fac61cc8f41d1e79db917a7cd.jpg\",\"releaseDate\":\"1984-08-01T00:00:00.000Z\",\"description\":\"Buscando América es el primer álbum de la banda de Rubén Blades y Seis del Solar lanzado en 1984. La producción, bajo el sello Elektra, fusiona diferentes ritmos musicales tales como la salsa, reggae, rock, y el jazz latino. El disco fue grabado en Eurosound Studios en Nueva York entre mayo y agosto de 1983.\",\"genre\":\"Salsa\",\"recordLabel\":\"Elektra\"}", content)
+            addAlbumJSON
+        }
+
+        val expectedAlbum = AlbumJson(
+            id = 614,
+            name = "Buscando América",
+            cover = "https://i.pinimg.com/564x/aa/5f/ed/aa5fed7fac61cc8f41d1e79db917a7cd.jpg",
+            releaseDate = Instant.parse("1984-08-01T00:00:00.000Z"),
+            description = "Buscando América es el primer álbum de la banda de Rubén Blades y Seis del Solar lanzado en 1984. La producción, bajo el sello Elektra, fusiona diferentes ritmos musicales tales como la salsa, reggae, rock, y el jazz latino. El disco fue grabado en Eurosound Studios en Nueva York entre mayo y agosto de 1983.",
+            genre = "Salsa",
+            recordLabel = "Elektra",
+            tracks = null,
+            performers = null,
+            comments = null
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val album = adapter.insertAlbum(albumJsonRequest).first()
+        assertEquals(expectedAlbum, album)
+        assertTrue(mockRequest.called)
+    }
+
+    @Test
+    fun shouldAddTrackToAlbum() = runTest {
+        val albumId = 1
+        val name = "Decisiones"
+        val duration = "5:05"
+        val addTrackJSON = javaClass.getResource("/addTrackToAlbum.json").readText()
+        val mockRequest = MockPostRequest { url, content ->
+            assertEquals( "${NetworkServiceAdapter.API_BASE_URL}/albums/$albumId/tracks", url)
+            assertEquals("{\"name\":\"Decisiones\",\"duration\":\"5:05\"}", content)
+            addTrackJSON
+        }
+
+        val expectedTrack = TrackJson(
+            id = 3277,
+            name = "Decisiones",
+            duration = "5:05"
+        )
+
+        val adapter = NetworkServiceAdapter()
+        val track = adapter.addTrackToAlbum(albumId, name, duration).first()
+        assertEquals(expectedTrack, track)
         assertTrue(mockRequest.called)
     }
 }

@@ -7,14 +7,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -44,21 +50,24 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.AlbumRepository
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.UserRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel.Companion.KEY_ALBUM_REPOSITORY
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
+import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
 import java.time.Instant
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
@@ -104,7 +113,7 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHost
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-fun AlbumItem(album: Album, navController: NavHostController) {
+fun AlbumItem(album: Album, onClick: () -> Unit) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
         coverPreview = placeholder(ColorPainter(Color(album.cover.toColorInt())))
@@ -114,7 +123,7 @@ fun AlbumItem(album: Album, navController: NavHostController) {
         modifier = Modifier.testTag("album-list-item"),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
-        onClick = { navController.navigate("albums/${album.id}") }
+        onClick = onClick
     ) {
         Column {
             GlideImage(
@@ -149,28 +158,56 @@ fun AlbumItem(album: Album, navController: NavHostController) {
 
 @Composable
 fun AlbumList(albums: List<Album>, navController: NavHostController) {
-    if(albums.isNotEmpty()){
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(150.dp),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp, 8.dp, 8.dp, 0.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(albums) {
-                    item: Album -> AlbumItem(item, navController)
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(150.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp, 8.dp, 8.dp, 0.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        if (albums.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(
+                    contentAlignment = Alignment.BottomCenter,
+                    modifier = Modifier.heightIn(100.dp).fillMaxSize()
+                ) {
+                    Text(text = stringResource(R.string.empty_albums_list))
+                }
             }
         }
-    }else{
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text(text = stringResource(R.string.empty_albums_list))
+
+        items(albums) { item ->
+            AlbumItem(
+                album = item,
+                onClick = { navController.navigate("albums/${item.id}") }
+            )
         }
     }
+}
 
+@Composable
+fun AlbumListFAB(navController: NavHostController) {
+    val userViewModel: UserViewModel = viewModel(
+        factory = UserViewModel.Factory,
+        extras = MutableCreationExtras(CreationExtras.Empty).apply {
+            set(UserViewModel.KEY_USER_REPOSITORY, UserRepository())
+        }
+    )
+    val user by userViewModel.user.collectAsStateWithLifecycle(
+        null
+    )
+
+    val isCollector = user?.type == UserType.Collector
+
+    if(isCollector) {
+        FloatingActionButton(
+            onClick = { navController.navigate("albums/add") },
+            modifier = Modifier.testTag("add-album-button")
+        ) {
+            Icon(Icons.Filled.Add, stringResource(R.string.album_crear ))
+        }
+    }
 }
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -192,7 +229,7 @@ private fun AlbumListScreenPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            Column(Modifier.padding(16.dp)) {
+            Column {
                 AlbumList(albums, rememberNavController())
             }
 

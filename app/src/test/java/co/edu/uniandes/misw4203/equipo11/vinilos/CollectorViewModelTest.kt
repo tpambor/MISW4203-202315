@@ -17,6 +17,7 @@ import junit.framework.TestCase
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
@@ -41,7 +42,7 @@ class CollectorViewModelTest {
         var failRefresh = false
         var refreshCalled = false
 
-        override fun getCollectorsWithFavoritePerformers(): Flow<Result<List<CollectorWithPerformers>>> {
+        override fun getCollectorsWithFavoritePerformers(): Flow<List<CollectorWithPerformers>> {
             throw UnsupportedOperationException()
         }
 
@@ -67,6 +68,10 @@ class CollectorViewModelTest {
             throw UnsupportedOperationException()
         }
 
+        override suspend fun needsRefresh(): Boolean {
+            return true // No cache for unit tests
+        }
+
         override suspend fun refreshCollector(collectorId: Int) {
             assertEquals(expectedCollectorId, collectorId)
 
@@ -77,6 +82,7 @@ class CollectorViewModelTest {
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())

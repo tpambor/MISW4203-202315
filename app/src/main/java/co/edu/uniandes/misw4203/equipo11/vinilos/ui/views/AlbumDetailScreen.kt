@@ -52,6 +52,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.AlbumRepository
@@ -64,7 +65,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
-import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -174,7 +175,8 @@ private fun AlbumDetail(
         columns = GridCells.Adaptive(150.dp),
         modifier = Modifier
             .fillMaxSize()
-            .padding(8.dp),
+            .padding(8.dp)
+            .testTag("album-detail-list"),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -202,16 +204,47 @@ private fun AlbumDetail(
             )
         }
 
+        if (performers.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(text = stringResource(R.string.empty_artists_list))
+                }
+            }
+        }
+
         items(performers) { performer ->
             ArtistItem(
                 performer = performer,
                 favButton = {},
-                navController = navController
+                onClick = {
+                    val prefix = if (performer.type == PerformerType.MUSICIAN) "musician" else "band"
+                    navController.navigate("artists/$prefix/${performer.id}")
+                }
             )
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
-            AlbumsHeader(stringResource(R.string.nav_tracks), isCollector, "Tracks")
+            AlbumsHeader(
+                stringResource(R.string.nav_tracks),
+                isCollector,
+                "Tracks",
+                testTag = "add-track",
+                onClick = { navController.navigate("albums/${album.id}/addTrack") }
+            )
+        }
+
+        if (tracks.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(text = stringResource(R.string.empty_track_list))
+                }
+            }
         }
 
         items(tracks, span = { GridItemSpan(maxLineSpan) }) { track ->
@@ -219,7 +252,24 @@ private fun AlbumDetail(
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
-            AlbumsHeader(stringResource(R.string.nav_comments), isCollector, "Comentarios")
+            AlbumsHeader(
+                stringResource(R.string.nav_comments),
+                isCollector,
+                "Comentarios",
+                testTag = "add-comment",
+                onClick = { navController.navigate("albums/${album.id}/comment") }
+            )
+        }
+
+        if (comments.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(text = stringResource(R.string.empty_comment_list))
+                }
+            }
         }
 
         items(comments, span = { GridItemSpan(maxLineSpan) }) { comment ->
@@ -230,7 +280,7 @@ private fun AlbumDetail(
 
 
 @Composable
-private fun AlbumsHeader(title: String, isCollector: Boolean, nameComponet:String) {
+private fun AlbumsHeader(title: String, isCollector: Boolean, nameComponent: String, testTag: String, onClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -243,10 +293,11 @@ private fun AlbumsHeader(title: String, isCollector: Boolean, nameComponet:Strin
         )
         if(isCollector){
             Button(
-                onClick = { },
+                onClick = onClick,
                 modifier = Modifier
                     .height(40.dp)
-                    .semantics { contentDescription = "Agregar $nameComponet" },
+                    .semantics { contentDescription = "Agregar $nameComponent" }
+                    .testTag(testTag),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -285,7 +336,8 @@ private fun TrackItem(track: Track) {
 private fun CommentItem(comment: Comment) {
     Row(
         modifier = Modifier.fillMaxWidth()
-            .semantics { contentDescription = "Rating  ${comment.rating}" },
+            .semantics { contentDescription = "Rating  ${comment.rating}" }
+            .testTag("album-detail-comment"),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -395,7 +447,7 @@ private fun AlbumDescription(album: Album) {
 }
 
 private fun releaseDateFormatted(album: Album): String {
-    val releaseDate = album.releaseDate.atZone(ZoneId.systemDefault()).toLocalDate()
+    val releaseDate = album.releaseDate.atOffset(ZoneOffset.UTC).toLocalDate()
     val releaseDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     return releaseDate.format(releaseDateFormat)
 }

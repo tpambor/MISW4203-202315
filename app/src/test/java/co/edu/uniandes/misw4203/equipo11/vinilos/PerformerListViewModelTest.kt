@@ -30,8 +30,8 @@ import java.time.Instant
 
 class PerformerListViewModelTest {
     class FakePerformerRepository: IPerformerRepository {
-        private val musiciansFlow = MutableSharedFlow<Result<List<Performer>>>()
-        private val bandsFlow = MutableSharedFlow<Result<List<Performer>>>()
+        private val musiciansFlow = MutableSharedFlow<List<Performer>>()
+        private val bandsFlow = MutableSharedFlow<List<Performer>>()
         private val favoritesFlow = MutableSharedFlow<List<Performer>>()
 
         var failMusiciansRefresh = false
@@ -39,12 +39,12 @@ class PerformerListViewModelTest {
         var refreshMusiciansCalled = false
         var refreshBandsCalled = false
 
-        suspend fun emitMusicians(value: Result<List<Performer>>) = musiciansFlow.emit(value)
-        suspend fun emitBands(value: Result<List<Performer>>) = bandsFlow.emit(value)
+        suspend fun emitMusicians(value: List<Performer>) = musiciansFlow.emit(value)
+        suspend fun emitBands(value: List<Performer>) = bandsFlow.emit(value)
         suspend fun emitFavoritePerformers(value: List<Performer>) = favoritesFlow.emit(value)
 
-        override fun getMusicians(): Flow<Result<List<Performer>>> = musiciansFlow
-        override fun getBands(): Flow<Result<List<Performer>>> = bandsFlow
+        override fun getMusicians(): Flow<List<Performer>> = musiciansFlow
+        override fun getBands(): Flow<List<Performer>> = bandsFlow
         override fun getFavoritePerformers(collectorId: Int): Flow<List<Performer>> = favoritesFlow
         
         override fun getMusician(performerId: Int): Flow<Performer?> {
@@ -55,11 +55,31 @@ class PerformerListViewModelTest {
             throw UnsupportedOperationException()
         }
 
+        override fun getPerformer(performerId: Int): Flow<Performer?> {
+            throw UnsupportedOperationException()
+        }
+
         override fun getBandMembers(performerId: Int): Flow<List<Performer>> {
             throw UnsupportedOperationException()
         }
 
+        override fun getBandMemberCandidates(): Flow<List<Performer>> {
+            throw UnsupportedOperationException()
+        }
+
+        override suspend fun addBandMember(bandId: Int, musicianId: Int) {
+            throw UnsupportedOperationException()
+        }
+
         override fun getAlbums(performerId: Int): Flow<List<Album>> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun getAlbumCandidates(performerId: Int): Flow<List<Album>> {
+            throw UnsupportedOperationException()
+        }
+
+        override suspend fun addAlbum(performerId: Int, type: PerformerType, albumId: Int) {
             throw UnsupportedOperationException()
         }
 
@@ -111,6 +131,10 @@ class PerformerListViewModelTest {
                 throw Exception()
         }
 
+        override suspend fun needsRefreshMusicians(): Boolean {
+            return true // No cache for unit tests
+        }
+
         override suspend fun refreshMusician(performerId: Int) {
             throw UnsupportedOperationException()
         }
@@ -120,6 +144,10 @@ class PerformerListViewModelTest {
 
             if (failBandsRefresh)
                 throw Exception()
+        }
+
+        override suspend fun needsRefreshBands(): Boolean {
+            return true // No cache for unit tests
         }
 
         override suspend fun refreshBand(performerId: Int) {
@@ -209,7 +237,7 @@ class PerformerListViewModelTest {
         assertEquals(emptyList<Performer>(), viewModel.musicians.first())
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
-        repository.emitMusicians(Result.success(data))
+        repository.emitMusicians(data)
 
         assertEquals(data, viewModel.musicians.first())
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
@@ -246,7 +274,7 @@ class PerformerListViewModelTest {
         assertEquals(emptyList<Performer>(), viewModel.bands.first())
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
 
-        repository.emitBands(Result.success(data))
+        repository.emitBands(data)
 
         assertEquals(data, viewModel.bands.first())
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
@@ -286,64 +314,6 @@ class PerformerListViewModelTest {
         repository.emitFavoritePerformers(data)
 
         assertEquals(data.map { it.id }.toSet(), viewModel.favoritePerformers.first())
-        assertEquals(ErrorUiState.NoError, viewModel.error.first())
-    }
-
-    @Test
-    fun musiciansError() = runTest {
-        val repository = FakePerformerRepository()
-        val userRepository = FakeUserRepository()
-
-        val viewModel = PerformerListViewModel.Factory.create(
-            PerformerListViewModel::class.java,
-            MutableCreationExtras(CreationExtras.Empty).apply {
-                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
-                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
-                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
-            }
-        )
-
-        assertEquals(emptyList<Performer>(), viewModel.musicians.first())
-        assertEquals(ErrorUiState.NoError, viewModel.error.first())
-
-        repository.emitMusicians(Result.failure(Exception()))
-
-        assertEquals(emptyList<Performer>(), viewModel.musicians.first())
-
-        val error = viewModel.error.value
-        assert(error is ErrorUiState.Error)
-        val errorState: ErrorUiState.Error = error as ErrorUiState.Error
-        assertEquals(R.string.network_error, errorState.resourceId)
-        viewModel.onErrorShown()
-        assertEquals(ErrorUiState.NoError, viewModel.error.first())
-    }
-
-    @Test
-    fun bandsError() = runTest {
-        val repository = FakePerformerRepository()
-        val userRepository = FakeUserRepository()
-
-        val viewModel = PerformerListViewModel.Factory.create(
-            PerformerListViewModel::class.java,
-            MutableCreationExtras(CreationExtras.Empty).apply {
-                set(PerformerListViewModel.KEY_PERFORMER_REPOSITORY, repository)
-                set(PerformerListViewModel.KEY_USER_REPOSITORY, userRepository)
-                set(PerformerListViewModel.KEY_DISPATCHER, Dispatchers.Main)
-            }
-        )
-
-        assertEquals(emptyList<Performer>(), viewModel.bands.first())
-        assertEquals(ErrorUiState.NoError, viewModel.error.first())
-
-        repository.emitBands(Result.failure(Exception()))
-
-        assertEquals(emptyList<Performer>(), viewModel.bands.first())
-
-        val error = viewModel.error.value
-        assert(error is ErrorUiState.Error)
-        val errorState: ErrorUiState.Error = error as ErrorUiState.Error
-        assertEquals(R.string.network_error, errorState.resourceId)
-        viewModel.onErrorShown()
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
     }
 

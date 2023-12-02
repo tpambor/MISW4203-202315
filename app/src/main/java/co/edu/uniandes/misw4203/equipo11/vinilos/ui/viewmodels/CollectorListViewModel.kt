@@ -36,18 +36,20 @@ class CollectorListViewModel(
             return // Coroutine to get collectors was already started, only start once
 
         viewModelScope.launch(dispatcher) {
+            var needsRefresh = collectorRepository.needsRefresh()
+
             collectorRepository.getCollectorsWithFavoritePerformers()
                 .collect { collectors ->
-                    collectors
-                        .onFailure {
-                            _error.value = ErrorUiState.Error(R.string.network_error)
-                        }
-                        .onSuccess {
-                            _collectors.value = it
-                            _error.value = ErrorUiState.NoError
-                        }
+                    _collectors.value = collectors
+                    _error.value = ErrorUiState.NoError
 
-                    _isRefreshing.value = false
+                    if (needsRefresh) {
+                        onRefresh()
+                        needsRefresh = false
+                    }
+                    else {
+                        _isRefreshing.value = false
+                    }
                 }
         }
     }

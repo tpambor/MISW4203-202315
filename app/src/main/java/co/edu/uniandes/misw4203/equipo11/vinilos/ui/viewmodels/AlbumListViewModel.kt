@@ -37,18 +37,20 @@ class AlbumListViewModel(
             return // Coroutine to get albums was already started, only start once
 
         viewModelScope.launch(dispatcher) {
+            var needsRefresh = albumRepository.needsRefresh()
+
             albumRepository.getAlbums()
                 .collect { albums ->
-                    albums
-                        .onFailure {
-                            _error.value = ErrorUiState.Error(R.string.network_error)
-                        }
-                        .onSuccess {
-                            _albums.value = it
-                            _error.value = ErrorUiState.NoError
-                        }
+                    _albums.value = albums
+                    _error.value = ErrorUiState.NoError
 
-                    _isRefreshing.value = false
+                    if (needsRefresh) {
+                        onRefresh()
+                        needsRefresh = false
+                    }
+                    else {
+                        _isRefreshing.value = false
+                    }
                 }
         }
     }

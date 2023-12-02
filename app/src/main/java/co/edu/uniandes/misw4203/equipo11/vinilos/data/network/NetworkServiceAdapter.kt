@@ -1,14 +1,18 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos.data.network
 
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumJson
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumRequestJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.BandJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CollectorJson
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.CommentJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.MusicianJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.PerformerJson
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.TrackJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.typeadapters.InstantAdapter
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.typeadapters.PerformerDeserializer
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.Instant
@@ -38,6 +42,25 @@ class NetworkServiceAdapter {
         }
     }
 
+    fun insertAlbum(album: AlbumRequestJson): Flow<AlbumJson> {
+        val albumJson = gson().toJson(album)
+        return HttpRequestQueue.post("$API_BASE_URL/albums", albumJson.toString()).map { response ->
+            gson().fromJson(response, AlbumJson::class.java)
+        }
+    }
+
+    fun addMusicianToAlbum(performerId: Int, albumId: Int): Flow<AlbumJson> {
+        return HttpRequestQueue.post("$API_BASE_URL/albums/$albumId/musicians/$performerId", "").map { response ->
+            gson().fromJson(response, AlbumJson::class.java)
+        }
+    }
+
+    fun addBandToAlbum(performerId: Int, albumId: Int): Flow<AlbumJson> {
+        return HttpRequestQueue.post("$API_BASE_URL/albums/$albumId/bands/$performerId", "").map { response ->
+            gson().fromJson(response, AlbumJson::class.java)
+        }
+    }
+
     fun getMusicians(): Flow<List<MusicianJson>> {
         return HttpRequestQueue.get("$API_BASE_URL/musicians").map { response ->
             gson().fromJson(response, Array<MusicianJson>::class.java).toList()
@@ -59,6 +82,12 @@ class NetworkServiceAdapter {
     fun getBand(musicianId: Int): Flow<BandJson> {
         return HttpRequestQueue.get("$API_BASE_URL/bands/$musicianId").map { response ->
             gson().fromJson(response, BandJson::class.java)
+        }
+    }
+
+    fun addBandMember(bandId: Int, musicianId: Int): Flow<MusicianJson> {
+        return HttpRequestQueue.post("$API_BASE_URL/bands/$bandId/musicians/$musicianId", "").map { response ->
+            gson().fromJson(response, MusicianJson::class.java)
         }
     }
 
@@ -92,5 +121,28 @@ class NetworkServiceAdapter {
 
     fun removeFavoriteBandFromCollector(collectorId: Int, bandId: Int): Flow<Unit> {
         return HttpRequestQueue.delete("$API_BASE_URL/collectors/$collectorId/bands/$bandId").map {}
+    }
+
+    fun addCommentToAlbum(albumId: Int, collectorId: Int, rating: Int, comment: String): Flow<CommentJson> {
+        val json = JsonObject()
+        json.addProperty("description", comment)
+        json.addProperty("rating", rating)
+        val collector = JsonObject()
+        collector.addProperty("id", collectorId)
+        json.add("collector", collector)
+
+        return HttpRequestQueue.post("$API_BASE_URL/albums/$albumId/comments", json.toString()).map { response ->
+            gson().fromJson(response, CommentJson::class.java)
+        }
+    }
+
+    fun addTrackToAlbum(albumId: Int, name: String, duration: String): Flow<TrackJson> {
+        val json = JsonObject()
+        json.addProperty("name", name)
+        json.addProperty("duration", duration)
+
+        return HttpRequestQueue.post("$API_BASE_URL/albums/$albumId/tracks", json.toString()).map { response ->
+            gson().fromJson(response, TrackJson::class.java)
+        }
     }
 }

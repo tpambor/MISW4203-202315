@@ -25,6 +25,10 @@ abstract class AlbumDAO {
     @Query("SELECT a.* FROM PerformerAlbum pa JOIN Album a on pa.albumId = a.id WHERE pa.performerId == :performerId ORDER BY a.name COLLATE UNICODE")
     abstract fun getAlbumsByPerformerId(performerId: Int): Flow<List<Album>>
 
+    @Transaction
+    @Query("SELECT * FROM Album WHERE id NOT IN (SELECT albumId FROM PerformerAlbum WHERE performerId == :performerId) ORDER BY name COLLATE UNICODE")
+    abstract fun getAlbumsNotByPerformerId(performerId: Int): Flow<List<Album>>
+
     @Query("SELECT * FROM album WHERE id = :albumId")
     abstract fun getAlbumById(albumId: Int): Flow<Album?>
 
@@ -38,7 +42,7 @@ abstract class AlbumDAO {
     abstract fun getTracksByAlbumId(albumId: Int): Flow<List<Track>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    protected abstract suspend fun insertAlbums(albums: List<Album>)
+    abstract suspend fun insertAlbums(albums: List<Album>)
 
     @Query("DELETE FROM Album")
     protected abstract suspend fun deleteAlbums()
@@ -50,7 +54,7 @@ abstract class AlbumDAO {
     protected abstract suspend fun deleteTracksByAlbumId(albumId: Int)
 
     @Insert
-    protected abstract suspend fun insertTracks(tracks: List<Track>)
+    abstract suspend fun insertTracks(tracks: List<Track>)
 
     @Query("DELETE FROM Comment")
     protected abstract suspend fun deleteComments()
@@ -59,7 +63,7 @@ abstract class AlbumDAO {
     protected abstract suspend fun deleteCommentsByAlbumId(albumId: Int)
 
     @Insert
-    protected abstract suspend fun insertComments(tracks: List<Comment>)
+    abstract suspend fun insertComments(comments: List<Comment>)
 
     @Query("DELETE FROM PerformerAlbum")
     protected abstract suspend fun deletePerformerAlbums()

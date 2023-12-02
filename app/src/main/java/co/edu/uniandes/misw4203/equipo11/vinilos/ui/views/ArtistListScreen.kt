@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
@@ -236,7 +238,7 @@ private fun FavoriteButton(
 fun ArtistItem(
     performer: Performer,
     favButton: @Composable () -> Unit,
-    navController: NavHostController
+    onClick: () -> Unit
 ) {
     var coverPreview: Placeholder? = null
     if (LocalInspectionMode.current) {
@@ -248,10 +250,7 @@ fun ArtistItem(
             .testTag("performer-list-item"),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
         shape = RectangleShape,
-        onClick = {
-            val prefix = if (performer.type == PerformerType.MUSICIAN) "musician" else "band"
-            navController.navigate("artists/$prefix/${performer.id}")
-        }
+        onClick = onClick
     ) {
         Column {
             GlideImage(
@@ -294,46 +293,50 @@ private fun ArtistsList(
     removeFavoritePerformer: (Int) -> Unit,
     navController: NavHostController
 ) {
-    val message = when (tab) {
-        "musicians" -> stringResource(R.string.empty_musicians_list)
-        "bands" -> stringResource(R.string.empty_bands_list)
-        else -> ""
-    }
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(150.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp, 8.dp, 8.dp, 0.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        if (performers.isEmpty()) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(
+                    contentAlignment = Alignment.BottomCenter,
+                    modifier = Modifier.heightIn(50.dp).fillMaxSize()
+                ) {
+                    val message = when (tab) {
+                        "musicians" -> stringResource(R.string.empty_musicians_list)
+                        "bands" -> stringResource(R.string.empty_bands_list)
+                        else -> ""
+                    }
 
-    if(performers.isNotEmpty()) {
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(150.dp),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp, 8.dp, 8.dp, 0.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(performers) { item: Performer ->
-                val isFavorite = favoritePerformers.contains(item.id)
-                val isUpdating = updatingFavoritePerformers.contains(item.id)
-
-                ArtistItem(
-                    item,
-                    favButton = {
-                        // Favorite button
-                        if (user?.type == UserType.Collector) {
-                            FavoriteButton(item.id, item.name, isFavorite, isUpdating, addFavoritePerformer, removeFavoritePerformer)
-                        }
-                    },
-                    navController
-                )
+                    Text(text = message)
+                }
             }
         }
-    } else {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text(text = message)
+
+        items(performers) { item: Performer ->
+            val isFavorite = favoritePerformers.contains(item.id)
+            val isUpdating = updatingFavoritePerformers.contains(item.id)
+
+            ArtistItem(
+                item,
+                favButton = {
+                    // Favorite button
+                    if (user?.type == UserType.Collector) {
+                        FavoriteButton(item.id, item.name, isFavorite, isUpdating, addFavoritePerformer, removeFavoritePerformer)
+                    }
+                },
+                onClick = {
+                    val prefix = if (item.type == PerformerType.MUSICIAN) "musician" else "band"
+                    navController.navigate("artists/$prefix/${item.id}")
+                }
+            )
         }
     }
-
 }
 
 @Preview(showBackground = true, showSystemUi = true)

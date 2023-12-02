@@ -170,7 +170,10 @@ private fun FavoritePerformersList(performers: List<Performer>, navController: N
             ArtistItem(
                 item,
                 favButton = {},
-                navController
+                onClick = {
+                    val prefix = if (item.type == PerformerType.MUSICIAN) "musician" else "band"
+                    navController.navigate("artists/$prefix/${item.id}")
+                }
             )
         }
     }
@@ -288,7 +291,7 @@ private fun CollectorDetail(collector: Collector, favoritePerformers: List<Perfo
                 Tab(
                     text = {
                         Text(
-                            modifier = Modifier.semantics { contentDescription = "${title} del coleccionista" },
+                            modifier = Modifier.semantics { contentDescription = "$title del coleccionista" },
                             text = title
                         )
                     },

@@ -55,17 +55,19 @@ class PerformerListViewModel(
             return // Coroutine to get musicians was already started, only start once
 
         viewModelScope.launch(dispatcher) {
+            var needsRefresh = performerRepository.needsRefreshMusicians()
+
             performerRepository.getMusicians()
                 .collect { musicians ->
-                    musicians
-                        .onFailure {
-                            _error.value = ErrorUiState.Error(R.string.network_error)
-                        }
-                        .onSuccess {
-                            _musicians.value = it
-                        }
+                    _musicians.value = musicians
 
-                    _isRefreshing.value = false
+                    if (needsRefresh) {
+                        onRefreshMusicians()
+                        needsRefresh = false
+                    }
+                    else {
+                        _isRefreshing.value = false
+                    }
                 }
         }
     }
@@ -75,17 +77,19 @@ class PerformerListViewModel(
             return // Coroutine to get bands was already started, only start once
 
         viewModelScope.launch(dispatcher) {
+            var needsRefresh = performerRepository.needsRefreshBands()
+
             performerRepository.getBands()
                 .collect { bands ->
-                    bands
-                        .onFailure {
-                            _error.value = ErrorUiState.Error(R.string.network_error)
-                        }
-                        .onSuccess {
-                            _bands.value = it
-                        }
+                    _bands.value = bands
 
-                    _isRefreshing.value = false
+                    if (needsRefresh) {
+                        onRefreshBands()
+                        needsRefresh = false
+                    }
+                    else {
+                        _isRefreshing.value = false
+                    }
                 }
         }
     }

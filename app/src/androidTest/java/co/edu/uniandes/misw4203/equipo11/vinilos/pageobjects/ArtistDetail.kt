@@ -6,6 +6,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.MainActivity
 
@@ -23,12 +24,24 @@ class ArtistDetail (composeTestRule: AndroidComposeTestRule<ActivityScenarioRule
         ).assertIsDisplayed()
     }
     private fun getAlbumsHeader(): SemanticsNodeInteraction {
+        findExactlyOne(
+            hasTestTag("artist-detail-list")
+        ).performScrollToNode(
+            hasTestTag("albums-header")
+        )
+
         return findExactlyOne(
             hasTestTag("albums-header")
         )
     }
 
     private fun getMembersHeader(): SemanticsNodeInteraction {
+        findExactlyOne(
+            hasTestTag("artist-detail-list")
+        ).performScrollToNode(
+            hasTestTag("members-header")
+        )
+
         return findExactlyOne(
             hasTestTag("members-header")
         )
@@ -54,5 +67,29 @@ class ArtistDetail (composeTestRule: AndroidComposeTestRule<ActivityScenarioRule
             return false
         }
         return true
+    }
+
+    fun getAddMemberButton() : SemanticsNodeInteraction {
+        findExactlyOne(
+            hasTestTag("artist-detail-list")
+        ).performScrollToNode(
+            hasTestTag("add-member")
+        )
+
+        return findExactlyOne(
+            hasTestTag("add-member")
+        )
+    }
+
+    fun getAddAlbumButton() : SemanticsNodeInteraction {
+        findExactlyOne(
+            hasTestTag("artist-detail-list")
+        ).performScrollToNode(
+            hasTestTag("add-album")
+        )
+
+        return findExactlyOne(
+            hasTestTag("add-album")
+        )
     }
 }

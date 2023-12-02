@@ -7,6 +7,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Track
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.network.models.AlbumRequestJson
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.IAlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumViewModel
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
@@ -16,6 +17,7 @@ import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
@@ -43,7 +45,7 @@ class AlbumViewModelTest {
         var failRefresh = false
         var refreshCalled = false
 
-        override fun getAlbums(): Flow<Result<List<Album>>> {
+        override fun getAlbums(): Flow<List<Album>> {
             throw UnsupportedOperationException()
         }
 
@@ -51,6 +53,10 @@ class AlbumViewModelTest {
             assertEquals(expectedAlbumId, albumId)
 
             return albumFlow
+        }
+
+        override suspend fun addTrack(albumId: Int, name: String, duration: String) {
+            throw UnsupportedOperationException()
         }
 
         override fun getPerformers(albumId: Int): Flow<List<Performer>> {
@@ -75,6 +81,10 @@ class AlbumViewModelTest {
             throw UnsupportedOperationException()
         }
 
+        override suspend fun needsRefresh(): Boolean {
+            return true // No cache for unit tests
+        }
+
         override suspend fun refreshAlbum(albumId: Int) {
             assertEquals(expectedAlbumId, albumId)
 
@@ -83,8 +93,17 @@ class AlbumViewModelTest {
             if (failRefresh)
                 throw Exception()
         }
+
+        override suspend fun insertAlbum(album: AlbumRequestJson) {
+            throw UnsupportedOperationException()
+        }
+
+        override suspend fun addComment(albumId: Int, collectorId: Int, rating: Int, comment: String) {
+            throw UnsupportedOperationException()
+        }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())

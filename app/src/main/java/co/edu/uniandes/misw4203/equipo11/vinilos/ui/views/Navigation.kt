@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
@@ -26,6 +28,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
+import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.PerformerType
+import kotlinx.coroutines.CoroutineScope
 
 sealed class NavBarItem(val route: String, @StringRes val stringId: Int, @DrawableRes val iconId: Int) {
     data object Albums : NavBarItem("albums", R.string.nav_albums, R.drawable.ic_album_24)
@@ -42,7 +46,7 @@ private val navBarItems = listOf(
 )
 
 @Composable
-fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHostState) {
+fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHostState, activityScope: CoroutineScope) {
     NavHost(
         navController = navController,
         startDestination = "login"
@@ -51,6 +55,18 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
         composable(route = "albums") { AlbumListScreen(snackbarHostState, navController) }
         composable(route = "artists") { ArtistListScreen(snackbarHostState, navController) }
         composable(route = "collectors") { CollectorListScreen(snackbarHostState, navController) }
+        composable(
+            route = "albums/{albumId}/comment",
+            arguments = listOf(navArgument("albumId") { type = NavType.IntType })
+        ){ backStackEntry ->
+            AlbumCommentScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("albumId"), navController, activityScope)
+        }
+        composable(
+            route = "albums/{albumId}/addTrack",
+            arguments = listOf(navArgument("albumId") { type = NavType.IntType })
+        ){ backStackEntry ->
+            AlbumTrackScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("albumId"), navController, activityScope)
+        }
         composable(
             route = "albums/{albumId}",
             arguments = listOf(navArgument("albumId") { type = NavType.IntType })
@@ -64,11 +80,30 @@ fun NavContent(navController: NavHostController, snackbarHostState: SnackbarHost
             MusicianDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController)
         }
         composable(
+            route = "artists/musician/{artistId}/addAlbum",
+            arguments = listOf(navArgument("artistId") { type = NavType.IntType })
+        ){ backStackEntry ->
+            ArtistAddAlbumScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController, activityScope, PerformerType.MUSICIAN)
+        }
+        composable(
+            route = "artists/band/{artistId}/addMusician",
+            arguments = listOf(navArgument("artistId") { type = NavType.IntType })
+        ){ backStackEntry ->
+            BandAddMusicianScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController, activityScope)
+        }
+        composable(
+            route = "artists/band/{artistId}/addAlbum",
+            arguments = listOf(navArgument("artistId") { type = NavType.IntType })
+        ){ backStackEntry ->
+            ArtistAddAlbumScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController, activityScope, PerformerType.BAND)
+        }
+        composable(
             route = "artists/band/{artistId}",
             arguments = listOf(navArgument("artistId") { type = NavType.IntType })
         ){ backStackEntry ->
             BandDetailScreen(snackbarHostState, requireNotNull(backStackEntry.arguments).getInt("artistId"), navController)
         }
+        composable(route = "albums/add"){ AlbumCreateScreen(snackbarHostState, navController, activityScope) }
         composable(
             route = "collectors/{collectorId}",
             arguments = listOf(navArgument("collectorId") { type = NavType.IntType })
@@ -95,17 +130,18 @@ fun NavBar(navController: NavHostController, currentBackStackEntry: NavBackStack
                 label = { Text(stringResource(item.stringId), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 icon = { Icon(painterResource(item.iconId), contentDescription = null) },
                 onClick = {
-                        if (item.route == route) return@NavigationBarItem
+                    if (item.route == route) return@NavigationBarItem
 
-                        navController.navigate(item.route) {
-                            popUpTo(navController.graph.startDestinationId) {}
-                            launchSingleTop = true
-                        }
+                    navController.navigate(item.route) {
+                        popUpTo(navController.graph.startDestinationId) {}
+                        launchSingleTop = true
+                    }
                 }
             )
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackStackEntry?) {
@@ -113,7 +149,13 @@ fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackSt
 
     val title = when (route) {
         "artists/musician/{artistId}" -> stringResource(R.string.top_nav_artist)
+        "artists/musician/{artistId}/addAlbum" -> stringResource(R.string.top_nav_artist_add_album)
         "artists/band/{artistId}" -> stringResource(R.string.top_nav_artist)
+        "artists/band/{artistId}/addMusician" -> stringResource(R.string.top_nav_band_add_musician)
+        "artists/band/{artistId}/addAlbum" -> stringResource(R.string.top_nav_artist_add_album)
+        "albums/{albumId}/addTrack" -> stringResource(R.string.top_nav_track_album)
+        "albums/{albumId}/comment" -> stringResource(R.string.top_nav_comment_album)
+        "albums/add" -> stringResource(R.string.top_nav_album_crear)
         "albums/{albumId}" -> stringResource(R.string.top_nav_album)
         "collectors/{collectorId}" -> stringResource(R.string.top_nav_collector)
         else -> ""
@@ -138,7 +180,18 @@ fun TopNavBar(navController: NavHostController, currentBackStackEntry: NavBackSt
                         contentDescription = "Back"
                     )
                 }
-            }
+            },
+            modifier = Modifier.semantics { this.contentDescription = title }
         )
+    }
+}
+
+@Composable
+fun NavFloatingActionButton(navController: NavHostController, currentBackStackEntry: NavBackStackEntry?) {
+    val route = currentBackStackEntry?.destination?.route
+
+    if (route == "albums") {
+        // Agregar el FloatingActionButton para la pantalla AlbumList
+        AlbumListFAB(navController)
     }
 }

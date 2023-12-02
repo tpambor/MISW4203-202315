@@ -40,11 +40,11 @@ class BandViewModelTest {
         var failRefresh = false
         var refreshCalled = false
 
-        override fun getMusicians(): Flow<Result<List<Performer>>> {
+        override fun getMusicians(): Flow<List<Performer>> {
             throw UnsupportedOperationException()
         }
 
-        override fun getBands(): Flow<Result<List<Performer>>> {
+        override fun getBands(): Flow<List<Performer>> {
             throw UnsupportedOperationException()
         }
 
@@ -62,16 +62,36 @@ class BandViewModelTest {
             return bandFlow
         }
 
+        override fun getPerformer(performerId: Int): Flow<Performer?> {
+            throw UnsupportedOperationException()
+        }
+
         override fun getBandMembers(performerId: Int): Flow<List<Performer>> {
             assertEquals(expectedPerformerId, performerId)
 
             return bandMembersFlow
         }
 
+        override fun getBandMemberCandidates(): Flow<List<Performer>> {
+            throw UnsupportedOperationException()
+        }
+
+        override suspend fun addBandMember(bandId: Int, musicianId: Int) {
+            throw UnsupportedOperationException()
+        }
+
         override fun getAlbums(performerId: Int): Flow<List<Album>> {
             assertEquals(expectedPerformerId, performerId)
 
             return albumsFlow
+        }
+
+        override fun getAlbumCandidates(performerId: Int): Flow<List<Album>> {
+            throw UnsupportedOperationException()
+        }
+
+        override suspend fun addAlbum(performerId: Int, type: PerformerType, albumId: Int) {
+            throw UnsupportedOperationException()
         }
 
         override suspend fun addFavoriteMusician(collectorId: Int, performerId: Int) {
@@ -94,12 +114,20 @@ class BandViewModelTest {
             throw UnsupportedOperationException()
         }
 
+        override suspend fun needsRefreshMusicians(): Boolean {
+            return true // No cache for unit tests
+        }
+
         override suspend fun refreshMusician(performerId: Int) {
             throw UnsupportedOperationException()
         }
 
         override suspend fun refreshBands() {
             throw UnsupportedOperationException()
+        }
+
+        override suspend fun needsRefreshBands(): Boolean {
+            return true // No cache for unit tests
         }
 
         override suspend fun refreshBand(performerId: Int) {
