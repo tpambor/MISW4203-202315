@@ -43,7 +43,6 @@ https://github.com/tpambor/MISW4203-Vinilos-App/assets/1379478/6d67d7dd-df88-486
 
 ## Ejecutar las pruebas e2e
 
-
 Siga El siguiente paso a paso para ejecutar las pruebas e2e:
 1. Asegurese de tener instalado el SDK de Android y que la variable de entorno ANDROID_HOME apunte a la carpeta donde se encuentra el SDK.
 2. Desde la interfaz de Android Studio, ubique el paquete de pruebas unitarias *co.edu.uniandes.misw4203.equipo11.vinilos (androidTest)* que se encientra en la carpeta Vinilos/app/java.
