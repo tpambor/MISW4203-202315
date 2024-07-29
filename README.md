@@ -26,7 +26,6 @@ Siga El siguiente paso a paso para crear un apk de la aplicación:
 
 En el siguiente video se muestra el paso a paso para crear el apk:
 
-
 https://github.com/tpambor/MISW4203-Vinilos-App/assets/1379478/1909280e-40b2-45d3-894f-30aa765e1472
 
 ## Ejecutar las pruebas unitarias
