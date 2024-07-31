@@ -43,6 +43,7 @@ jobs:
       - android/create-avd:
           avd-name: testavd-34
           system-image: system-images;android-34;google_apis;x86_64
+          additional-args: -d pixel_6
           install: true
 
       - android/start-emulator:
@@ -65,6 +66,7 @@ jobs:
       - android/create-avd:
           avd-name: testavd-26
           system-image: system-images;android-26;google_apis;x86_64
+          additional-args: -d pixel_6
           install: true
 
       - android/start-emulator:
