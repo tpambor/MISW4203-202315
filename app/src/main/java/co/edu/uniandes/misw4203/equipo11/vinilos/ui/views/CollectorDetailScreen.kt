@@ -21,9 +21,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.pullrefresh.PullRefreshIndicator
-import androidx.compose.material3.pullrefresh.pullRefresh
-import androidx.compose.material3.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -64,6 +62,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import java.time.Instant
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectorDetailScreen(collectorId: Int, snackbarHostState: SnackbarHostState, navController: NavHostController) {
     val viewModel: CollectorViewModel = viewModel(
@@ -87,23 +86,23 @@ fun CollectorDetailScreen(collectorId: Int, snackbarHostState: SnackbarHostState
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle(
         true
     )
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = isRefreshing,
-        onRefresh = { viewModel.onRefresh() }
-    )
+    val pullRefreshState = rememberPullToRefreshState()
+    //    refreshing = isRefreshing,
+    //    onRefresh = { viewModel.onRefresh() }
+    //)
 
     val error by viewModel.error.collectAsStateWithLifecycle(
         ErrorUiState.NoError
     )
 
-    Box(Modifier.pullRefresh(pullRefreshState)) {
+    Box(/*Modifier.pullRefresh(pullRefreshState)*/) {
         collector?.let { CollectorDetail(it, favoritePerformers, albums, navController) }
 
-        PullRefreshIndicator(
+        /*PullRefreshIndicator(
             refreshing = isRefreshing,
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter)
-        )
+        )*/
     }
 
     if (error is ErrorUiState.Error) {

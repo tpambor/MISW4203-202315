@@ -32,9 +32,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.pullrefresh.PullRefreshIndicator
-import androidx.compose.material3.pullrefresh.pullRefresh
-import androidx.compose.material3.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -79,6 +77,7 @@ import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
 import java.time.Instant
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArtistListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
     val userRepository = UserRepository()
@@ -131,17 +130,17 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState, navController: NavHos
 
     var tabIndex by rememberSaveable { mutableIntStateOf(0) }
 
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = isRefreshing,
-        onRefresh = {
-                when(tabIndex) {
-                0 -> viewModel.onRefreshMusicians()
-                1 -> viewModel.onRefreshBands()
-            }
-        }
-    )
+    val pullRefreshState = rememberPullToRefreshState()
+    //    refreshing = isRefreshing,
+    //    onRefresh = {
+    //            when(tabIndex) {
+    //            0 -> viewModel.onRefreshMusicians()
+    //            1 -> viewModel.onRefreshBands()
+    //        }
+    //    }
+    //)
 
-    Box(Modifier.pullRefresh(pullRefreshState)) {
+    Box(/*Modifier.pullRefresh(pullRefreshState)*/) {
         Column {
             TabRow(selectedTabIndex = tabIndex) {
                 tabs.forEachIndexed { index, title ->
@@ -177,11 +176,11 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState, navController: NavHos
             }
         }
 
-        PullRefreshIndicator(
+        /*PullRefreshIndicator(
             refreshing = isRefreshing,
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter)
-        )
+        )*/
     }
 
     if (error is ErrorUiState.Error) {

@@ -15,9 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.pullrefresh.PullRefreshIndicator
-import androidx.compose.material3.pullrefresh.pullRefresh
-import androidx.compose.material3.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,6 +49,7 @@ import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
 import java.time.Instant
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectorListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
     val viewModel: CollectorListViewModel = viewModel(
@@ -80,23 +79,23 @@ fun CollectorListScreen(snackbarHostState: SnackbarHostState, navController: Nav
     )
     val userId = if (user?.type == UserType.Collector) user?.id else null
 
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = isRefreshing,
-        onRefresh = { viewModel.onRefresh() }
-    )
+    val pullRefreshState = rememberPullToRefreshState()
+    //    refreshing = isRefreshing,
+    //    onRefresh = { viewModel.onRefresh() }
+    //)
 
     Box(
         modifier = Modifier
-            .pullRefresh(pullRefreshState)
+            /*.pullRefresh(pullRefreshState)*/
             .semantics { this.contentDescription = "Lista de coleccionistas" }
     ) {
         CollectorList(collectors, navController, userId)
 
-        PullRefreshIndicator(
+        /*PullRefreshIndicator(
             refreshing = isRefreshing,
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter)
-        )
+        )*/
     }
 
     if (error is ErrorUiState.Error) {

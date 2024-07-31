@@ -18,12 +18,11 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.pullrefresh.PullRefreshIndicator
-import androidx.compose.material3.pullrefresh.pullRefresh
-import androidx.compose.material3.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -68,6 +67,7 @@ import com.bumptech.glide.integration.compose.placeholder
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumDetailScreen(snackbarHostState: SnackbarHostState, albumId: Int, navController: NavHostController) {
     val viewModel: AlbumViewModel = viewModel(
@@ -112,22 +112,22 @@ fun AlbumDetailScreen(snackbarHostState: SnackbarHostState, albumId: Int, navCon
         null
     )
 
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = isRefreshing,
-        onRefresh = { viewModel.onRefresh() }
-    )
+    val pullRefreshState = rememberPullToRefreshState()
+    //    refreshing = isRefreshing,
+    //    onRefresh = { viewModel.onRefresh() }
+    //)
 
     val isCollector = user?.type == UserType.Collector
 
-    Box(Modifier.pullRefresh(pullRefreshState)) {
+    Box(/*Modifier.pullRefresh(pullRefreshState)*/) {
         album?.let { AlbumDetail(it, performers, tracks, comments, isCollector, navController) }
 
-        PullRefreshIndicator(
+        /*PullRefreshIndicator(
             refreshing = isRefreshing,
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter),
 
-        )
+        )*/
     }
 
     if (error is ErrorUiState.Error) {

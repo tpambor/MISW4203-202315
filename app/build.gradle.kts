@@ -1,8 +1,8 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("com.google.devtools.ksp")
-    id("org.sonarqube") version "4.4.1.3373"
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.google.devtools.ksp)
+    id("org.sonarqube") version "5.1.0.4882"
 }
 
 android {
@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "co.edu.uniandes.misw4203.equipo11.vinilos"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 3
         versionName = "3.0"
@@ -29,25 +29,23 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
         }
         debug {
             enableUnitTestCoverage = true
         }
     }
     compileOptions {
-        isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "1.8"
     }
     buildFeatures {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.4"
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
     packaging {
         resources {
@@ -76,62 +74,39 @@ ksp {
 }
 
 dependencies {
-    val coreVersion = "1.12.0"
-    val lifecycleVersion = "2.6.2"
-    val activityVersion = "1.8.1"
-    val navVersion = "2.7.5"
-    val testJunitVersion = "1.1.5"
-    val composeBomVersion = "2023.10.01"
-    val roomVersion = "2.6.1"
-    val fakerVersion = "1.15.0"
-    val mockkVersion = "1.13.8"
-    val datastoreVersion = "1.0.0"
-    val junitVersion = "4.13.2"
-    val coroutinesTestVersion = "1.7.3"
-    val glideVersion = "5.0.0-rc01"
-    val glideComposeVersion = "1.0.0-beta01"
-    val volleyVersion = "1.2.1"
-    val gsonVersion = "2.10.1"
-    val desugarVersion = "2.0.4"
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.bumptech.glide)
+    implementation(libs.bumptech.glide.compose)
+    implementation(libs.android.volley)
+    implementation(libs.google.gson)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
 
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:$desugarVersion")
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 
-    implementation("androidx.core:core-ktx:$coreVersion")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
-    implementation("androidx.activity:activity-compose:$activityVersion")
-    implementation(platform("androidx.compose:compose-bom:$composeBomVersion"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.navigation:navigation-compose:$navVersion")
-    implementation("androidx.datastore:datastore-preferences:$datastoreVersion")
-    implementation("me.omico.compose:compose-material3-pullrefresh")
-    implementation("com.github.bumptech.glide:glide:$glideVersion")
-    implementation("com.github.bumptech.glide:compose:$glideComposeVersion")
-    implementation("com.android.volley:volley:$volleyVersion")
-    implementation("com.google.code.gson:gson:$gsonVersion")
-    implementation("androidx.room:room-runtime:$roomVersion")
-    implementation("androidx.room:room-ktx:$roomVersion")
+    annotationProcessor(libs.androidx.room.compiler)
 
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    ksp(libs.bumptech.glide.ksp)
+    ksp(libs.androidx.room.compiler)
 
-    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlin.faker)
 
-    ksp("com.github.bumptech.glide:ksp:$glideVersion")
-    ksp("androidx.room:room-compiler:$roomVersion")
-
-    testImplementation("io.github.serpro69:kotlin-faker:$fakerVersion")
-    testImplementation("io.mockk:mockk:$mockkVersion")
-    testImplementation("junit:junit:$junitVersion")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesTestVersion")
-
-    androidTestImplementation("androidx.test.ext:junit:$testJunitVersion")
-    androidTestImplementation("androidx.test.ext:junit-ktx:$testJunitVersion")
-    androidTestImplementation(platform("androidx.compose:compose-bom:$composeBomVersion"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
 }

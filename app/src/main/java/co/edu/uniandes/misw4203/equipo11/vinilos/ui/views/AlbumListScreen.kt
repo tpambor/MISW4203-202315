@@ -25,9 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.pullrefresh.PullRefreshIndicator
-import androidx.compose.material3.pullrefresh.pullRefresh
-import androidx.compose.material3.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -69,6 +67,7 @@ import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
 import java.time.Instant
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
     val viewModel: AlbumListViewModel = viewModel(
@@ -87,20 +86,20 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHost
         ErrorUiState.NoError
     )
 
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = isRefreshing,
-        onRefresh = { viewModel.onRefresh() }
-    )
+    val pullRefreshState = rememberPullToRefreshState()
+    //    refreshing = isRefreshing,
+    //    onRefresh = { viewModel.onRefresh() }
+    //)
 
-    Box(Modifier.pullRefresh(pullRefreshState)
-        .semantics { this.contentDescription = "Lista de Álbumes" }) {
+    Box(/*Modifier.pullRefresh(pullRefreshState)*/
+        Modifier.semantics { this.contentDescription = "Lista de Álbumes" }) {
         AlbumList(albums, navController)
 
-        PullRefreshIndicator(
+        /*PullRefreshIndicator(
             refreshing = isRefreshing,
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter)
-        )
+        )*/
     }
 
     if (error is ErrorUiState.Error) {
