@@ -65,8 +65,8 @@ task<JacocoReport>("codeCoverageReportDebug") {
     }
 
     sourceDirectories.setFrom("${project.projectDir}/src/main/java")
-    classDirectories.setFrom("${project.buildDir}/tmp/kotlin-classes/debug")
-    executionData.setFrom("${project.buildDir}/outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
+    classDirectories.setFrom("${project.layout.buildDirectory}/tmp/kotlin-classes/debug")
+    executionData.setFrom("${project.layout.buildDirectory}/outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
 }
 
 ksp {

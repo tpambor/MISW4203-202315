@@ -22,6 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
@@ -128,12 +130,24 @@ private fun PerformerDetailScreen(viewModel: PerformerViewModel, snackbarHostSta
     )
 
     val pullRefreshState = rememberPullToRefreshState()
-    //    refreshing = isRefreshing,
-    //    onRefresh = { viewModel.onRefresh() }
-    //)
+
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing && !pullRefreshState.isRefreshing) {
+            pullRefreshState.startRefresh()
+        }
+        else if (!isRefreshing && pullRefreshState.isRefreshing) {
+            pullRefreshState.endRefresh()
+        }
+    }
+
+    if (pullRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            viewModel.onRefresh()
+        }
+    }
 
     val isCollector = user?.type == UserType.Collector
-    Box(/*Modifier.pullRefresh(pullRefreshState)*/) {
+    Box(Modifier.nestedScroll(pullRefreshState.nestedScrollConnection)) {
 
         Column(
             modifier = Modifier.padding(8.dp)
@@ -150,11 +164,10 @@ private fun PerformerDetailScreen(viewModel: PerformerViewModel, snackbarHostSta
             }
         }
 
-        /*PullRefreshIndicator(
-            refreshing = isRefreshing,
-            state = pullRefreshState,
-            modifier = Modifier.align(Alignment.TopCenter)
-        )*/
+        PullToRefreshContainer(
+            modifier = Modifier.align(Alignment.TopCenter),
+            state = pullRefreshState
+        )
     }
 
     if (error is ErrorUiState.Error) {

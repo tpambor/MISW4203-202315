@@ -15,12 +15,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -80,22 +82,33 @@ fun CollectorListScreen(snackbarHostState: SnackbarHostState, navController: Nav
     val userId = if (user?.type == UserType.Collector) user?.id else null
 
     val pullRefreshState = rememberPullToRefreshState()
-    //    refreshing = isRefreshing,
-    //    onRefresh = { viewModel.onRefresh() }
-    //)
+
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing && !pullRefreshState.isRefreshing) {
+            pullRefreshState.startRefresh()
+        }
+        else if (!isRefreshing && pullRefreshState.isRefreshing) {
+            pullRefreshState.endRefresh()
+        }
+    }
+
+    if (pullRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            viewModel.onRefresh()
+        }
+    }
 
     Box(
         modifier = Modifier
-            /*.pullRefresh(pullRefreshState)*/
+            .nestedScroll(pullRefreshState.nestedScrollConnection)
             .semantics { this.contentDescription = "Lista de coleccionistas" }
     ) {
         CollectorList(collectors, navController, userId)
 
-        /*PullRefreshIndicator(
-            refreshing = isRefreshing,
-            state = pullRefreshState,
-            modifier = Modifier.align(Alignment.TopCenter)
-        )*/
+        PullToRefreshContainer(
+            modifier = Modifier.align(Alignment.TopCenter),
+            state = pullRefreshState
+        )
     }
 
     if (error is ErrorUiState.Error) {
