@@ -55,11 +55,9 @@ import androidx.navigation.compose.rememberNavController
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.AlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.UserRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel
-import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel.Companion.KEY_ALBUM_REPOSITORY
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
 import com.bumptech.glide.integration.compose.CrossFade
@@ -73,10 +71,7 @@ import java.time.Instant
 @Composable
 fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
     val viewModel: AlbumListViewModel = viewModel(
-        factory = AlbumListViewModel.Factory,
-        extras = MutableCreationExtras(CreationExtras.Empty).apply {
-            set(KEY_ALBUM_REPOSITORY, AlbumRepository())
-        }
+        factory = AlbumListViewModel.Factory
     )
     val albums by viewModel.albums.collectAsStateWithLifecycle(
         emptyList()

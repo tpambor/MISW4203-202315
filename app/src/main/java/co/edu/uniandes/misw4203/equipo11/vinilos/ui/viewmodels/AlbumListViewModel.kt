@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
+import org.koin.java.KoinJavaComponent.getKoin
 
 class AlbumListViewModel(
     private val albumRepository: IAlbumRepository,
@@ -71,13 +72,13 @@ class AlbumListViewModel(
 
     // ViewModel factory
     companion object {
-        val KEY_ALBUM_REPOSITORY = object : CreationExtras.Key<IAlbumRepository> {}
         val KEY_DISPATCHER = object : CreationExtras.Key<CoroutineDispatcher> {}
 
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
+                val koin = getKoin()
                 AlbumListViewModel(
-                    albumRepository = requireNotNull(this[KEY_ALBUM_REPOSITORY]),
+                    albumRepository = koin.get(),
                     dispatcher = this[KEY_DISPATCHER] ?: Dispatchers.IO
                 )
             }

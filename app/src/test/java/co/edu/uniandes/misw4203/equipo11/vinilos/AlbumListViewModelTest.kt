@@ -18,15 +18,22 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.module
+import org.koin.test.KoinTest
 import java.time.Instant
 
-class AlbumListViewModelTest {
+class AlbumListViewModelTest : KoinTest {
     class FakeAlbumRepository: IAlbumRepository {
         private val flow = MutableSharedFlow<List<Album>>()
         suspend fun emit(value: List<Album>) = flow.emit(value)
@@ -85,17 +92,26 @@ class AlbumListViewModelTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
+
+        startKoin {
+            modules(
+                module {
+                    singleOf(::FakeAlbumRepository) { bind<IAlbumRepository>() }
+                }
+            )
+        }
+    }
+
+    @After
+    fun after() {
+        stopKoin()
     }
 
     @Test
     fun canCreate() {
-        val repository = FakeAlbumRepository()
-
         val viewModel = AlbumListViewModel.Factory.create(
             AlbumListViewModel::class.java,
-            MutableCreationExtras(CreationExtras.Empty).apply {
-                set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
-            }
+            CreationExtras.Empty
         )
 
         assertNotNull(viewModel)
@@ -103,12 +119,9 @@ class AlbumListViewModelTest {
 
     @Test
     fun canCreateWithDispatcher() {
-        val repository = FakeAlbumRepository()
-
         val viewModel = AlbumListViewModel.Factory.create(
             AlbumListViewModel::class.java,
             MutableCreationExtras(CreationExtras.Empty).apply {
-                set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
                 set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
             }
         )
@@ -120,15 +133,7 @@ class AlbumListViewModelTest {
     @Test
     fun listsAlbums() = runTest {
         val repository = FakeAlbumRepository()
-
-        val viewModel = AlbumListViewModel.Factory.create(
-            AlbumListViewModel::class.java,
-            MutableCreationExtras(CreationExtras.Empty).apply {
-                set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
-                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
-            }
-        )
-
+        val viewModel = AlbumListViewModel(repository, Dispatchers.Main)
         val faker = Faker()
 
         val data = (1..4).map { id ->
@@ -158,14 +163,7 @@ class AlbumListViewModelTest {
     @Test
     fun refreshSuccess() = runTest {
         val repository = FakeAlbumRepository()
-
-        val viewModel = AlbumListViewModel.Factory.create(
-            AlbumListViewModel::class.java,
-            MutableCreationExtras(CreationExtras.Empty).apply {
-                set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
-                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
-            }
-        )
+        val viewModel = AlbumListViewModel(repository, Dispatchers.Main)
 
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
         repository.failRefresh = false
@@ -179,14 +177,7 @@ class AlbumListViewModelTest {
     @Test
     fun refreshFail() = runTest {
         val repository = FakeAlbumRepository()
-
-        val viewModel = AlbumListViewModel.Factory.create(
-            AlbumListViewModel::class.java,
-            MutableCreationExtras(CreationExtras.Empty).apply {
-                set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
-                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
-            }
-        )
+        val viewModel = AlbumListViewModel(repository, Dispatchers.Main)
 
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
         repository.failRefresh = true
