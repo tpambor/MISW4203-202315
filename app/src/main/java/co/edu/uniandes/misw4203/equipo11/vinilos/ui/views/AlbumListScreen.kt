@@ -65,14 +65,14 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
+import org.koin.androidx.compose.koinViewModel
 import java.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
-    val viewModel: AlbumListViewModel = viewModel(
-        factory = AlbumListViewModel.Factory
-    )
+    val viewModel: AlbumListViewModel = koinViewModel()
+
     val albums by viewModel.albums.collectAsStateWithLifecycle(
         emptyList()
     )
@@ -120,7 +120,7 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHost
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun AlbumItem(album: Album, onClick: () -> Unit) {
     var coverPreview: Placeholder? = null

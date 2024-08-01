@@ -138,7 +138,7 @@ class PerformerListViewModel(
     }
 
     fun addFavoriteMusician(performerId: Int) {
-        _updatingFavoritePerformers.value = _updatingFavoritePerformers.value + performerId
+        _updatingFavoritePerformers.value += performerId
 
         viewModelScope.launch(dispatcher) {
             val collector = user.await()
@@ -153,12 +153,12 @@ class PerformerListViewModel(
                 _error.value = ErrorUiState.Error(R.string.network_error)
             }
 
-            _updatingFavoritePerformers.value = _updatingFavoritePerformers.value - performerId
+            _updatingFavoritePerformers.value -= performerId
         }
     }
 
     fun addFavoriteBand(performerId: Int) {
-        _updatingFavoritePerformers.value = _updatingFavoritePerformers.value + performerId
+        _updatingFavoritePerformers.value += performerId
 
         viewModelScope.launch(dispatcher) {
             val collector = user.await()
@@ -173,12 +173,12 @@ class PerformerListViewModel(
                 _error.value = ErrorUiState.Error(R.string.network_error)
             }
 
-            _updatingFavoritePerformers.value = _updatingFavoritePerformers.value - performerId
+            _updatingFavoritePerformers.value -= performerId
         }
     }
 
     fun removeFavoriteMusician(performerId: Int) {
-        _updatingFavoritePerformers.value = _updatingFavoritePerformers.value + performerId
+        _updatingFavoritePerformers.value += performerId
 
         viewModelScope.launch(dispatcher) {
             val collector = user.await()
@@ -193,12 +193,12 @@ class PerformerListViewModel(
                 _error.value = ErrorUiState.Error(R.string.network_error)
             }
 
-            _updatingFavoritePerformers.value = _updatingFavoritePerformers.value - performerId
+            _updatingFavoritePerformers.value -= performerId
         }
     }
 
     fun removeFavoriteBand(performerId: Int) {
-        _updatingFavoritePerformers.value = _updatingFavoritePerformers.value + performerId
+        _updatingFavoritePerformers.value += performerId
 
         viewModelScope.launch(dispatcher) {
             val collector = user.await()
@@ -213,7 +213,7 @@ class PerformerListViewModel(
                 _error.value = ErrorUiState.Error(R.string.network_error)
             }
 
-            _updatingFavoritePerformers.value = _updatingFavoritePerformers.value - performerId
+            _updatingFavoritePerformers.value -= performerId
         }
     }
 
