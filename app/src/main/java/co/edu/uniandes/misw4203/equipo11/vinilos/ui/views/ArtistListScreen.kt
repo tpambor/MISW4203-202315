@@ -32,9 +32,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.pullrefresh.PullRefreshIndicator
-import androidx.compose.material3.pullrefresh.pullRefresh
-import androidx.compose.material3.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
@@ -79,6 +79,7 @@ import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
 import java.time.Instant
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArtistListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
     val userRepository = UserRepository()
@@ -131,17 +132,27 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState, navController: NavHos
 
     var tabIndex by rememberSaveable { mutableIntStateOf(0) }
 
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = isRefreshing,
-        onRefresh = {
-                when(tabIndex) {
+    val pullRefreshState = rememberPullToRefreshState()
+
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing && !pullRefreshState.isRefreshing) {
+            pullRefreshState.startRefresh()
+        }
+        else if (!isRefreshing && pullRefreshState.isRefreshing) {
+            pullRefreshState.endRefresh()
+        }
+    }
+
+    if (pullRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            when(tabIndex) {
                 0 -> viewModel.onRefreshMusicians()
                 1 -> viewModel.onRefreshBands()
             }
         }
-    )
+    }
 
-    Box(Modifier.pullRefresh(pullRefreshState)) {
+    Box(Modifier.nestedScroll(pullRefreshState.nestedScrollConnection)) {
         Column {
             TabRow(selectedTabIndex = tabIndex) {
                 tabs.forEachIndexed { index, title ->
@@ -177,10 +188,9 @@ fun ArtistListScreen(snackbarHostState: SnackbarHostState, navController: NavHos
             }
         }
 
-        PullRefreshIndicator(
-            refreshing = isRefreshing,
-            state = pullRefreshState,
-            modifier = Modifier.align(Alignment.TopCenter)
+        PullToRefreshContainer(
+            modifier = Modifier.align(Alignment.TopCenter),
+            state = pullRefreshState
         )
     }
 

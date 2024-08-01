@@ -18,12 +18,12 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.pullrefresh.PullRefreshIndicator
-import androidx.compose.material3.pullrefresh.pullRefresh
-import androidx.compose.material3.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
@@ -97,6 +98,7 @@ fun BandDetailScreen(snackbarHostState: SnackbarHostState, artistId: Int, navCon
     PerformerDetailScreen(viewModel, snackbarHostState, navController)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PerformerDetailScreen(viewModel: PerformerViewModel, snackbarHostState: SnackbarHostState, navController: NavHostController) {
     val userRepository = UserRepository()
@@ -127,13 +129,25 @@ private fun PerformerDetailScreen(viewModel: PerformerViewModel, snackbarHostSta
         null
     )
 
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = isRefreshing,
-        onRefresh = { viewModel.onRefresh() }
-    )
+    val pullRefreshState = rememberPullToRefreshState()
+
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing && !pullRefreshState.isRefreshing) {
+            pullRefreshState.startRefresh()
+        }
+        else if (!isRefreshing && pullRefreshState.isRefreshing) {
+            pullRefreshState.endRefresh()
+        }
+    }
+
+    if (pullRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            viewModel.onRefresh()
+        }
+    }
 
     val isCollector = user?.type == UserType.Collector
-    Box(Modifier.pullRefresh(pullRefreshState)) {
+    Box(Modifier.nestedScroll(pullRefreshState.nestedScrollConnection)) {
 
         Column(
             modifier = Modifier.padding(8.dp)
@@ -150,10 +164,9 @@ private fun PerformerDetailScreen(viewModel: PerformerViewModel, snackbarHostSta
             }
         }
 
-        PullRefreshIndicator(
-            refreshing = isRefreshing,
-            state = pullRefreshState,
-            modifier = Modifier.align(Alignment.TopCenter)
+        PullToRefreshContainer(
+            modifier = Modifier.align(Alignment.TopCenter),
+            state = pullRefreshState
         )
     }
 

@@ -25,9 +25,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.pullrefresh.PullRefreshIndicator
-import androidx.compose.material3.pullrefresh.pullRefresh
-import androidx.compose.material3.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
@@ -69,6 +69,7 @@ import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
 import java.time.Instant
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
     val viewModel: AlbumListViewModel = viewModel(
@@ -87,19 +88,32 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHost
         ErrorUiState.NoError
     )
 
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = isRefreshing,
-        onRefresh = { viewModel.onRefresh() }
-    )
+    val pullRefreshState = rememberPullToRefreshState()
 
-    Box(Modifier.pullRefresh(pullRefreshState)
-        .semantics { this.contentDescription = "Lista de Álbumes" }) {
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing && !pullRefreshState.isRefreshing) {
+            pullRefreshState.startRefresh()
+        }
+        else if (!isRefreshing && pullRefreshState.isRefreshing) {
+            pullRefreshState.endRefresh()
+        }
+    }
+
+    if (pullRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            viewModel.onRefresh()
+        }
+    }
+
+    Box(
+        Modifier
+            .nestedScroll(pullRefreshState.nestedScrollConnection)
+            .semantics { this.contentDescription = "Lista de Álbumes" }) {
         AlbumList(albums, navController)
 
-        PullRefreshIndicator(
-            refreshing = isRefreshing,
-            state = pullRefreshState,
-            modifier = Modifier.align(Alignment.TopCenter)
+        PullToRefreshContainer(
+            modifier = Modifier.align(Alignment.TopCenter),
+            state = pullRefreshState
         )
     }
 
@@ -170,7 +184,9 @@ fun AlbumList(albums: List<Album>, navController: NavHostController) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Box(
                     contentAlignment = Alignment.BottomCenter,
-                    modifier = Modifier.heightIn(100.dp).fillMaxSize()
+                    modifier = Modifier
+                        .heightIn(100.dp)
+                        .fillMaxSize()
                 ) {
                     Text(text = stringResource(R.string.empty_albums_list))
                 }
