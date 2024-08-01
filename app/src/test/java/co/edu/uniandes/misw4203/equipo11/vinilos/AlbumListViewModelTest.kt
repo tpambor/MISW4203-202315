@@ -1,7 +1,5 @@
 package co.edu.uniandes.misw4203.equipo11.vinilos
 
-import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.lifecycle.viewmodel.MutableCreationExtras
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Comment
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Performer
@@ -15,14 +13,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Test
 import java.time.Instant
 
@@ -82,53 +76,10 @@ class AlbumListViewModelTest {
         }
     }
 
-    @Before
-    fun setUp() {
-        Dispatchers.setMain(UnconfinedTestDispatcher())
-    }
-
-    @Test
-    fun canCreate() {
-        val repository = FakeAlbumRepository()
-
-        val viewModel = AlbumListViewModel.Factory.create(
-            AlbumListViewModel::class.java,
-            MutableCreationExtras(CreationExtras.Empty).apply {
-                set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
-            }
-        )
-
-        assertNotNull(viewModel)
-    }
-
-    @Test
-    fun canCreateWithDispatcher() {
-        val repository = FakeAlbumRepository()
-
-        val viewModel = AlbumListViewModel.Factory.create(
-            AlbumListViewModel::class.java,
-            MutableCreationExtras(CreationExtras.Empty).apply {
-                set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
-                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
-            }
-        )
-
-        assertNotNull(viewModel)
-    }
-
-
     @Test
     fun listsAlbums() = runTest {
         val repository = FakeAlbumRepository()
-
-        val viewModel = AlbumListViewModel.Factory.create(
-            AlbumListViewModel::class.java,
-            MutableCreationExtras(CreationExtras.Empty).apply {
-                set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
-                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
-            }
-        )
-
+        val viewModel = AlbumListViewModel(repository, Dispatchers.Main)
         val faker = Faker()
 
         val data = (1..4).map { id ->
@@ -158,14 +109,7 @@ class AlbumListViewModelTest {
     @Test
     fun refreshSuccess() = runTest {
         val repository = FakeAlbumRepository()
-
-        val viewModel = AlbumListViewModel.Factory.create(
-            AlbumListViewModel::class.java,
-            MutableCreationExtras(CreationExtras.Empty).apply {
-                set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
-                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
-            }
-        )
+        val viewModel = AlbumListViewModel(repository, Dispatchers.Main)
 
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
         repository.failRefresh = false
@@ -179,14 +123,7 @@ class AlbumListViewModelTest {
     @Test
     fun refreshFail() = runTest {
         val repository = FakeAlbumRepository()
-
-        val viewModel = AlbumListViewModel.Factory.create(
-            AlbumListViewModel::class.java,
-            MutableCreationExtras(CreationExtras.Empty).apply {
-                set(AlbumListViewModel.KEY_ALBUM_REPOSITORY, repository)
-                set(AlbumListViewModel.KEY_DISPATCHER, Dispatchers.Main)
-            }
-        )
+        val viewModel = AlbumListViewModel(repository, Dispatchers.Main)
 
         assertEquals(ErrorUiState.NoError, viewModel.error.first())
         repository.failRefresh = true

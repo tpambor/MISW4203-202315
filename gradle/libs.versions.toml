@@ -3,10 +3,10 @@ agp = "8.5.1"
 kotlin = "1.9.24"
 coreKtx = "1.13.1"
 junit = "4.13.2"
-junitVersion = "1.1.5"
-espressoCore = "3.5.1"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
 lifecycleRuntime = "2.8.4"
-activityCompose = "1.8.0"
+activityCompose = "1.9.1"
 composeBom = "2024.06.00"
 navigation = "2.7.7"
 room = "2.6.1"
@@ -19,6 +19,7 @@ glideCompose = "1.0.0-beta01"
 faker = "1.16.0"
 coroutinesTest = "1.8.1"
 mockk = "1.13.12"
+koin = "4.0.0-RC1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -48,7 +49,11 @@ bumptech-glide-ksp = { group = "com.github.bumptech.glide", name="ksp", version.
 bumptech-glide-compose = { group = "com.github.bumptech.glide", name="compose", version.ref = "glideCompose" }
 kotlin-faker = { group = "io.github.serpro69", name="kotlin-faker", version.ref = "faker" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name="kotlinx-coroutines-test", version.ref = "coroutinesTest" }
-mockk = { group = "io.mockk", name="mockk", version.ref = "mockk" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref="koin" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref="koin" }
+koin-test = { group = "io.insert-koin", name = "koin-test", version.ref="koin" }
+koin-test-junit4 = { group = "io.insert-koin", name = "koin-test-junit4", version.ref="koin" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -55,11 +55,9 @@ import androidx.navigation.compose.rememberNavController
 import co.edu.uniandes.misw4203.equipo11.vinilos.R
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.database.models.Album
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.datastore.models.UserType
-import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.AlbumRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.data.repositories.UserRepository
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.theme.VinilosTheme
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel
-import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.AlbumListViewModel.Companion.KEY_ALBUM_REPOSITORY
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.ErrorUiState
 import co.edu.uniandes.misw4203.equipo11.vinilos.ui.viewmodels.UserViewModel
 import com.bumptech.glide.integration.compose.CrossFade
@@ -67,17 +65,14 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.Placeholder
 import com.bumptech.glide.integration.compose.placeholder
+import org.koin.androidx.compose.koinViewModel
 import java.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHostController) {
-    val viewModel: AlbumListViewModel = viewModel(
-        factory = AlbumListViewModel.Factory,
-        extras = MutableCreationExtras(CreationExtras.Empty).apply {
-            set(KEY_ALBUM_REPOSITORY, AlbumRepository())
-        }
-    )
+    val viewModel: AlbumListViewModel = koinViewModel()
+
     val albums by viewModel.albums.collectAsStateWithLifecycle(
         emptyList()
     )
@@ -125,7 +120,7 @@ fun AlbumListScreen(snackbarHostState: SnackbarHostState, navController: NavHost
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun AlbumItem(album: Album, onClick: () -> Unit) {
     var coverPreview: Placeholder? = null

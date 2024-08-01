@@ -119,7 +119,6 @@ fun CollectorListScreen(snackbarHostState: SnackbarHostState, navController: Nav
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CollectorItem(collector: CollectorWithPerformers, navController: NavHostController, testTag: String) {
     ElevatedCard(

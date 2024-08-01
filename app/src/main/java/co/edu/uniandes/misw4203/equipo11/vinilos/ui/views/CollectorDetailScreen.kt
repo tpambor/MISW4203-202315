@@ -191,7 +191,7 @@ private fun FavoritePerformersList(performers: List<Performer>, navController: N
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 private fun CollectorAlbumItem(album: CollectorAlbum, navController: NavHostController) {
     ElevatedCard(

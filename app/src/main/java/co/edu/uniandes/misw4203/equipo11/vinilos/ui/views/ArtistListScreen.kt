@@ -243,7 +243,7 @@ private fun FavoriteButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun ArtistItem(
     performer: Performer,
